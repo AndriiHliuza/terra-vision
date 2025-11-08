@@ -1,0 +1,54 @@
+@import url('https://fonts.googleapis.com/css2?family=Rubik+Distressed&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+:root {
+    /* CSS variables */
+    --global-text-color: rgba(255, 255, 255, 0.87);
+    --global-bg-color: #242424;
+
+    --border-radius-px: 30px;
+
+    --glass-bg-color: rgba(255, 255, 255, 0.1);
+    --glass-border-color: rgba(255, 255, 255, 0.2);
+    --glass-blur-px: 5px;
+
+    --glass-hover-bg-color: rgba(0, 0, 0, 0.4);
+    --glass-hover-border-bg-color: rgba(245, 245, 245, 0.2);
+
+    --font-size-xxl: clamp(10px, 8vw, 90px);
+
+    --section-info-1: darkslategrey;
+    --section-controls-1: rgba(106, 164, 248, 0.4);
+
+    --section-info-2: #807878;
+    --section-controls-2: rgba(162, 199, 251, 0.4);
+
+    --section-info-3: #5c8571;
+    --section-controls-3: rgb(50, 50, 50);
+
+
+    --map-page-text-color: #242424;
+
+    /* Base styles */
+    font-family: "Rubik Distressed", "Poppins", system-ui, Avenir, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
+
+    color-scheme: light dark;
+    color: var(--global-text-color);
+    background-color: var(--global-bg-color);
+
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    text-align: center;
+}
+
+body {
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

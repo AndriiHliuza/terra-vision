@@ -1,0 +1,41 @@
+.back-to-top-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 130px;
+    height: 60px;
+
+    background: var(--glass-bg-color);
+
+    border: 1px solid var(--glass-bg-color);
+    border-radius: var(--border-radius-px);
+
+    backdrop-filter: blur(var(--glass-blur-px));
+    -webkit-backdrop-filter: blur(var(--glass-blur-px));
+
+    z-index: 1000;
+
+    transition: all 0.3s ease;
+
+    cursor: pointer;
+}
+
+.back-to-top-btn:hover {
+    background: var(--glass-hover-bg-color);
+    border: 1px solid var(--glass-hover-border-bg-color);
+
+    transform: scale(1.1);
+}
+
+.back-to-top-btn.hide {
+    transform: translateX(200px); /* ховаємо вправо */
+}
+
+.back-to-top-btn:active {
+    transform: scale(0.7);
+}

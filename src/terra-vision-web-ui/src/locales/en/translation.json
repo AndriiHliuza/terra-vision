@@ -1,0 +1,34 @@
+{
+  "header": {
+    "home": "Home",
+    "about": "About",
+    "map": "Map",
+    "languages": {
+      "en": {
+        "fullName": "English",
+        "shortName": "EN"
+      },
+      "ua": {
+        "fullName": "Ukrainian",
+        "shortName": "UA"
+      }
+    }
+  },
+  "home": {
+    "main": {
+      "welcome": "Welcome",
+      "section-1": {
+      },
+      "section-2": {
+      },
+      "section-3": {
+      }
+    }
+  },
+  "footer": {
+    "about": "About",
+    "projectName": "Project name",
+    "developedBy": "Developed by"
+  },
+  "backToTop": "Back to Top"
+}

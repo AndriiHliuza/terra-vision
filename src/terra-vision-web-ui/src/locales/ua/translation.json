@@ -1,0 +1,35 @@
+{
+  "header": {
+    "home": "Головна",
+    "about": "Про нас",
+    "map": "Карта",
+    "languages": {
+      "en": {
+        "fullName": "Англійська",
+        "shortName": "АНГЛ"
+      },
+      "ua": {
+        "fullName": "Українська",
+        "shortName": "УКР"
+      }
+    }
+  },
+  "home": {
+    "main": {
+      "welcome": "Ласкаво просимо",
+      "section-1": {
+      },
+      "section-2": {
+      },
+      "section-3": {
+      }
+    }
+  },
+  "footer": {
+    "about": "Детальніше про нас",
+    "projectName": "Назва проекту",
+    "developedBy": "Розробник"
+  },
+  "backToTop": "На початок"
+}
+

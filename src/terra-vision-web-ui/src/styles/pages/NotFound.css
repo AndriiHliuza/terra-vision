@@ -1,0 +1,22 @@
+#not-found-page {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+
+    width: 100%;
+}
+
+#not-found-page > img {
+    max-height: 200px;
+    width: 50%;
+}
+
+#not-found-page > .not-found-h1 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: var(--font-size-xxl);
+}
