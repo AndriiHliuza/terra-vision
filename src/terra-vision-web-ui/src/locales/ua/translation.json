@@ -1,7 +1,7 @@
 {
   "header": {
     "home": "Головна",
-    "about": "Про нас",
+    "landmineDetectionService": "Детектор мін",
     "map": "Карта",
     "languages": {
       "en": {
@@ -17,16 +17,31 @@
   "home": {
     "main": {
       "welcome": "Ласкаво просимо",
+      "section": {
+        "section-controls": {
+          "try-service-link-text": "Скористатись сервісом"
+        }
+      },
       "section-1": {
+        "section-info": {
+          "service-title": "Детектор мін"
+        },
+        "section-controls": {
+          "section-description": "Система виявлення наземних мін, яка використовує тепловізійні (інфрачервоні) зображення та технології комп'ютерного зору."
+        }
       },
       "section-2": {
-      },
-      "section-3": {
+        "section-info": {
+          "service-title": "Мапа замінованості"
+        },
+        "section-controls": {
+          "section-description": "Інтерактивна мапа з позначенням замінованості території."
+        }
       }
     }
   },
   "footer": {
-    "about": "Детальніше про нас",
+    "about": "Детальніше",
     "projectName": "Назва проекту",
     "developedBy": "Розробник"
   },

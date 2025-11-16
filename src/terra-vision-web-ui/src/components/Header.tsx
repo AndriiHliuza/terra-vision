@@ -1,4 +1,4 @@
-import '../styles/components/Header.css'
+import '../styles/components/header/Header.css'
 import {useEffect, useRef, useState} from "react";
 import {NavLink} from "react-router-dom";
 import {ROUTES} from "../configs/settings.ts";
@@ -80,6 +80,7 @@ export default function Header() {
 
     const links = [
         {to: ROUTES.home, label: t("header.home")},
+        {to: ROUTES.landmineDetectionService, label: t("header.landmineDetectionService")},
         {to: ROUTES.map, label: t("header.map")},
     ];
 

@@ -1,9 +1,9 @@
-.map-page {
+#map-page {
     color: var(--map-page-text-color);
 }
 
 
-.map-page .leaflet-container {
+#map-page .leaflet-container {
     position: fixed;
     top: 0;
     left: 0;

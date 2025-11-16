@@ -1,3 +1,4 @@
+/* Main Header styles */
 header {
     display: flex;
     justify-content: center;
@@ -21,7 +22,7 @@ header > #logo {
 
     border-radius: 50px;
 
-    transition: box-shadow 0.3s ease, transform 1s ease;
+    transition: transform 1s ease;
 }
 
 header > #logo.hide-header {
@@ -102,6 +103,7 @@ header .nav-menu-item {
 header .nav-menu-item > hr {
     height: 70%;
     border: 1px solid var(--glass-border-color);
+    border-radius: 50px;
 }
 
 header .nav-menu-item > a {
@@ -114,21 +116,19 @@ header .nav-menu-item > a {
 
     border-radius: var(--border-radius-px);
 
-    transition: box-shadow 0.3s ease,
-                text-shadow 0.3s ease,
+    transition: text-shadow 0.3s ease,
                 transform 0.3s ease,
                 background-color 0.1s ease;
 }
 
 header .nav-menu-item > a:hover {
-    box-shadow: 0 0 20px rgb(50, 50, 50, 0.7), 0 0 40px rgb(50, 50, 50, 0.7);
-    text-shadow: 0 0 8px rgb(186, 205, 251), 0 0 16px rgb(186, 205, 251);
+    text-shadow: 0 0 8px whitesmoke, 0 0 16px whitesmoke;
 
     transform: scale(1.17);
 
-    background-color: var(--glass-hover-bg-color);
+    border: 1px solid var(--glass-border-color);
 
-    border: 1px solid var(--glass-hover-border-bg-color);
+    background-color: var(--glass-hover-bg-color);
 }
 
 header .nav-menu-item > a:active {
@@ -136,21 +136,15 @@ header .nav-menu-item > a:active {
 }
 
 header .nav-menu-item > a.active-nav-link {
-    box-shadow: 0 0 2px rgb(50, 50, 50, 0.7), 0 0 5px rgb(50, 50, 50, 0.7);
     text-decoration: underline;
 
     transform: scale(1.09);
 
-    border: 1px solid rgba(245, 245, 245, 0.1);
+    border: 1px solid var(--glass-border-color);
 }
 
 header .nav-menu-item > a.active-nav-link:hover {
-    box-shadow: 0 0 20px rgb(50, 50, 50, 0.7), 0 0 40px rgb(50, 50, 50, 0.7);
-    text-shadow: 0 0 8px rgb(186, 205, 251), 0 0 16px rgb(186, 205, 251);
-
     transform: scale(1.17);
-
-    border: 1px solid rgba(245, 245, 245, 0.3);
 }
 
 header .nav-menu-item > a.active-nav-link:active {
@@ -188,7 +182,7 @@ header #language-controls-btn {
 
     background: var(--glass-bg-color);
 
-    border: 1px solid var(--glass-bg-color);
+    border: 1px solid var(--glass-border-color);
     border-radius: var(--border-radius-px);
 
     backdrop-filter: blur(var(--glass-blur-px));
@@ -198,13 +192,10 @@ header #language-controls-btn {
 }
 
 header > #header-controls > #language-controls:hover > #language-controls-btn {
-    box-shadow: 0 0 20px rgb(50, 50, 50, 0.7), 0 0 40px rgb(50, 50, 50, 0.7);
-    text-shadow: 0 0 8px rgb(186, 205, 251), 0 0 16px rgb(186, 205, 251);
+    text-shadow: 0 0 8px whitesmoke, 0 0 16px whitesmoke;
     transform: scale(1.05);
 
     background: var(--glass-hover-bg-color);
-
-    border: 1px solid var(--glass-hover-border-bg-color);
 
     backdrop-filter: blur(var(--glass-blur-px));
     -webkit-backdrop-filter: blur(var(--glass-blur-px));
@@ -260,7 +251,7 @@ header > #header-controls > #language-controls > #language-dropdown-menu > .lang
 
     background: var(--glass-bg-color);
 
-    border: 1px solid var(--glass-bg-color);
+    border: 1px solid var(--glass-border-color);
     border-radius: var(--border-radius-px);
 
     backdrop-filter: blur(var(--glass-blur-px));
@@ -270,12 +261,9 @@ header > #header-controls > #language-controls > #language-dropdown-menu > .lang
 }
 
 header > #header-controls > #language-controls > #language-dropdown-menu > .language-dropdown-item:hover {
-    box-shadow: 0 0 20px rgb(50, 50, 50, 0.7), 0 0 40px rgb(50, 50, 50, 0.7);
-    text-shadow: 0 0 8px rgb(186, 205, 251), 0 0 16px rgb(186, 205, 251);
+    text-shadow: 0 0 8px whitesmoke, 0 0 16px whitesmoke;
 
     background: var(--glass-hover-bg-color);
-    border: 1px solid var(--glass-hover-border-bg-color);
-
     transform: scale(1.1);
 }
 
@@ -300,7 +288,7 @@ header > #header-controls > #language-controls > #language-dropdown-menu > .lang
 
         background: var(--glass-bg-color);
 
-        border: 1px solid var(--glass-bg-color);
+        border: 1px solid var(--glass-border-color);
         border-radius: var(--border-radius-px);
 
         backdrop-filter: blur(var(--glass-blur-px));
@@ -313,7 +301,6 @@ header > #header-controls > #language-controls > #language-dropdown-menu > .lang
 
     header > #burger-btn:hover {
         background: var(--glass-hover-bg-color);
-        border: 1px solid var(--glass-hover-border-bg-color);
         transform: scale(1.1);
     }
 
@@ -403,14 +390,13 @@ header > #header-controls > #language-controls > #language-dropdown-menu > .lang
     }
 
     header .nav-menu-item > a.active-nav-link {
-        box-shadow: none;
         transform: none;
         border: none;
     }
 
     header .nav-menu-item > a.active-nav-link:hover {
         transform: scale(1.03);
-        border: 1px solid var(--glass-hover-border-bg-color);
+        border: 1px solid var(--glass-border-color);
     }
 
     header .nav-menu-item > a.active-nav-link:active {
@@ -473,5 +459,4 @@ header > #header-controls > #language-controls > #language-dropdown-menu > .lang
     header > #header-controls > #language-controls > #language-dropdown-menu > .language-dropdown-item:active {
         transform: scale(0.9);
     }
-
 }

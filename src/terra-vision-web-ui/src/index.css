@@ -9,14 +9,15 @@
     --border-radius-px: 30px;
 
     --glass-bg-color: rgba(255, 255, 255, 0.1);
-    --glass-border-color: rgba(255, 255, 255, 0.2);
+    --glass-border-color: rgba(245, 245, 245, 0.3);
     --glass-blur-px: 5px;
 
-    --glass-hover-bg-color: rgba(0, 0, 0, 0.4);
-    --glass-hover-border-bg-color: rgba(245, 245, 245, 0.2);
+    --glass-hover-bg-color: rgba(0, 0, 0, 0.5);
+    /*--glass-hover-border-bg-color: rgba(245, 245, 245, 0.3);*/
 
     --font-size-xxl: clamp(10px, 8vw, 90px);
 
+    /* Main page CSS variables */
     --section-info-1: darkslategrey;
     --section-controls-1: rgba(106, 164, 248, 0.4);
 
@@ -26,8 +27,11 @@
     --section-info-3: #5c8571;
     --section-controls-3: rgb(50, 50, 50);
 
-
+    /* Map page CSS variables */
     --map-page-text-color: #242424;
+    --map-page-header-bg-color: rgba(92, 133, 113, 0.5);
+    --map-page-header-glass-border-color: rgba(68, 103, 91, 0.5);
+    --map-page-header-language-controls-hover-bg-color: rgba(92, 133, 113, 0.75);
 
     /* Base styles */
     font-family: "Rubik Distressed", "Poppins", system-ui, Avenir, Helvetica, Arial, sans-serif;

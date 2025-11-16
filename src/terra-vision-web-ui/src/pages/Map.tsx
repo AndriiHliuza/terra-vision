@@ -1,6 +1,8 @@
 import "../styles/pages/Map.css"
+import "../styles/components/header/MapPageHeader.css"
 import {MapContainer, Marker, Popup, TileLayer, Tooltip, useMapEvents} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
+import Header from "../components/Header.tsx";
 
 function MapClickHandler() {
     useMapEvents({
@@ -14,9 +16,10 @@ function MapClickHandler() {
 function Map() {
 
     return (
-        <div className="map-page">
+        <div id="map-page">
+            <Header />
             <MapContainer
-                center={[50.4, 30.7]}
+                center={[48.4, 31]}
                 zoomControl={false}
                 zoom={6}
                 minZoom={2}

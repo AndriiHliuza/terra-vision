@@ -1,7 +1,7 @@
 {
   "header": {
     "home": "Home",
-    "about": "About",
+    "landmineDetectionService": "Landmine detector",
     "map": "Map",
     "languages": {
       "en": {
@@ -17,11 +17,26 @@
   "home": {
     "main": {
       "welcome": "Welcome",
+      "section": {
+        "section-controls": {
+          "try-service-link-text": "Try service"
+        }
+      },
       "section-1": {
+        "section-info": {
+          "service-title": "Landmine detector"
+        },
+        "section-controls": {
+          "section-description": "Landmine detection system that uses thermal (infrared) imaging and computer vision technologies."
+        }
       },
       "section-2": {
-      },
-      "section-3": {
+        "section-info": {
+          "service-title": "Landmine map"
+        },
+        "section-controls": {
+          "section-description": "Interactive map that shows the mined area."
+        }
       }
     }
   },
