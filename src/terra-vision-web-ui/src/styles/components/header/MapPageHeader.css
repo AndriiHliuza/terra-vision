@@ -1,7 +1,6 @@
 /* MapPage Header styles */
 
 #map-page > header > #header-controls > nav {
-    background: var(--map-page-header-bg-color);
     border: 2px solid var(--map-page-header-glass-border-color);
 }
 
@@ -18,27 +17,23 @@
 }
 
 #map-page > header #language-controls-btn {
-    background: var(--map-page-header-bg-color);
     border: 2px solid var(--map-page-header-glass-border-color);
 }
 
 #map-page > header > #header-controls > #language-controls:hover > #language-controls-btn {
-    background: var(--map-page-header-language-controls-hover-bg-color);
     border: 2px solid var(--map-page-header-glass-border-color);
 }
 
 #map-page > header > #header-controls > #language-controls > #language-dropdown-menu > .language-dropdown-item {
-    background: var(--map-page-header-bg-color);
     border: 2px solid var(--map-page-header-glass-border-color);
 }
 
-#map-page > header > #header-controls > #language-controls > #language-dropdown-menu > .language-dropdown-item:hover {
-    background: var(--map-page-header-language-controls-hover-bg-color);
-}
-
 @media (max-width: 768px) {
+    #map-page > header .nav-menu-item > a.active-nav-link {
+        border: none;
+    }
+
     #map-page > header > #burger-btn {
-        background: var(--map-page-header-bg-color);
         border: 2px solid var(--map-page-header-glass-border-color);
     }
 }

@@ -76,7 +76,7 @@ header > #header-controls > nav {
 
     background: var(--glass-bg-color);
 
-    border: 1px solid var(--glass-border-color);
+    border: 2px solid var(--glass-border-color);
     border-radius: var(--border-radius-px);
 
     backdrop-filter: blur(var(--glass-blur-px));
@@ -102,7 +102,7 @@ header .nav-menu-item {
 
 header .nav-menu-item > hr {
     height: 70%;
-    border: 1px solid var(--glass-border-color);
+    border: 1px solid var(--glass-stronger-border-color);
     border-radius: 50px;
 }
 
@@ -126,7 +126,7 @@ header .nav-menu-item > a:hover {
 
     transform: scale(1.17);
 
-    border: 1px solid var(--glass-border-color);
+    border: 1px solid var(--glass-stronger-border-color);
 
     background-color: var(--glass-hover-bg-color);
 }
@@ -140,7 +140,7 @@ header .nav-menu-item > a.active-nav-link {
 
     transform: scale(1.09);
 
-    border: 1px solid var(--glass-border-color);
+    border: 1px solid var(--glass-stronger-border-color);
 }
 
 header .nav-menu-item > a.active-nav-link:hover {
@@ -182,7 +182,7 @@ header #language-controls-btn {
 
     background: var(--glass-bg-color);
 
-    border: 1px solid var(--glass-border-color);
+    border: 2px solid var(--glass-border-color);
     border-radius: var(--border-radius-px);
 
     backdrop-filter: blur(var(--glass-blur-px));
@@ -251,7 +251,7 @@ header > #header-controls > #language-controls > #language-dropdown-menu > .lang
 
     background: var(--glass-bg-color);
 
-    border: 1px solid var(--glass-border-color);
+    border: 2px solid var(--glass-border-color);
     border-radius: var(--border-radius-px);
 
     backdrop-filter: blur(var(--glass-blur-px));
@@ -288,7 +288,7 @@ header > #header-controls > #language-controls > #language-dropdown-menu > .lang
 
         background: var(--glass-bg-color);
 
-        border: 1px solid var(--glass-border-color);
+        border: 2px solid var(--glass-border-color);
         border-radius: var(--border-radius-px);
 
         backdrop-filter: blur(var(--glass-blur-px));
@@ -396,7 +396,7 @@ header > #header-controls > #language-controls > #language-dropdown-menu > .lang
 
     header .nav-menu-item > a.active-nav-link:hover {
         transform: scale(1.03);
-        border: 1px solid var(--glass-border-color);
+        border: 1px solid var(--glass-stronger-border-color);
     }
 
     header .nav-menu-item > a.active-nav-link:active {
