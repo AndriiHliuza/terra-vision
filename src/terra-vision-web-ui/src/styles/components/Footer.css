@@ -17,8 +17,6 @@ footer > section {
 
     flex: 1;
     height: 100%;
-
-    font-family: "Poppins", system-ui, Avenir, Helvetica, Arial, sans-serif;
 }
 
 footer > section > .footer-section-info {

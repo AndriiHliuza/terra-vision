@@ -40,8 +40,13 @@
       }
     }
   },
+  "landmine-detection-page": {
+    "drag-and-drop-section-text-for-not-active-drag": "Click or Drag & Drop images here (Maximum 10 images)",
+    "drag-and-drop-section-text-for-active-drag": "Drop images here...",
+    "clear-all-selected-images-btn-text": "Clear All"
+  },
   "footer": {
-    "about": "About",
+    "title": "About",
     "projectName": "Project name",
     "developedBy": "Developed by"
   },

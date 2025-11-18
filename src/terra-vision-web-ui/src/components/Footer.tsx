@@ -8,7 +8,7 @@ function Footer() {
     return (
         <footer>
             <section>
-                <h1>{t("footer.about")}</h1>
+                <h1>{t("footer.title")}</h1>
                 <div className="footer-section-info">
                     <div>{t("footer.projectName")}: <span>Terra Vision</span></div>
                     <div>{t("footer.developedBy")}: <NavLink to="https://github.com/AndriiHliuza"><span>Andrii Hliuza</span></NavLink></div>

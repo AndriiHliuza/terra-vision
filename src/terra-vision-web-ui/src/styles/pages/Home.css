@@ -13,6 +13,30 @@
     background: url("../../assets/leaves-bg.jpg") 0 0;
     background-size: auto 400px;
     font-size: var(--font-size-xxl);
+
+    height: 55vw;
+    min-height: 200px;
+    max-height: 500px;
+}
+
+#home-page > .home-page-leaves-img-section > h1 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 0;
+    height: 100%;
+
+    margin: 0;
+
+    overflow: hidden;
+
+    animation: text-typing 1s steps(50) forwards;
+}
+
+@keyframes text-typing {
+    from { width: 0; }
+    to { width: 100%; }
 }
 
 #home-page > section {

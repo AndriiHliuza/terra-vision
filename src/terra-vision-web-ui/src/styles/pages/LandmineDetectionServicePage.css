@@ -1,0 +1,197 @@
+#lm-detection-service-page {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+
+    width: 100%;
+    height: 100%;
+    min-height: 100vh;
+
+    background: url("../../assets/leaves-bg.jpg") 0 0;
+    background-size: auto 600px;
+}
+
+#lm-detection-service-page > section {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+
+    width: 90%;
+    flex: 1;
+    /*height: 100%;*/
+    /*min-height: 70vh;*/
+
+    margin-top: 130px;
+    margin-bottom: 50px;
+
+    border: 2px solid var(--glass-border-color);
+    border-radius: var(--border-radius-px);
+
+    backdrop-filter: blur(var(--glass-blur-px));
+    -webkit-backdrop-filter: blur(var(--glass-blur-px));
+}
+
+#lm-detection-service-page > section > .dropzone-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 90%;
+    flex: 1;
+    min-height: 300px;
+    /*height: 500px;*/
+
+    margin-top: 30px;
+    margin-bottom: 30px;
+    padding: 5px;
+
+    background: var(--glass-bg-color);
+
+    border: 2px solid var(--glass-border-color);
+    border-radius: var(--border-radius-px);
+
+    backdrop-filter: blur(var(--glass-blur-px));
+    -webkit-backdrop-filter: blur(var(--glass-blur-px));
+
+    cursor: pointer;
+
+    transition: box-shadow 0.8s ease,
+                text-shadow 0.8s ease,
+                transform 0.8s ease,
+                background-color 0.8s ease;
+}
+
+#lm-detection-service-page > section > .dropzone-container:hover {
+    box-shadow: 0 0 8px #3c3c3c, 0 0 16px #3c3c3c;
+    text-shadow: 0 0 8px whitesmoke, 0 0 16px whitesmoke;
+
+    transform: scale(1.03);
+
+    border: 2px solid var(--glass-stronger-border-color);
+
+    background-color: var(--glass-hover-bg-color);
+}
+
+#lm-detection-service-page > section > .dropzone-container:active {
+    transform: scale(0.9);
+}
+
+#lm-detection-service-page > section > .selected-images-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+#lm-detection-service-page .selected-images-section > .selected-image-preview-container {
+    position: relative;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    overflow: hidden;
+
+    width: 200px;
+    height: 200px;
+
+    margin: 10px 10px 40px 10px;
+
+    transition: box-shadow 0.8s ease,
+                transform 0.8s ease,
+                background-color 0.8s ease;
+}
+
+#lm-detection-service-page .selected-images-section > .selected-image-preview-container:hover {
+    transform: scale(1.1);
+    filter: brightness(50%);
+}
+
+#lm-detection-service-page .selected-images-section > .selected-image-preview-container > img {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+    object-position: center;
+
+    border: 1px solid var(--glass-border-color);
+    border-radius: var(--border-radius-px);
+
+    cursor: grab;
+}
+
+#lm-detection-service-page .selected-images-section > .selected-image-preview-container > img:active {
+    cursor: grabbing;
+}
+
+#lm-detection-service-page .selected-images-section > .selected-image-preview-container > button {
+    position: absolute;
+    top: 0;
+    right: 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 20px;
+    height: 20px;
+
+    font-size: 20px;
+
+    border: 1px solid var(--glass-border-color);
+    border-radius: var(--border-radius-px);
+
+    background: rosybrown;
+
+    cursor: pointer;
+}
+
+#lm-detection-service-page > section > #clear-all-selected-images-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 200px;
+    height: 60px;
+
+    margin: 20px;
+
+    font-size: 20px;
+    background: var(--glass-bg-color);
+
+    border: 2px solid var(--glass-border-color);
+    border-radius: var(--border-radius-px);
+
+    backdrop-filter: blur(var(--glass-blur-px));
+    -webkit-backdrop-filter: blur(var(--glass-blur-px));
+
+    cursor: pointer;
+
+    transition: all 0.3s ease;
+}
+
+#lm-detection-service-page > section > #clear-all-selected-images-btn:hover {
+    background: var(--glass-hover-bg-color);
+    transform: scale(1.1);
+}
+
+#lm-detection-service-page > section > #clear-all-selected-images-btn:active {
+    transform: scale(0.9);
+}
+
+@media (max-width: 300px) {
+    #lm-detection-service-page .selected-images-section > .selected-image-preview-container {
+        width: 150px;
+        height: 150px;
+    }
+
+    #lm-detection-service-page > section > #clear-all-selected-images-btn {
+        width: 150px;
+    }
+}
