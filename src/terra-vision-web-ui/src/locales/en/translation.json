@@ -41,9 +41,17 @@
     }
   },
   "landmine-detection-page": {
-    "drag-and-drop-section-text-for-not-active-drag": "Click or Drag & Drop images here (Maximum 10 images)",
+    "drag-and-drop-section-text-for-not-active-drag": "Click or Drag & Drop images here",
     "drag-and-drop-section-text-for-active-drag": "Drop images here...",
-    "clear-all-selected-images-btn-text": "Clear All"
+    "clear-all-images-btn-text": "Clear",
+    "process-images-btn-text": "Process",
+    "pop-up": {
+      "title": "Image '{{name}}' already added!!!",
+      "description": "Images with the same name can not be added twice."
+    },
+    "processed-images-section": {
+      "title": "Processed images"
+    }
   },
   "footer": {
     "title": "About",

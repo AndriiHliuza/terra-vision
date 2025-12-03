@@ -1,0 +1,17 @@
+.pop-up {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    width: 100%;
+    height: 100%;
+}
+
+.pop-up > h4 {
+    margin: 0;
+}
+
+.pop-up > div {
+    font-size: 12px;
+}

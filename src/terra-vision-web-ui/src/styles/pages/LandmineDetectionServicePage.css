@@ -19,7 +19,7 @@
     align-items: center;
 
     width: 90%;
-    flex: 1;
+    max-width: 1000px;
 
     margin-top: 130px;
     margin-bottom: 50px;
@@ -37,8 +37,7 @@
     align-items: center;
 
     width: 90%;
-    flex: 1;
-    min-height: 300px;
+    height: 300px;
 
     margin-top: 30px;
     margin-bottom: 30px;
@@ -54,17 +53,17 @@
 
     cursor: pointer;
 
-    transition: box-shadow 0.8s ease,
-                text-shadow 0.8s ease,
-                transform 0.8s ease,
-                background-color 0.8s ease;
+    transition: box-shadow 0.5s ease,
+                text-shadow 0.5s ease,
+                transform 0.5s ease,
+                background-color 0.5s ease;
 }
 
 #lm-detection-service-page > section > .dropzone-container:hover {
     box-shadow: 0 0 8px #3c3c3c, 0 0 16px #3c3c3c;
     text-shadow: 0 0 8px whitesmoke, 0 0 16px whitesmoke;
 
-    transform: scale(1.03);
+    transform: scale(1.02);
 
     border: 2px solid var(--glass-stronger-border-color);
 
@@ -75,14 +74,14 @@
     transform: scale(0.9);
 }
 
-#lm-detection-service-page > section > .selected-images-section {
+#lm-detection-service-page > section > .images-section {
     display: flex;
     justify-content: center;
     align-items: center;
     flex-wrap: wrap;
 }
 
-#lm-detection-service-page .selected-images-section > .selected-image-preview-container {
+#lm-detection-service-page .images-section > .image-preview-container {
     position: relative;
 
     display: flex;
@@ -101,12 +100,12 @@
                 background-color 0.8s ease;
 }
 
-#lm-detection-service-page .selected-images-section > .selected-image-preview-container:hover {
+#lm-detection-service-page .images-section > .image-preview-container:hover {
     transform: scale(1.1);
     filter: brightness(50%);
 }
 
-#lm-detection-service-page .selected-images-section > .selected-image-preview-container > img {
+#lm-detection-service-page .images-section > .image-preview-container > img {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -123,11 +122,11 @@
     cursor: grab;
 }
 
-#lm-detection-service-page .selected-images-section > .selected-image-preview-container > img:active {
+#lm-detection-service-page .images-section > .image-preview-container > img:active {
     cursor: grabbing;
 }
 
-#lm-detection-service-page .selected-images-section > .selected-image-preview-container > button {
+#lm-detection-service-page .images-section > .image-preview-container > button {
     position: absolute;
     top: 0;
     right: 0;
@@ -149,15 +148,21 @@
     cursor: pointer;
 }
 
-#lm-detection-service-page > section > #clear-all-selected-images-btn {
+#lm-detection-service-page > section > .controls-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#lm-detection-service-page > section #clear-all-images-btn, #lm-detection-service-page > section #process-images-btn {
     display: flex;
     justify-content: center;
     align-items: center;
 
-    width: 200px;
+    width: 150px;
     height: 60px;
 
-    margin: 20px;
+    margin: 0 20px 20px 20px;
 
     font-size: 20px;
     background: var(--glass-bg-color);
@@ -173,22 +178,93 @@
     transition: all 0.3s ease;
 }
 
-#lm-detection-service-page > section > #clear-all-selected-images-btn:hover {
+#lm-detection-service-page > section #clear-all-images-btn:hover, #lm-detection-service-page > section #process-images-btn:hover {
     background: var(--glass-hover-bg-color);
     transform: scale(1.1);
 }
 
-#lm-detection-service-page > section > #clear-all-selected-images-btn:active {
+#lm-detection-service-page > section #clear-all-images-btn:active, #lm-detection-service-page > section #process-images-btn:active {
     transform: scale(0.9);
 }
 
+#lm-detection-service-page > .output-section {
+    margin-top: 0;
+}
+
+#lm-detection-service-page > .output-section > h1 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 90%;
+    min-height: 70px;
+
+    word-spacing: 10px;
+
+    border: 2px solid var(--glass-border-color);
+    border-radius: var(--border-radius-px);
+
+    background-color: var(--glass-hover-bg-color);
+
+    backdrop-filter: blur(var(--glass-blur-px));
+    -webkit-backdrop-filter: blur(var(--glass-blur-px));
+
+    transition: transform 0.5s ease;
+}
+
+#lm-detection-service-page > .output-section > h1:hover {
+    transform: scale(1.03);
+}
+
+#lm-detection-service-page .images-section > .image-preview-container > .image-download-btn {
+    position: absolute;
+    transform: translate(0, 15%);
+    opacity: 0;
+    font-size: 50px;
+    transition: opacity 0.5s ease;
+}
+
+#lm-detection-service-page .images-section > .image-preview-container:hover > .image-download-btn {
+    opacity: 1;
+}
+
+#lm-detection-service-page .images-section > .image-preview-container > .image-download-btn > .image-download-icon {
+    width: 50px;
+    height: 50px;
+
+    opacity: 0.6;
+
+    transition: transform 0.5s ease, opacity 0.3s ease;
+}
+
+#lm-detection-service-page .images-section > .image-preview-container > .image-download-btn > .image-download-icon:hover {
+    transform: scale(1.1);
+    opacity: 1;
+}
+
+@media (max-width: 488px) {
+    #lm-detection-service-page > section > .controls-wrapper {
+        flex-direction: column;
+    }
+}
+
 @media (max-width: 300px) {
-    #lm-detection-service-page .selected-images-section > .selected-image-preview-container {
+    #lm-detection-service-page .images-section > .image-preview-container {
         width: 150px;
         height: 150px;
     }
 
-    #lm-detection-service-page > section > #clear-all-selected-images-btn {
-        width: 150px;
+    #lm-detection-service-page > .output-section > h1 {
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 200px) {
+    #lm-detection-service-page > section #clear-all-images-btn, #lm-detection-service-page > section #process-images-btn {
+        width: 120px;
+    }
+
+    #lm-detection-service-page > .output-section > h1 {
+        font-size: 15px;
     }
 }
