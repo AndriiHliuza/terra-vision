@@ -16,6 +16,7 @@
     --glass-hover-bg-color: rgba(0, 0, 0, 0.5);
 
     --font-size-xxl: clamp(10px, 8vw, 90px);
+    --button-border-radius: 25px;
 
     --footer-bg-color: radial-gradient(circle, rgba(162, 199, 251, 0.4), rgb(208, 223, 253, 0.3));
 

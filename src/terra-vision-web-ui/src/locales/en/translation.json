@@ -41,17 +41,20 @@
     }
   },
   "landmine-detection-page": {
-    "drag-and-drop-section-text-for-not-active-drag": "Click or Drag & Drop images here",
-    "drag-and-drop-section-text-for-active-drag": "Drop images here...",
+    "drag-and-drop-section-text-for-not-active-drag": "Click or Drag & Drop images or '.zip' archives here",
+    "drag-and-drop-section-text-for-active-drag": "Drop images or '.zip' archives here...",
     "clear-all-images-btn-text": "Clear",
     "process-images-btn-text": "Process",
-    "pop-up": {
-      "title": "Image '{{name}}' already added!!!",
-      "description": "Images with the same name can not be added twice."
+    "pop-ups": {
+      "invalid-file-pop-up": {
+        "title": "Invalid file type",
+        "description": "File '{{name}}' was rejected. Only images and .zip archives are allowed."
+      }
     },
-    "processed-images-section": {
+    "processed-files-section": {
       "title": "Processed images"
-    }
+    },
+    "download-archive-btn": "Download"
   },
   "footer": {
     "title": "About",

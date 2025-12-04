@@ -2,50 +2,90 @@ import '../styles/pages/LandmineDetectionServicePage.css'
 import Header from "../components/Header.tsx";
 import Footer from "../components/Footer.tsx";
 import {useCallback, useState} from "react";
-import {useDropzone} from "react-dropzone";
+import {type FileRejection, useDropzone} from "react-dropzone";
 import {useTranslation} from "react-i18next";
 import {toast} from "react-toastify";
 import PopUp from "../components/PopUp.tsx";
 import downloadIcon from "../assets/download-icon.png";
+import type {FileItem} from "../utils/application-types.ts";
+import {isArchive, truncateFileName} from "../utils/utils.ts";
 
 function LandmineDetectionServicePage() {
 
     const {t} = useTranslation();
 
-    const [images, setImages] = useState<File[]>([]);
-    const [processedImages, setProcessedImages] = useState<File[]>([]);
+    const [images, setImages] = useState<FileItem[]>([]);
+    const [archives, setArchives] = useState<FileItem[]>([]);
 
-    const removeImage = (name: string) => {
-        setImages(prev => prev.filter(image => image.name !== name));
+    const [processedImages, setProcessedImages] = useState<FileItem[]>([]);
+    const [processedArchives, setProcessedArchives] = useState<FileItem[]>([]);
+
+    const removeImage = (id: string) => {
+        setImages(prev => prev.filter(image => image.id !== id));
     };
 
-    const removeProcessedImage = (name: string) => {
-        setProcessedImages(prev => prev.filter(image => image.name !== name));
+    const removeArchive = (id: string) => {
+        setArchives(prev => prev.filter(archive => archive.id !== id));
     };
 
-    const onImageDrop = useCallback((files: File[]) => {
-        setImages(previousImages => {
-            const newImages = files
-                .filter((file) => file.type.startsWith("image"));
+    const clearUploadedFiles = () => {
+        setImages([]);
+        setArchives([]);
+    }
 
-            const duplicateImages = newImages.filter((newImage) =>
-                previousImages.some((existing) => existing.name === newImage.name)
-            );
+    const removeProcessedImage = (id: string) => {
+        setProcessedImages(prev => prev.filter(image => image.id !== id));
+    };
 
-            duplicateImages.forEach(image => toast.error(
-                <PopUp title={t("landmine-detection-page.pop-up.title", {name: image.name})}
-                       description={t("landmine-detection-page.pop-up.description")}/>
-            ));
+    const removeProcessedArchive = (id: string) => {
+        setProcessedArchives(prev => prev.filter(archive => archive.id !== id));
+    };
 
-            const uniqueImages = newImages.filter(
-                (newImage) => !previousImages.some((existing) => existing.name === newImage.name)
-            );
 
-            return [...previousImages, ...uniqueImages];
-        });
+    const clearProcessedFiles = () => {
+        setProcessedImages([]);
+        setProcessedArchives([]);
+    }
+
+    const onFileDrop = useCallback((files: File[]) => {
+
+        const imageFiles: FileItem[] = [];
+        const archiveFiles: FileItem[] = [];
+
+        files.forEach(file => {
+            if (file.type.startsWith("image")) {
+                imageFiles.push({
+                    id: file.name + "-" + Date.now() + "-" + Math.random(),
+                    file: file
+                })
+            } else if (isArchive(file.type, file.name)) {
+                archiveFiles.push({
+                    id: file.name + "-" + Date.now() + "-" + Math.random(),
+                    file: file
+                })
+            }
+        })
+
+        setImages(prevImages => [...prevImages, ...imageFiles])
+        setArchives(prevArchives => [...prevArchives, ...archiveFiles])
 
         // setProcessedImages(files) is temporary. Will get images from backend after processing them.
-        setProcessedImages(files)
+        setProcessedImages(prevImages => [...prevImages, ...imageFiles])
+        setProcessedArchives(prevArchives => [...prevArchives, ...archiveFiles])
+    }, [])
+
+    const onFileDropRejected = useCallback((fileRejections: FileRejection[]) => {
+        fileRejections.forEach((fileRejection) => {
+            const file = fileRejection.file;
+            if (!file.type.startsWith("image") || !isArchive(file.type, file.name)) {
+                toast.error(
+                    <PopUp
+                        title={t("landmine-detection-page.pop-ups.invalid-file-pop-up.title")}
+                        description={t("landmine-detection-page.pop-ups.invalid-file-pop-up.description", {name: file.name})}
+                    />
+                );
+            }
+        })
     }, [t])
 
     const {
@@ -53,8 +93,13 @@ function LandmineDetectionServicePage() {
         getInputProps,
         isDragActive
     } = useDropzone({
-        onDrop: onImageDrop,
-        accept: {"image/*": []},
+        onDrop: onFileDrop,
+        onDropRejected: onFileDropRejected,
+        accept: {
+            "image/*": [],
+            "application/zip": [],
+            "application/x-zip-compressed": []
+        },
         multiple: true
     });
 
@@ -81,33 +126,49 @@ function LandmineDetectionServicePage() {
 
                     <section className="images-section">
                         {images.map(image => {
-                            const imagePreview = URL.createObjectURL(image);
+                            const imagePreview = URL.createObjectURL(image.file);
                             return (
                                 <div
-                                    key={image.name}
+                                    key={image.id}
                                     className="image-preview-container"
                                 >
-                                    <button onClick={() => removeImage(image.name)}> ×</button>
+                                    <button onClick={() => removeImage(image.id)}>×</button>
                                     <img
                                         src={imagePreview}
-                                        alt={image.name}
+                                        alt={image.file.name}
                                     />
                                 </div>
                             );
                         })}
                     </section>
 
+                    <section className="archives-section">
+                        {archives.map(archive => {
+                            return (
+                                <div
+                                    key={archive.id}
+                                    className="archive-preview-container"
+                                >
+                                    <button onClick={() => removeArchive(archive.id)}>×</button>
+                                    <div>{truncateFileName(archive.file.name)}</div>
+                                </div>
+                            );
+                        })}
+                    </section>
+
                     {
-                        images.length > 0
+                        images.length > 0 ||
+                        archives.length > 0
                             ? (
                                 <div className="controls-wrapper">
                                     <div
                                         id="clear-all-images-btn"
-                                        onClick={() => setImages([])}
+                                        onClick={clearUploadedFiles}
                                     >
                                         {t("landmine-detection-page.clear-all-images-btn-text")}
                                     </div>
-                                    <div id="process-images-btn">{t("landmine-detection-page.process-images-btn-text")}</div>
+                                    <div
+                                        id="process-images-btn">{t("landmine-detection-page.process-images-btn-text")}</div>
                                 </div>
                             )
                             : null
@@ -115,26 +176,26 @@ function LandmineDetectionServicePage() {
 
                 </section>
                 {
-                    processedImages.length > 0
+                    processedImages.length > 0 || processedArchives.length > 0
                         ? (
                             <section className="output-section">
-                                <h1>{t("landmine-detection-page.processed-images-section.title")}</h1>
+                                <h1>{t("landmine-detection-page.processed-files-section.title")}</h1>
                                 <section className="images-section">
                                     {processedImages.map(image => {
-                                        const imagePreview = URL.createObjectURL(image);
+                                        const imagePreview = URL.createObjectURL(image.file);
                                         return (
                                             <div
-                                                key={image.name}
+                                                key={image.id}
                                                 className="image-preview-container"
                                             >
-                                                <button onClick={() => removeProcessedImage(image.name)}> ×</button>
+                                                <button onClick={() => removeProcessedImage(image.id)}> ×</button>
                                                 <img
                                                     src={imagePreview}
-                                                    alt={image.name}
+                                                    alt={image.file.name}
                                                 />
                                                 <a
                                                     href={imagePreview}
-                                                    download={image.name} // filename when downloaded
+                                                    download={image.file.name} // filename when downloaded
                                                     className="image-download-btn"
                                                 >
                                                     <img src={downloadIcon} alt="Download" className="image-download-icon"/>
@@ -143,11 +204,33 @@ function LandmineDetectionServicePage() {
                                         );
                                     })}
                                 </section>
+
+                                <section className="archives-section">
+                                    {processedArchives.map(archive => {
+                                        const archiveUrl = URL.createObjectURL(archive.file);
+                                        return (
+                                            <div
+                                                key={archive.id}
+                                                className="archive-preview-container"
+                                            >
+                                                <button onClick={() => removeProcessedArchive(archive.id)}>×</button>
+                                                <div>{truncateFileName(archive.file.name)}</div>
+                                                <a
+                                                    href={archiveUrl}
+                                                    download={archive.file.name} // sets downloaded filename
+                                                    className="archive-download-btn"
+                                                >{t("landmine-detection-page.download-archive-btn")}</a>
+                                            </div>
+                                        );
+                                    })}
+                                </section>
+
                                 {
-                                    processedImages.length > 0
+                                    processedImages.length > 0 ||
+                                    processedArchives.length > 0
                                         ? <div
                                             id="clear-all-images-btn"
-                                            onClick={() => setProcessedImages([])}
+                                            onClick={clearProcessedFiles}
                                         >
                                             {t("landmine-detection-page.clear-all-images-btn-text")}
                                         </div>

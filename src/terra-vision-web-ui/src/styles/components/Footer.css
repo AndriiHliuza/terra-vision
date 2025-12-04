@@ -35,3 +35,9 @@ footer > section > .footer-section-info {
 footer > section > .footer-section-info span {
     font-family: "Rubik Distressed", "Poppins", system-ui, Avenir, Helvetica, Arial, sans-serif;
 }
+
+@media (max-width: 300px) {
+    footer > section > h1 {
+        font-size: 20px;
+    }
+}
