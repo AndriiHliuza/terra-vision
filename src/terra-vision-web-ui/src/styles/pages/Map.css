@@ -2,6 +2,37 @@
     color: var(--map-page-text-color);
 }
 
+/* Fullscreen dark transparent overlay */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 100vw;
+    height: 100vh;
+
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+
+    z-index: 10000;
+}
+
+.loading-image {
+    width: 120px;
+    animation: pulse 1.5s infinite ease-in-out;
+}
+
+/* Simple animation */
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 0.7; }
+    50% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(1); opacity: 0.7; }
+}
+
 
 #map-page .leaflet-container {
     position: fixed;
@@ -12,6 +43,107 @@
     width: 100%;
 }
 
+#map-page .leaflet-control-layers {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background: var(--glass-bg-color);
+    border: 2px solid var(--map-page-glass-border-color);
+    border-radius: 10px;
+
+    backdrop-filter: blur(var(--glass-blur-px));
+    -webkit-backdrop-filter: blur(var(--glass-blur-px));
+
+    padding: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+
+    font-family: "Rubik Distressed", "Poppins", system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+#map-page .leaflet-control-layers label {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+
+    width: 170px;
+    height: 40px;
+
+    margin: 10px;
+    padding-left: 10px;
+
+    background: var(--glass-bg-color);
+    border: 2px solid var(--map-page-glass-border-color);
+    border-radius: var(--border-radius-px);
+
+    cursor: pointer;
+
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+#map-page .leaflet-control-layers label:hover {
+    background: var(--glass-hover-bg-color);
+    transform: scale(1.1);
+}
+
+#map-page .leaflet-control-layers label:active {
+    transform: scale(0.9);
+}
+
+#map-page .leaflet-control-layers label input {
+    cursor: pointer;
+    accent-color: var(--map-page-text-color); /* color for radio circle in modern browsers */
+}
+
+/* Scrollable layer list */
+#map-page .leaflet-control-layers-overlays,
+#map-page .leaflet-control-layers-base {
+    max-height: 350px;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    padding-right: 5px;     /* avoid scrollbar overlaying content */
+}
+
+/* Nicer thin scrollbar */
+#map-page .leaflet-control-layers-overlays::-webkit-scrollbar,
+#map-page .leaflet-control-layers-base::-webkit-scrollbar {
+    width: 6px;
+}
+
+#map-page .leaflet-control-layers-overlays::-webkit-scrollbar-thumb,
+#map-page .leaflet-control-layers-base::-webkit-scrollbar-thumb {
+    background: var(--map-page-glass-border-color);
+    border-radius: 10px;
+}
+
+@media (max-width: 200px) {
+    .loading-image {
+        width: 90px;
+    }
+}
+
+@media (max-height: 525px) {
+    #map-page .leaflet-control-layers-overlays,
+    #map-page .leaflet-control-layers-base {
+        max-height: 250px;
+    }
+}
+
+@media (max-height: 400px) {
+    #map-page .leaflet-control-layers-overlays,
+    #map-page .leaflet-control-layers-base {
+        max-height: 150px;
+    }
+}
+
+@media (max-height: 300px) {
+    #map-page .leaflet-control-layers-overlays,
+    #map-page .leaflet-control-layers-base {
+        max-height: 50px;
+    }
+}
 
 
 

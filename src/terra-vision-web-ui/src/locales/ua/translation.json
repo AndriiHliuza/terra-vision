@@ -41,19 +41,24 @@
     }
   },
   "landmine-detection-page": {
-    "drag-and-drop-section-text-for-not-active-drag": "Натисніть або перетягніть зображення чи '.zip' архів",
-    "drag-and-drop-section-text-for-active-drag": "Перетягніть зображення чи '.zip' архів...",
+    "drag-and-drop-section-text-for-not-active-drag": "Натисніть або перетягніть зображення чи «.zip» архів",
+    "drag-and-drop-section-text-for-active-drag": "Перетягніть зображення чи «.zip» архів...",
     "clear-all-images-btn-text": "Очистити",
     "process-images-btn-text": "Обробити",
     "pop-ups": {
       "invalid-file-pop-up": {
         "title": "Невалідний тип файлу",
-        "description": "Файл '{{name}}' відхилено. Дозволено завантажувати лише зображення та архіви .zip."
+        "description": "Файл «{{name}}» відхилено. Дозволено завантажувати лише зображення та архіви .zip."
+      },
+      "files-already-processed-pop-up": {
+        "title": "Файли вже оброблені",
+        "description": "Оброблені файли можна завантажити з розділу «Оброблені зображення»"
       }
     },
     "processed-files-section": {
       "title": "Оброблені зображення"
     },
+    "archive-item-title": "Архів",
     "download-archive-btn": "Завантажити"
   },
   "footer": {

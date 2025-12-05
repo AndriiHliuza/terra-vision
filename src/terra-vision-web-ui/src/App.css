@@ -14,7 +14,7 @@ a {
 }
 
 ::selection {
-    background-color: transparent;
+    background-color: var(--glass-bg-color);
     color: inherit;
 }
 

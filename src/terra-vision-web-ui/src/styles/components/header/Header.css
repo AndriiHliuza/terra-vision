@@ -7,6 +7,10 @@ header {
     width: 100%;
 }
 
+header ::selection {
+    background: transparent;
+}
+
 header > #logo {
     position: fixed;
     z-index: 1000;

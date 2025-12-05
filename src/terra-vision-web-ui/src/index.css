@@ -32,8 +32,7 @@
 
     /* Map page CSS variables */
     --map-page-text-color: #242424;
-    --map-page-header-glass-border-color: rgba(68, 103, 91, 0.5);
-    --map-page-header-bg-color: radial-gradient(circle, rgba(217, 236, 203, 0.1), rgba(126, 170, 108, 0.1));
+    --map-page-glass-border-color: rgba(68, 103, 91, 0.5);
 
     /* Base styles */
     font-family: "Rubik Distressed", "Poppins", system-ui, Avenir, Helvetica, Arial, sans-serif;

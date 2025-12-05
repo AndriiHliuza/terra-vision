@@ -25,6 +25,10 @@
     cursor: pointer;
 }
 
+.back-to-top-btn::selection {
+    background: transparent;
+}
+
 .back-to-top-btn:hover {
     text-shadow: 0 0 8px whitesmoke, 0 0 16px whitesmoke;
     background: var(--glass-hover-bg-color);
