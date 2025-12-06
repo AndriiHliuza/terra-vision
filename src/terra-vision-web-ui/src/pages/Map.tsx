@@ -15,8 +15,8 @@ import {
 import "leaflet/dist/leaflet.css";
 import Header from "../components/Header.tsx";
 import {useEffect, useState} from "react";
-import type {MarkerData, Shape} from "../scripts/common-types.ts";
-import {stubMarkers, stubShapes} from "../scripts/stub-data.ts";
+import type {MarkerData, Shape} from "../commons/types.ts";
+import {stubMarkers, stubShapes} from "../commons/stub.ts";
 import L from "leaflet";
 import LoadingOverlay from "../components/LoadingOverlay.tsx";
 

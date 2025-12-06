@@ -1,4 +1,4 @@
-import type {FileItem} from "./common-types.ts";
+import type {FileItem} from "./types.ts";
 import JSZip from "jszip";
 
 export function isArchive(fileType: string, fileName: string): boolean {
