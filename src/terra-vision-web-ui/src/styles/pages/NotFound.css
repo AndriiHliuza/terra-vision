@@ -6,17 +6,73 @@
     flex: 1;
 
     width: 100%;
+
+    background-image: url("/src/assets/leaves-bg.jpg");
 }
 
 #not-found-page > img {
-    max-height: 200px;
-    width: 50%;
+    height: auto;
+    max-height: 550px;
+    width: 100%;
+    max-width: 650px;
 }
 
-#not-found-page > .not-found-h1 {
+#not-found-page > .not-found-description {
     display: flex;
     align-items: center;
     justify-content: center;
 
-    font-size: var(--font-size-xxl);
+    margin: 20px;
+    padding: 20px;
+
+    word-spacing: 10px;
+
+    border: 2px solid var(--glass-border-color);
+    border-radius: var(--border-radius-px);
+
+    background-color: var(--glass-hover-bg-color);
+
+    backdrop-filter: blur(var(--glass-blur-px));
+    -webkit-backdrop-filter: blur(var(--glass-blur-px));
+    font-size: 20px;
+}
+
+#not-found-page > .left-arrow-icon {
+    position: fixed;
+    z-index: 1000;
+    top: 15px;
+    left: 15px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    width: 70px;
+    height: 70px;
+
+    border-radius: 50px;
+
+    transition: transform 1s ease;
+}
+
+#not-found-page > .left-arrow-icon > img {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: auto;
+    height: 100%;
+
+    border-radius: 50px;
+
+    transition: transform 0.3s ease;
+}
+
+#not-found-page > .left-arrow-icon > img:hover {
+    transform: scale(1.15);
+}
+
+#not-found-page > .left-arrow-icon > img:active {
+    transform: scale(0.75);
 }

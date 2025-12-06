@@ -18,7 +18,7 @@ import {useEffect, useState} from "react";
 import type {MarkerData, Shape} from "../utils/application-types.ts";
 import {stubMarkers, stubShapes} from "../utils/stub-data.ts";
 import L from "leaflet";
-import loadingIcon from "../assets/loading-icon.gif";
+import LoadingOverlay from "../components/LoadingOverlay.tsx";
 
 
 export function MapEventsHandler() {
@@ -79,12 +79,8 @@ function Map() {
 
     return (
         <div id="map-page">
+            <LoadingOverlay visible={loading}/>
             <Header/>
-            {loading && (
-                <div className="loading-overlay">
-                    <img src={loadingIcon} alt="Loading" className="loading-image"/>
-                </div>
-            )}
             <MapContainer
                 center={[48.4, 31]}
                 zoomControl={false}
@@ -93,11 +89,6 @@ function Map() {
                 maxBounds={[[-85, -Infinity], [85, Infinity]]}
                 maxBoundsViscosity={1.0}
             >
-                {/*<TileLayer*/}
-                {/*    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"*/}
-                {/*    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'*/}
-                {/*/>*/}
-
                 <LayersControl position="bottomleft">
 
                     {/* --- OSM FAMILY --- */}

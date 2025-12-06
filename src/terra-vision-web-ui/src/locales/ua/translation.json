@@ -61,6 +61,9 @@
     "archive-item-title": "Архів",
     "download-archive-btn": "Завантажити"
   },
+  "not-found-page": {
+    "description": "Сторінки, яку ви шукаєте, не існує"
+  },
   "footer": {
     "title": "Детальніше",
     "projectName": "Назва проекту",

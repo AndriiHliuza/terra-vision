@@ -34,6 +34,10 @@
     animation: text-typing 1s steps(50) forwards;
 }
 
+#home-page > .home-page-leaves-img-section > h1::selection {
+    background: transparent;
+}
+
 @keyframes text-typing {
     from { width: 0; }
     to { width: 100%; }

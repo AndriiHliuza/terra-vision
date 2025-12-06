@@ -2,30 +2,6 @@
     color: var(--map-page-text-color);
 }
 
-/* Fullscreen dark transparent overlay */
-.loading-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    width: 100vw;
-    height: 100vh;
-
-    background: rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(10px);
-
-    z-index: 10000;
-}
-
-.loading-image {
-    width: 120px;
-    animation: pulse 1.5s infinite ease-in-out;
-}
-
 /* Simple animation */
 @keyframes pulse {
     0% { transform: scale(1); opacity: 0.7; }
