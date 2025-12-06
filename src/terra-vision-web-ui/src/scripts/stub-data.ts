@@ -1,4 +1,4 @@
-import type {MarkerData, Shape} from "./application-types.ts";
+import type {MarkerData, Shape} from "./common-types.ts";
 
 export const stubShapes: Shape[] = [
     {

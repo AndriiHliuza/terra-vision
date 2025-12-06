@@ -7,8 +7,8 @@ import {useTranslation} from "react-i18next";
 import {toast} from "react-toastify";
 import PopUp from "../components/PopUp.tsx";
 import downloadIcon from "../assets/download-icon.png";
-import type {FileItem} from "../utils/application-types.ts";
-import {blobToZip, createArchiveFromFileItems, isArchive, truncateFileName} from "../utils/utils.ts";
+import type {FileItem} from "../scripts/common-types.ts";
+import {blobToZip, createArchiveFromFileItems, isArchive, truncateFileName} from "../scripts/utils.ts";
 
 function LandmineDetectionServicePage() {
 
