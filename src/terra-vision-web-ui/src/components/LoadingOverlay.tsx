@@ -1,4 +1,4 @@
-import '../styles/components/LoadingOverlay.css'
+import "../styles/components/LoadingOverlay.css";
 import loadingIcon from "../assets/loading-icon.gif";
 
 type LoadingOverlayProps = {
@@ -16,4 +16,4 @@ function LoadingOverlay({ visible }: LoadingOverlayProps) {
     );
 }
 
-export default LoadingOverlay
+export default LoadingOverlay;

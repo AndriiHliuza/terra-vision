@@ -1,10 +1,13 @@
-import './App.css'
-import RoutesConfig from "./configs/RoutesConfig.tsx";
+import "./App.css";
+import RoutingConfig from "./configs/RoutingConfig.tsx";
+import ApplicationContextProvider from "./configs/contexts/ApplicationContextProvider.tsx";
 
 function App() {
     return (
-        <RoutesConfig/>
+        <ApplicationContextProvider>
+            <RoutingConfig/>
+        </ApplicationContextProvider>
     )
 }
 
-export default App
+export default App;

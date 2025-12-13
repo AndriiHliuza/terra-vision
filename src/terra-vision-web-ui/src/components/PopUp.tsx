@@ -1,4 +1,4 @@
-import '../styles/components/PopUp.css'
+import "../styles/components/PopUp.css";
 
 interface PopUpProps {
     title: string;
@@ -15,4 +15,4 @@ function PopUp({ title, description }: PopUpProps) {
     );
 }
 
-export default PopUp
+export default PopUp;

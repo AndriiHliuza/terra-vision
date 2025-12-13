@@ -1,4 +1,4 @@
-import '../styles/components/Footer.css'
+import "../styles/components/Footer.css";
 import {NavLink} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 

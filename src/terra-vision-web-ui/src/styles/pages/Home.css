@@ -32,6 +32,8 @@
     overflow: hidden;
 
     animation: text-typing 1s steps(50) forwards;
+
+    cursor: default;
 }
 
 #home-page > .home-page-leaves-img-section > h1::selection {

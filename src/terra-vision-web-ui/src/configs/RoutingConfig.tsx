@@ -1,12 +1,12 @@
 import {BrowserRouter, Routes, Route} from "react-router-dom";
 import {ROUTES} from "./settings.ts";
-import MainLayout from "../layouts/MainLayout.tsx";
+import MainLayout from "./layouts/MainLayout.tsx";
 import Home from "../pages/Home.tsx";
 import Map from "../pages/Map.tsx";
 import NotFound from "../pages/NotFound.tsx";
 import LandmineDetectionServicePage from "../pages/LandmineDetectionServicePage.tsx";
 
-function RoutesConfig() {
+function RoutingConfig() {
     return (
         <BrowserRouter>
             <Routes>
@@ -21,4 +21,4 @@ function RoutesConfig() {
     )
 }
 
-export default RoutesConfig
+export default RoutingConfig;

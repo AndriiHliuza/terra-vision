@@ -14,11 +14,11 @@ import {
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import Header from "../components/Header.tsx";
-import {useEffect, useState} from "react";
+import {useContext, useEffect, useState} from "react";
 import type {MarkerData, Shape} from "../commons/types.ts";
 import {stubMarkers, stubShapes} from "../commons/stub.ts";
 import L from "leaflet";
-import LoadingOverlay from "../components/LoadingOverlay.tsx";
+import {ApplicationContext, type ApplicationContextSettings} from "../configs/settings.ts";
 
 
 export function MapEventsHandler() {
@@ -63,23 +63,25 @@ const getShapeEventHandlers = (defaultStyle: L.PathOptions, hoverStyle: L.PathOp
 
 function Map() {
 
-    const [loading, setLoading] = useState(true);
-    const [shapes, setShapes] = useState<Shape[]>([]);
+    const { setLoading } = useContext(ApplicationContext) as ApplicationContextSettings;
+        const [shapes, setShapes] = useState<Shape[]>([]);
     const [markers, setMarkers] = useState<MarkerData[]>([]);
 
     // Stub backend data
     useEffect(() => {
         // Simulate async fetch
-        setTimeout(() => {
+        setLoading(true)
+        const timer = setTimeout(() => {
             setShapes(stubShapes);
             setMarkers(stubMarkers);
             setLoading(false);
         }, 500);
-    }, []);
+
+        return () => clearTimeout(timer);
+    }, [setLoading]);
 
     return (
         <div id="map-page">
-            <LoadingOverlay visible={loading}/>
             <Header/>
             <MapContainer
                 center={[48.4, 31]}

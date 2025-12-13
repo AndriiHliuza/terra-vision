@@ -15,6 +15,11 @@
     max-height: 550px;
     width: 100%;
     max-width: 650px;
+    transition: transform 1s ease;
+}
+
+#not-found-page > img:hover {
+    transform: scale(1.01);
 }
 
 #not-found-page > .not-found-description {

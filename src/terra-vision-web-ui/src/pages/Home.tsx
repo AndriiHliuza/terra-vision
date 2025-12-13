@@ -1,4 +1,4 @@
-import '../styles/pages/Home.css'
+import "../styles/pages/Home.css";
 import {useTranslation} from "react-i18next";
 import Header from "../components/Header.tsx";
 import Footer from "../components/Footer.tsx";

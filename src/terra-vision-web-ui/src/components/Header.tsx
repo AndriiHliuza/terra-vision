@@ -1,4 +1,4 @@
-import '../styles/components/header/Header.css'
+import "../styles/components/header/Header.css";
 import {useEffect, useRef, useState} from "react";
 import {NavLink} from "react-router-dom";
 import {ROUTES} from "../configs/settings.ts";
@@ -7,7 +7,7 @@ import {useTranslation} from "react-i18next";
 import clsx from 'clsx';
 import {Menu, X} from "lucide-react";
 
-export default function Header() {
+function Header() {
 
     const {t} = useTranslation();
 
@@ -147,3 +147,5 @@ export default function Header() {
         </header>
     )
 }
+
+export default Header;

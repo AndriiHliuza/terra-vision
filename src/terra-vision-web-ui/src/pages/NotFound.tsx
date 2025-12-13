@@ -1,4 +1,4 @@
-import '../styles/pages/NotFound.css'
+import "../styles/pages/NotFound.css";
 import notFoundImg from "../assets/404-error-icon.webp";
 import {NavLink} from "react-router-dom";
 import {ROUTES} from "../configs/settings.ts";

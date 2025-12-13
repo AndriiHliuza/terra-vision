@@ -1,4 +1,4 @@
-import '../styles/pages/LandmineDetectionServicePage.css'
+import "../styles/pages/LandmineDetectionServicePage.css";
 import Header from "../components/Header.tsx";
 import Footer from "../components/Footer.tsx";
 import {useCallback, useState} from "react";

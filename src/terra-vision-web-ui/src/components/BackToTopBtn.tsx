@@ -1,4 +1,4 @@
-import '../styles/components/BackToTopBtn.css'
+import "../styles/components/BackToTopBtn.css";
 import {useEffect, useState} from "react";
 import {useTranslation} from "react-i18next";
 
@@ -36,4 +36,4 @@ function BackToTopBtn() {
     );
 }
 
-export default BackToTopBtn
+export default BackToTopBtn;

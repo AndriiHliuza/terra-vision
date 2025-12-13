@@ -8,7 +8,7 @@ interface Particle {
     alpha: number; // transparency
 }
 
-export default function MouseTrail() {
+function MouseTrail() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const particlesRef = useRef<Particle[]>([]);
 
@@ -93,3 +93,5 @@ export default function MouseTrail() {
         />
     );
 }
+
+export default MouseTrail;
