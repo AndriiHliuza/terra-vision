@@ -1,4 +1,6 @@
 import { useRef, useEffect } from "react";
+import {useLocation} from "react-router-dom";
+import {ROUTES_WITHOUT_MOUSE_TRAIL} from "../configs/settings.ts";
 
 interface Particle {
     x: number;
@@ -11,8 +13,12 @@ interface Particle {
 function MouseTrail() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const particlesRef = useRef<Particle[]>([]);
+    const location = useLocation();
+    const isRouteUsesMouseTrail = !ROUTES_WITHOUT_MOUSE_TRAIL.includes(location.pathname);
 
     useEffect(() => {
+        if (!isRouteUsesMouseTrail) return;
+
         const canvas = canvasRef.current;
         if (!canvas) return;
         const ctx = canvas.getContext("2d");
@@ -76,7 +82,7 @@ function MouseTrail() {
         return () => {
             window.removeEventListener("mousemove", handleMouseMove);
         };
-    }, []);
+    }, [isRouteUsesMouseTrail]);
 
     const hexToRgb = (hex: string) => {
         const bigint = parseInt(hex.replace("#", ""), 16);
@@ -86,12 +92,12 @@ function MouseTrail() {
         return `${r},${g},${b}`;
     };
 
-    return (
+    return isRouteUsesMouseTrail ? (
         <canvas
             ref={canvasRef}
             style={{ position: "fixed", top: 0, left: 0, pointerEvents: "none" }}
         />
-    );
+    ) : null;
 }
 
 export default MouseTrail;

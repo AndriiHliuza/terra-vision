@@ -13,3 +13,7 @@ export type ApplicationContextSettings = {
 };
 
 export const ApplicationContext = createContext<ApplicationContextSettings | undefined>(undefined);
+
+export const ROUTES_WITHOUT_MOUSE_TRAIL = [
+    ROUTES.map
+]

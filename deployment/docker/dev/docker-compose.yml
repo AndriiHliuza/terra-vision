@@ -1,0 +1,44 @@
+services:
+  terra-vision-keycloak-db:
+    image: postgres:17
+    container_name: terra-vision-keycloak-db
+    restart: always
+    environment:
+      POSTGRES_DB: ${TERRA_VISION_KEYCLOAK_DB_NAME}
+      POSTGRES_USER: ${TERRA_VISION_KEYCLOAK_DB_USER}
+      POSTGRES_PASSWORD: ${TERRA_VISION_KEYCLOAK_DB_PASSWORD}
+    ports:
+      - '5432:5432'
+    volumes:
+      - terra-vision-keycloak-db-volume:/var/lib/postgresql/data
+    networks:
+      - terra-vision-network
+
+  terra-vision-keycloak:
+    image: quay.io/keycloak/keycloak:26.4
+    container_name: terra-vision-keycloak
+    restart: always
+    command: start-dev
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://terra-vision-keycloak-db:5432/${TERRA_VISION_KEYCLOAK_DB_NAME}
+      KC_DB_USERNAME: ${TERRA_VISION_KEYCLOAK_DB_USER}
+      KC_DB_PASSWORD: ${TERRA_VISION_KEYCLOAK_DB_PASSWORD}
+
+      KEYCLOAK_ADMIN: ${TERRA_VISION_KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${TERRA_VISION_KEYCLOAK_ADMIN_PASSWORD}
+    ports:
+      - "8080:8080"
+    networks:
+      - terra-vision-network
+
+
+networks:
+  terra-vision-network:
+    driver: bridge
+    name: terra-vision-network
+
+
+volumes:
+  terra-vision-keycloak-db-volume:
+    name: terra-vision-keycloak-db-volume

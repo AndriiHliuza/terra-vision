@@ -64,7 +64,7 @@ const getShapeEventHandlers = (defaultStyle: L.PathOptions, hoverStyle: L.PathOp
 function Map() {
 
     const { setLoading } = useContext(ApplicationContext) as ApplicationContextSettings;
-        const [shapes, setShapes] = useState<Shape[]>([]);
+    const [shapes, setShapes] = useState<Shape[]>([]);
     const [markers, setMarkers] = useState<MarkerData[]>([]);
 
     // Stub backend data
