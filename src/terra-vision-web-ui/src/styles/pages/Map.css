@@ -2,14 +2,6 @@
     color: var(--map-page-text-color);
 }
 
-/* Simple animation */
-@keyframes pulse {
-    0% { transform: scale(1); opacity: 0.7; }
-    50% { transform: scale(1.1); opacity: 1; }
-    100% { transform: scale(1); opacity: 0.7; }
-}
-
-
 #map-page .leaflet-container {
     position: fixed;
     top: 0;
@@ -17,6 +9,8 @@
 
     height: 100vh;
     width: 100%;
+
+    cursor: default;
 }
 
 #map-page .leaflet-control-layers {
@@ -26,7 +20,7 @@
 
     background: var(--glass-bg-color);
     border: 2px solid var(--map-page-glass-border-color);
-    border-radius: 10px;
+    border-radius: 20px;
 
     backdrop-filter: blur(var(--glass-blur-px));
     -webkit-backdrop-filter: blur(var(--glass-blur-px));
@@ -50,7 +44,7 @@
 
     background: var(--glass-bg-color);
     border: 2px solid var(--map-page-glass-border-color);
-    border-radius: var(--border-radius-px);
+    border-radius: 15px;
 
     cursor: pointer;
 

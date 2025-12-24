@@ -27,7 +27,7 @@ export function MapEventsHandler() {
             // Change cursor to crosshair on click
             const mapContainer = map.getContainer();
             const originalCursor = mapContainer.style.cursor;
-            mapContainer.style.cursor = "default";
+            mapContainer.style.cursor = "crosshair";
 
             // Show popup at clicked location
             const {lat, lng} = e.latlng;
@@ -63,7 +63,7 @@ const getShapeEventHandlers = (defaultStyle: L.PathOptions, hoverStyle: L.PathOp
 
 function Map() {
 
-    const { setLoading } = useContext(ApplicationContext) as ApplicationContextSettings;
+    const {setLoading} = useContext(ApplicationContext) as ApplicationContextSettings;
     const [shapes, setShapes] = useState<Shape[]>([]);
     const [markers, setMarkers] = useState<MarkerData[]>([]);
 
@@ -199,8 +199,6 @@ function Map() {
                 <MapEventsHandler/>
             </MapContainer>
         </div>
-
-
     )
 }
 

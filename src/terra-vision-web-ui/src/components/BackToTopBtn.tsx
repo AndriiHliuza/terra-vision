@@ -1,11 +1,10 @@
 import "../styles/components/BackToTopBtn.css";
 import {useEffect, useState} from "react";
-import {useTranslation} from "react-i18next";
+import backToTopImg from "../assets/back-to-top.png";
 
 
 function BackToTopBtn() {
 
-    const { t } = useTranslation();
     const [visible, setVisible] = useState(false);
 
     const handleClick = () => {
@@ -31,7 +30,7 @@ function BackToTopBtn() {
             className={`back-to-top-btn ${visible ? "" : "hide"}`}
             onClick={handleClick}
         >
-            {t("backToTop")}
+            <img src={backToTopImg} alt="Terra Logo"/>
         </div>
     );
 }

@@ -1,6 +1,5 @@
 import "../styles/pages/LandmineDetectionServicePage.css";
 import Header from "../components/Header.tsx";
-import Footer from "../components/Footer.tsx";
 import {useCallback, useState} from "react";
 import {type FileRejection, useDropzone} from "react-dropzone";
 import {useTranslation} from "react-i18next";
@@ -282,7 +281,6 @@ function LandmineDetectionServicePage() {
                 }
 
             </div>
-            <Footer/>
         </>
 
     )

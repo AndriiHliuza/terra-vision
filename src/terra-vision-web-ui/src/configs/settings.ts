@@ -4,6 +4,12 @@ export const ROUTES = {
     home: "/",
     map: "/map",
     landmineDetectionService: "/landmine-detector",
+    admin: {
+        baseRoute: "/admin",
+        subroutes: {
+            map: "map"
+        }
+    },
     notFound: "*",
 };
 

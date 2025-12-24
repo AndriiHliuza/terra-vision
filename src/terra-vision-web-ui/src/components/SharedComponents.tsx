@@ -1,9 +1,9 @@
-import BackToTopBtn from "../components/BackToTopBtn.tsx";
-import MouseTrail from "../components/MouseTrail.tsx";
+import BackToTopBtn from "./BackToTopBtn.tsx";
+import MouseTrail from "./MouseTrail.tsx";
 import {ToastContainer} from "react-toastify";
-import LoadingOverlay from "../components/LoadingOverlay.tsx";
+import LoadingOverlay from "./LoadingOverlay.tsx";
 import {useContext} from "react";
-import {ApplicationContext, type ApplicationContextSettings} from "./settings.ts";
+import {ApplicationContext, type ApplicationContextSettings} from "../configs/settings.ts";
 
 const SharedComponents = () => {
 

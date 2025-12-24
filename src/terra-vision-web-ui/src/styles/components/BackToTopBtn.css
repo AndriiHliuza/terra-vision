@@ -7,13 +7,13 @@
     align-items: center;
     justify-content: center;
 
-    width: 130px;
+    width: 60px;
     height: 60px;
 
     background: var(--glass-bg-color);
 
     border: 2px solid var(--glass-border-color);
-    border-radius: var(--border-radius-px);
+    border-radius: 50px;
 
     backdrop-filter: blur(var(--glass-blur-px));
     -webkit-backdrop-filter: blur(var(--glass-blur-px));
@@ -42,4 +42,13 @@
 
 .back-to-top-btn:active {
     transform: scale(0.7);
+}
+
+.back-to-top-btn > img {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: auto;
+    height: 75%;
 }
