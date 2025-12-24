@@ -30,7 +30,7 @@ function BackToTopBtn() {
             className={`back-to-top-btn ${visible ? "" : "hide"}`}
             onClick={handleClick}
         >
-            <img src={backToTopImg} alt="Terra Logo"/>
+            <img src={backToTopImg} alt="Back to Top" />
         </div>
     );
 }

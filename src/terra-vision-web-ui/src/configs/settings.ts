@@ -1,12 +1,14 @@
 import {createContext, type Dispatch, type SetStateAction} from "react";
+import {buildUrl} from "../commons/utils.ts";
 
 export const ROUTES = {
     home: "/",
     map: "/map",
     landmineDetectionService: "/landmine-detector",
     admin: {
-        baseRoute: "/admin",
+        route: "/admin",
         subroutes: {
+            dashboard: "dashboard",
             map: "map"
         }
     },
@@ -21,5 +23,7 @@ export type ApplicationContextSettings = {
 export const ApplicationContext = createContext<ApplicationContextSettings | undefined>(undefined);
 
 export const ROUTES_WITHOUT_MOUSE_TRAIL = [
-    ROUTES.map
+    ROUTES.map,
+   buildUrl([ROUTES.admin.route, ROUTES.admin.subroutes.dashboard]),
+   buildUrl([ROUTES.admin.route, ROUTES.admin.subroutes.map])
 ]

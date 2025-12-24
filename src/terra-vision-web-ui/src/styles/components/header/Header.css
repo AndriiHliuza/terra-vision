@@ -181,7 +181,7 @@ header #language-controls-btn {
     justify-content: center;
     align-items: center;
 
-    width: 75px;
+    width: 90px;
     height: 100%;
 
     background: var(--glass-bg-color);
@@ -204,12 +204,31 @@ header > #header-controls > #language-controls:hover > #language-controls-btn {
     backdrop-filter: blur(var(--glass-blur-px));
     -webkit-backdrop-filter: blur(var(--glass-blur-px));
 
-    padding-left: 30px;
-    padding-right: 30px;
+    width: 200px;
 }
 
 header > #header-controls > #language-controls > #language-controls-btn:active {
     transform: scale(0.5);
+}
+
+header #language-controls-btn > img {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: auto;
+    height: 20px;
+
+    margin-left: 20px;
+    margin-right: 10px;
+}
+
+header #language-controls-btn > .language-controls-btn-text {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    margin-right: 20px;
 }
 
 header > #header-controls > #language-controls > #language-dropdown-menu {
@@ -245,11 +264,11 @@ header > #header-controls > #language-controls.hide-header > #language-dropdown-
 
 header > #header-controls > #language-controls > #language-dropdown-menu > .language-dropdown-item {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
 
     height: 40px;
-    width: 125px;
+    width: 200px;
 
     margin-top: 10px;
 
@@ -273,6 +292,28 @@ header > #header-controls > #language-controls > #language-dropdown-menu > .lang
 
 header > #header-controls > #language-controls > #language-dropdown-menu > .language-dropdown-item:active {
     transform: scale(0.5);
+}
+
+header > #header-controls > #language-controls > #language-dropdown-menu > .language-dropdown-item > .language-dropdown-item-text {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    margin-left: 20px;
+}
+
+
+header > #header-controls > #language-controls > #language-dropdown-menu > .language-dropdown-item > img {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: auto;
+    height: 100%;
+
+    margin-right: 20px;
+
+    border-radius: 50px;
 }
 
 @media (max-width: 768px) {
@@ -434,9 +475,7 @@ header > #header-controls > #language-controls > #language-dropdown-menu > .lang
 
     header > #header-controls > #language-controls:hover > #language-controls-btn {
         transform: scale(1.03);
-
-        padding-left: 0;
-        padding-right: 0;
+        width: 100%;
     }
 
     header > #header-controls > #language-controls > #language-controls-btn:active {

@@ -6,6 +6,8 @@ import i18n from "i18next";
 import {useTranslation} from "react-i18next";
 import clsx from 'clsx';
 import {Menu, X} from "lucide-react";
+import ukrainianFlag from "../assets/ukraine-flag.png";
+import unitedKingdomFlag from "../assets/united-kingdom-flag.png"
 
 function Header() {
 
@@ -85,8 +87,8 @@ function Header() {
     ];
 
     const languages = [
-        {code: "en", label: t("header.languages.en.fullName")},
-        {code: "ua", label: t("header.languages.ua.fullName")},
+        {code: "en", label: t("header.languages.en.fullName"), flagImg: unitedKingdomFlag},
+        {code: "ua", label: t("header.languages.ua.fullName"), flagImg: ukrainianFlag},
     ];
 
     return (
@@ -128,7 +130,8 @@ function Header() {
                 {/* Language controls */}
                 <div id="language-controls" className={clsx({"hide-header": headerHidden})}>
                     <div id="language-controls-btn">
-                        {t(`header.languages.${i18n.language}.shortName`).toUpperCase()}
+                        <img src={languages.find(lang => lang.code === i18n.language)?.flagImg} alt="Flag image"/>
+                        <div className="language-controls-btn-text">{t(`header.languages.${i18n.language}.shortName`).toUpperCase()}</div>
                     </div>
                     <ul id="language-dropdown-menu">
                         {languages.map((lang) => (
@@ -137,7 +140,8 @@ function Header() {
                                 className="language-dropdown-item"
                                 onClick={() => i18n.changeLanguage(lang.code)}
                             >
-                                {lang.label}
+                                <div className="language-dropdown-item-text">{lang.label}</div>
+                                <img src={lang.flagImg} alt="Flag image"/>
                             </li>
                         ))}
                     </ul>

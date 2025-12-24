@@ -32,3 +32,12 @@ export async function createArchiveFromFileItems(fileItems: FileItem[]): Promise
 export function blobToZip(blob: Blob, fileName: string): File {
     return new File([blob], fileName, { type: "application/zip" });
 }
+
+export function buildUrl(
+    pathSegments: string[] = [],
+    isRelativePath: boolean = false
+): string {
+    const cleanedSegments = pathSegments.map(s => s.replace(/\//g, ""));
+    const url = cleanedSegments.filter(Boolean).join("/");
+    return isRelativePath ? url : "/" + url;
+}
