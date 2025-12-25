@@ -15,7 +15,7 @@ import {
 import "leaflet/dist/leaflet.css";
 import Header from "../components/Header.tsx";
 import {useContext, useEffect, useState} from "react";
-import type {MarkerData, Shape} from "../commons/types.ts";
+import type {MarkerData, Shape} from "../commons/models.ts";
 import {stubMarkers, stubShapes} from "../commons/stub.ts";
 import L from "leaflet";
 import {ApplicationContext, type ApplicationContextSettings} from "../configs/settings.ts";

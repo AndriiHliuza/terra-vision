@@ -1,14 +1,49 @@
-.admin-navigation-panel {
-    position: fixed;
-    left: 0;
-    top: 0;
-    bottom: 0;
-
+.admin-navigation-panel-container {
     display: flex;
+    align-items: center;
     justify-content: center;
-    align-items: flex-start;
 
     width: 350px;
+    height: 100%;
 
-    background: #99bcff;
+    background: #1b3a57;
+    opacity: 0.5;
+
+    overflow-y: overlay;
+}
+
+.admin-navigation-panel-container::-webkit-scrollbar {
+    width: 8px;
+    background: transparent;
+}
+.admin-navigation-panel-container::-webkit-scrollbar-track {
+    background: rgba(147, 165, 198, 0.4);
+}
+
+.admin-navigation-panel-container::-webkit-scrollbar-thumb {
+    background: rgb(100, 153, 255);
+    border-radius: 20px;
+
+    border: 2px solid transparent;   /* invisible space around thumb */
+    background-clip: content-box;    /* ensures thumb shrinks inside border */
+    transition: all 0.3s ease;
+}
+
+.admin-navigation-panel-container::-webkit-scrollbar-thumb:hover {
+    background: rgb(153, 188, 255);
+}
+
+.admin-navigation-panel-container > .admin-navigation-panel {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    margin-left: 20px;
+
+    background: yellow;
+}
+
+.hello2 {
+    height: 1000px;
+    width: 20px;
 }

@@ -1,4 +1,4 @@
-import type {FileItem} from "./types.ts";
+import {type FileItem, URL_TYPE, type UrlType, urlBuilders} from "./models.ts";
 import JSZip from "jszip";
 
 export function isArchive(fileType: string, fileName: string): boolean {
@@ -34,10 +34,18 @@ export function blobToZip(blob: Blob, fileName: string): File {
 }
 
 export function buildUrl(
-    pathSegments: string[] = [],
-    isRelativePath: boolean = false
+    urlSegments: string | string[],
+    urlType: UrlType = URL_TYPE.ABSOLUTE
 ): string {
-    const cleanedSegments = pathSegments.map(s => s.replace(/\//g, ""));
-    const url = cleanedSegments.filter(Boolean).join("/");
-    return isRelativePath ? url : "/" + url;
+    let url: string;
+
+    if (Array.isArray(urlSegments)) {
+        const cleanedSegments = urlSegments.map(s => s.replace(/\//g, ""));
+        url = cleanedSegments.filter(Boolean).join("/");
+    } else {
+        url = urlSegments.replace(/\//g, "");
+    }
+
+    return urlBuilders[urlType](url);
 }
+

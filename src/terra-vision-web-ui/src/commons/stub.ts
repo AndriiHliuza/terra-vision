@@ -1,4 +1,4 @@
-import type {MarkerData, Shape} from "./types.ts";
+import type {MarkerData, Shape} from "./models.ts";
 
 export const stubShapes: Shape[] = [
     {

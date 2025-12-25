@@ -14,3 +14,15 @@ export type MarkerData = {
     tooltip: string;
     popup: string;
 };
+
+export const URL_TYPE = {
+    ABSOLUTE: "absolute",
+    RELATIVE: "relative",
+} as const;
+
+export type UrlType = (typeof URL_TYPE)[keyof typeof URL_TYPE];
+
+export const urlBuilders: Record<UrlType, (u: string) => string> = {
+    [URL_TYPE.ABSOLUTE]: (u) => "/" + u,
+    [URL_TYPE.RELATIVE]: (u) => u,
+};

@@ -1,5 +1,6 @@
 import {createContext, type Dispatch, type SetStateAction} from "react";
 import {buildUrl} from "../commons/utils.ts";
+import {URL_TYPE} from "../commons/models.ts";
 
 export const ROUTES = {
     home: "/",
@@ -24,6 +25,6 @@ export const ApplicationContext = createContext<ApplicationContextSettings | und
 
 export const ROUTES_WITHOUT_MOUSE_TRAIL = [
     ROUTES.map,
-   buildUrl([ROUTES.admin.route, ROUTES.admin.subroutes.dashboard]),
-   buildUrl([ROUTES.admin.route, ROUTES.admin.subroutes.map])
+    buildUrl([ROUTES.admin.route, ROUTES.admin.subroutes.dashboard], URL_TYPE.ABSOLUTE),
+    buildUrl([ROUTES.admin.route, ROUTES.admin.subroutes.map], URL_TYPE.ABSOLUTE),
 ]
