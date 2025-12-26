@@ -26,3 +26,11 @@ export const urlBuilders: Record<UrlType, (u: string) => string> = {
     [URL_TYPE.ABSOLUTE]: (u) => "/" + u,
     [URL_TYPE.RELATIVE]: (u) => u,
 };
+
+export interface MatrixBackgroundProps {
+    speed?: number;
+    fontSize?: number;
+    color?: string;
+    backgroundColor?: string;
+    backgroundOpacity?: number;
+}
