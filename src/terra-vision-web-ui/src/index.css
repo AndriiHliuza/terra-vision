@@ -57,3 +57,8 @@ body {
     justify-content: center;
     align-items: center;
 }
+
+@keyframes text-typing {
+    from { width: 0; }
+    to { width: 100%; }
+}

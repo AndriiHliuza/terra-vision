@@ -5,9 +5,9 @@ import Map from "../pages/Map.tsx";
 import NotFound from "../pages/NotFound.tsx";
 import LandmineDetectionServicePage from "../pages/LandmineDetectionServicePage.tsx";
 import AdminDashboard from "../pages/AdminDashboard.tsx";
-import AdminMap from "../pages/AdminMap.tsx";
 import AdminLayout from "../layouts/AdminLayout.tsx";
 import ApplicationLayout from "../layouts/ApplicationLayout.tsx";
+import MapEditor from "../pages/MapEditor.tsx";
 
 function RoutingConfig() {
     return (
@@ -20,7 +20,7 @@ function RoutingConfig() {
                     <Route path={ROUTES.admin.route} element={<AdminLayout/>}>
                         <Route index element={<Navigate to={ROUTES.admin.subroutes.dashboard} replace />} />
                         <Route path={ROUTES.admin.subroutes.dashboard} element={<AdminDashboard />} />
-                        <Route path={ROUTES.admin.subroutes.map} element={<AdminMap/>}/>
+                        <Route path={ROUTES.admin.subroutes.mapEditor} element={<MapEditor/>}/>
                     </Route>
                     <Route path={ROUTES.notFound} element={<NotFound/>}/>
                 </Routes>

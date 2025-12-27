@@ -38,8 +38,8 @@ export default function MatrixBackground({
         let drops: number[] = [];
 
         const initCanvas = () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+            canvas.width = canvas.parentElement?.clientWidth || window.innerWidth;
+            canvas.height = canvas.parentElement?.clientHeight || window.innerHeight;
 
             const columns = Math.floor(canvas.width / fontSize);
 
@@ -103,7 +103,7 @@ export default function MatrixBackground({
             clearInterval(interval);
             window.removeEventListener('resize', handleResize);
         };
-    }, [speed, fontSize, color]);
+    }, [speed, fontSize, color, backgroundColor, backgroundOpacity]);
 
     return (
         <canvas ref={canvasRef} className="matrix-canvas"/>

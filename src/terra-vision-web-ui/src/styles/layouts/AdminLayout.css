@@ -1,4 +1,15 @@
+.admin-layout {
+    position: relative;
+    width: 100%;
+    height: 100%;
+
+    background-color: black;
+}
+
 .admin-layout-content-container {
+    position: relative;
+    z-index: 100;
+
     display: flex;
     justify-content: center;
     align-items: stretch;
@@ -38,28 +49,41 @@
     height: 100%;
 
     margin: 20px;
+
+    border-radius: 5px;
+    overflow: hidden;
 }
 
-.admin-layout-content-container > .admin-layout-content > section > .admin-layout-content-item {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+/*.admin-layout-content-container > .admin-layout-content > section > .admin-layout-content-item {*/
+/*    display: flex;*/
+/*    justify-content: center;*/
+/*    align-items: center;*/
 
-    height: 500px;
-    width: 100%;
+/*    height: 500px;*/
+/*    width: 100%;*/
 
-    margin: 5px;
+/*    margin: 5px;*/
 
-    background: var(--glass-bg-color);
+/*    background: slateblue;*/
 
-    border: 2px solid var(--glass-border-color);
-    border-radius: 15px;
+/*    border: 2px solid var(--glass-border-color);*/
+/*    border-radius: 15px;*/
+/*}*/
+
+
+.admin-nav-container.collapsed ~ .admin-layout-content-container > .admin-layout-content {
+    margin-left: 110px;
 }
-
 
 @media (max-width: 768px) {
     .admin-layout-content-container > .admin-layout-content {
         margin-left: 200px;
+    }
+}
+
+@media (max-width: 576px) {
+    .admin-nav-container.collapsed ~ .admin-layout-content-container > .admin-layout-content {
+        margin-left: 30px;
     }
 }
 

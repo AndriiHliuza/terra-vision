@@ -27,3 +27,9 @@
     width: 120px;
     animation: pulse 1.5s infinite ease-in-out;
 }
+
+@media (max-width: 200px) {
+    .loading-image {
+        width: 90px;
+    }
+}

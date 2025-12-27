@@ -88,12 +88,6 @@
     border-radius: 10px;
 }
 
-@media (max-width: 200px) {
-    .loading-image {
-        width: 90px;
-    }
-}
-
 @media (max-height: 525px) {
     #map-page .leaflet-control-layers-overlays,
     #map-page .leaflet-control-layers-base {

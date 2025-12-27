@@ -1,7 +1,7 @@
 {
   "header": {
     "home": "Головна",
-    "landmineDetectionService": "Детектор мін",
+    "landmineDetectionService": "Детектор",
     "map": "Карта",
     "languages": {
       "en": {
@@ -24,7 +24,7 @@
       },
       "section-1": {
         "section-info": {
-          "service-title": "Детектор мін"
+          "service-title": "Детектор"
         },
         "section-controls": {
           "section-description": "Система виявлення наземних мін, яка використовує тепловізійні (інфрачервоні) зображення та технології комп'ютерного зору."
@@ -60,6 +60,14 @@
     },
     "archive-item-title": "Архів",
     "download-archive-btn": "Завантажити"
+  },
+  "admin-page": {
+    "dashboard": {
+      "tab-name": "Інформаційна панель"
+    },
+    "map-editor": {
+      "tab-name": "Редактор карт"
+    }
   },
   "not-found-page": {
     "description": "Сторінки, яку ви шукаєте, не існує"

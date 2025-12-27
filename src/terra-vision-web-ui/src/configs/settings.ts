@@ -10,7 +10,7 @@ export const ROUTES = {
         route: "/admin",
         subroutes: {
             dashboard: "dashboard",
-            map: "map"
+            mapEditor: "map/editor"
         }
     },
     notFound: "*",
@@ -26,5 +26,5 @@ export const ApplicationContext = createContext<ApplicationContextSettings | und
 export const ROUTES_WITHOUT_MOUSE_TRAIL = [
     ROUTES.map,
     buildUrl([ROUTES.admin.route, ROUTES.admin.subroutes.dashboard], URL_TYPE.ABSOLUTE),
-    buildUrl([ROUTES.admin.route, ROUTES.admin.subroutes.map], URL_TYPE.ABSOLUTE),
+    buildUrl([ROUTES.admin.route, ROUTES.admin.subroutes.mapEditor], URL_TYPE.ABSOLUTE),
 ]

@@ -40,11 +40,6 @@
     background: transparent;
 }
 
-@keyframes text-typing {
-    from { width: 0; }
-    to { width: 100%; }
-}
-
 #home-page > section {
     display: flex;
     justify-content: center;

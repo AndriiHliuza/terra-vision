@@ -1,7 +1,7 @@
 {
   "header": {
     "home": "Home",
-    "landmineDetectionService": "Landmine detector",
+    "landmineDetectionService": "Detector",
     "map": "Map",
     "languages": {
       "en": {
@@ -24,7 +24,7 @@
       },
       "section-1": {
         "section-info": {
-          "service-title": "Landmine detector"
+          "service-title": "Detector"
         },
         "section-controls": {
           "section-description": "Landmine detection system that uses thermal (infrared) imaging and computer vision technologies."
@@ -60,6 +60,14 @@
     },
     "archive-item-title": "Archive",
     "download-archive-btn": "Download"
+  },
+  "admin-page": {
+    "dashboard": {
+      "tab-name": "Dashboard"
+    },
+    "map-editor": {
+      "tab-name": "Map Editor"
+    }
   },
   "not-found-page": {
     "description": "The page you are looking for does not exist"
