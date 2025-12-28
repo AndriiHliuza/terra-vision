@@ -27,14 +27,14 @@
           "service-title": "Про нас"
         },
         "section-controls": {
-          "section-description": "Створюємо безпечне середовище в Україні та світі. Ознайомтеся з нашими послугами."
+          "section-description": "Створюємо безпечне середовище в Україні та світі. Ознайомтеся з нашими сервісами."
         }
       }
     }
   },
   "services": {
     "main": {
-      "welcome": "Ознайомтеся з нашими послугами",
+      "welcome": "Ознайомтеся з нашими сервісами",
       "section": {
         "section-controls": {
           "try-service-link-text": "Скористатись сервісом"
@@ -58,7 +58,13 @@
       }
     }
   },
+  "about-page": {
+    "title": "Про проект",
+    "projectName": "Назва проекту",
+    "developedBy": "Розробник"
+  },
   "landmine-detection-page": {
+    "title": "Детектор",
     "drag-and-drop-section-text-for-not-active-drag": "Натисніть або перетягніть зображення чи «.zip» архів",
     "drag-and-drop-section-text-for-active-drag": "Перетягніть зображення чи «.zip» архів...",
     "clear-all-images-btn-text": "Очистити",

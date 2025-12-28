@@ -43,30 +43,6 @@ function Home() {
                     </div>
                 </section>
                 <section><img src={mountainsImg} alt="Ukraine Mountains"/></section>
-                {/*<section><img src={landmineFieldImg} alt="Landmine Field"/></section>*/}
-                {/*<section className="data-section">*/}
-                {/*    <div className="section-info section-info-2">*/}
-                {/*        <div>*/}
-                {/*            <h2>{t("home.main.section-2.section-info.service-title")}</h2>*/}
-                {/*            <img src={ukraineMapImg} alt="Landmine"/>*/}
-                {/*        </div>*/}
-                {/*    </div>*/}
-                {/*    <div className="section-controls section-controls-2">*/}
-                {/*        <div>*/}
-                {/*            <div className="service-description">*/}
-                {/*                {t("home.main.section-2.section-controls.section-description")}*/}
-                {/*            </div>*/}
-                {/*            <div className="try-service-section">*/}
-                {/*                <Link*/}
-                {/*                    to={ROUTES.map}*/}
-                {/*                    className="try-service-link"*/}
-                {/*                >*/}
-                {/*                    {t("home.main.section.section-controls.try-service-link-text")}*/}
-                {/*                </Link>*/}
-                {/*            </div>*/}
-                {/*        </div>*/}
-                {/*    </div>*/}
-                {/*</section>*/}
             </main>
             <Footer/>
         </>

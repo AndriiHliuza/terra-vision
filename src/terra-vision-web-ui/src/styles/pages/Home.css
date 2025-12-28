@@ -15,7 +15,7 @@
     font-size: var(--font-size-xxl);
 
     height: 55vw;
-    min-height: 500px;
+    min-height: 450px;
     max-height: 500px;
 }
 
@@ -29,6 +29,8 @@
 
     margin: 0;
     padding: 0 20px;
+
+    line-height: 1.2;
 
     overflow: hidden;
 
@@ -60,12 +62,10 @@
 }
 
 #home-page .section-info {
-    /*background-color: var(--section-info-1);*/
     background-color: rgba(106, 90, 205, 0.3);
 }
 
 #home-page .section-controls {
-    /*background-color: var(--section-controls-1);*/
     background-color: rgba(92, 133, 113, 0.5);
 }
 

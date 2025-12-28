@@ -139,6 +139,7 @@ function LandmineDetectionServicePage() {
             <Header/>
             <div id="lm-detection-service-page">
                 <section>
+                    <h1>{t("landmine-detection-page.title")}</h1>
                     {/* Dropzone area */}
                     <div
                         {...getRootProps()}
@@ -229,7 +230,8 @@ function LandmineDetectionServicePage() {
                                                     src={imagePreview}
                                                     alt={image.file.name}
                                                 />
-                                                <div className="image-name-overlay">{truncateFileName(image.file.name)}</div>
+                                                <div
+                                                    className="image-name-overlay">{truncateFileName(image.file.name)}</div>
                                                 <a
                                                     href={imagePreview}
                                                     download={image.file.name} // filename when downloaded

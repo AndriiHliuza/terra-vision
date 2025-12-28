@@ -27,7 +27,7 @@
           "service-title": "Services"
         },
         "section-controls": {
-          "section-description": "We create a safe environment in Ukraine and the world. Check out our services."
+          "section-description": "We create safe environment in Ukraine and the world. Check out our services."
         }
       }
     }
@@ -58,7 +58,13 @@
       }
     }
   },
+  "about-page": {
+    "title": "About",
+    "projectName": "Project name",
+    "developedBy": "Developed by"
+  },
   "landmine-detection-page": {
+    "title": "Detector",
     "drag-and-drop-section-text-for-not-active-drag": "Click or Drag & Drop images or «.zip» archives here",
     "drag-and-drop-section-text-for-active-drag": "Drop images or «.zip» archives here...",
     "clear-all-images-btn-text": "Clear",
