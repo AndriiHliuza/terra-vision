@@ -15,6 +15,7 @@
 
     --glass-hover-bg-color: rgba(0, 0, 0, 0.5);
 
+    --font-size-xl: clamp(5px, 5vw,50px);
     --font-size-xxl: clamp(10px, 8vw, 90px);
     --button-border-radius: 25px;
 

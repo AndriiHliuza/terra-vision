@@ -4,8 +4,10 @@ import {URL_TYPE} from "../commons/models.ts";
 
 export const ROUTES = {
     home: "/",
+    services: "/services",
     map: "/map",
     landmineDetectionService: "/landmine-detector",
+    about: "/about",
     admin: {
         route: "/admin",
         subroutes: {

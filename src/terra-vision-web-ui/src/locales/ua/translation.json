@@ -1,8 +1,8 @@
 {
   "header": {
     "home": "Головна",
-    "landmineDetectionService": "Детектор",
-    "map": "Карта",
+    "services": "Сервіси",
+    "about" : "Про нас",
     "languages": {
       "en": {
         "fullName": "Англійська",
@@ -17,6 +17,24 @@
   "home": {
     "main": {
       "welcome": "Ласкаво просимо",
+      "section": {
+        "section-controls": {
+          "try-service-link-text": "Скористатись сервісами"
+        }
+      },
+      "section-1": {
+        "section-info": {
+          "service-title": "Про нас"
+        },
+        "section-controls": {
+          "section-description": "Створюємо безпечне середовище в Україні та світі. Ознайомтеся з нашими послугами."
+        }
+      }
+    }
+  },
+  "services": {
+    "main": {
+      "welcome": "Ознайомтеся з нашими послугами",
       "section": {
         "section-controls": {
           "try-service-link-text": "Скористатись сервісом"

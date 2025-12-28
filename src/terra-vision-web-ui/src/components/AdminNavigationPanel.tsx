@@ -3,7 +3,7 @@ import {NavLink} from "react-router-dom";
 import {ROUTES} from "../configs/settings.ts";
 import dashboardIcon from "../assets/dashboard-icon.png";
 import mapEditorIcon from "../assets/map-editor-icon.png";
-import sidebarHideIcon from "../assets/sidebar-hide-btn.png";
+import sidebarBtnIcon from "../assets/sidebar-btn.png";
 import {useEffect, useState} from "react";
 import clsx from "clsx";
 import {useTranslation} from "react-i18next";
@@ -54,7 +54,7 @@ function AdminNavigationPanel() {
                     className="admin-nav-sidebar-btn"
                     onClick={handleNavPanelCollapse}
                 >
-                    <img src={sidebarHideIcon}  alt="Sidebar button"/>
+                    <img src={sidebarBtnIcon}  alt="Sidebar button"/>
                 </div>
                 {links.map((link) => (
                     <NavLink

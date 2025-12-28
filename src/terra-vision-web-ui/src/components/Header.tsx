@@ -82,8 +82,8 @@ function Header() {
 
     const links = [
         {to: ROUTES.home, label: t("header.home")},
-        {to: ROUTES.landmineDetectionService, label: t("header.landmineDetectionService")},
-        {to: ROUTES.map, label: t("header.map")},
+        {to: ROUTES.services, label: t("header.services")},
+        {to: ROUTES.about, label: t("header.about")},
     ];
 
     const languages = [

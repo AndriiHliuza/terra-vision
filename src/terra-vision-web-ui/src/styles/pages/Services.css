@@ -1,5 +1,5 @@
 /* Main */
-#home-page {
+#services-page {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -9,39 +9,39 @@
     width: 100%;
 }
 
-#home-page > .home-page-leaves-img-section {
-    background: url("../../assets/leaves-bg.jpg") 0 0;
+#services-page > .services-page-technology-img-section {
+    background: url("../../assets/services-bg.webp") 0 0;
     background-size: auto 400px;
-    font-size: var(--font-size-xxl);
+    font-size: var(--font-size-xl);
 
     height: 55vw;
-    min-height: 500px;
+    min-height: 400px;
     max-height: 500px;
 }
 
-#home-page > .home-page-leaves-img-section > h1 {
+#services-page > .services-page-technology-img-section > h1 {
     display: flex;
     justify-content: center;
     align-items: center;
 
-    width: 0;
-    height: 100%;
+    width: 100%;
+    height: 80%;
 
     margin: 0;
-    padding: 0 20px;
+    padding: 0 50px;
+
+    line-height: 1.2;
 
     overflow: hidden;
-
-    animation: text-typing 1s steps(50) forwards;
 
     cursor: default;
 }
 
-#home-page > .home-page-leaves-img-section > h1::selection {
+#services-page > .services-page-technology-img-section > h1::selection {
     background: transparent;
 }
 
-#home-page > section {
+#services-page > section {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -50,7 +50,7 @@
     height: 500px;
 }
 
-#home-page > .data-section > div {
+#services-page > .data-section > div {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -59,17 +59,23 @@
     height: 100%;
 }
 
-#home-page .section-info {
-    /*background-color: var(--section-info-1);*/
-    background-color: rgba(106, 90, 205, 0.3);
+#services-page .section-info-1 {
+    background-color: var(--section-info-1);
 }
 
-#home-page .section-controls {
-    /*background-color: var(--section-controls-1);*/
-    background-color: rgba(92, 133, 113, 0.5);
+#services-page .section-controls-1 {
+    background-color: var(--section-controls-1);
 }
 
-#home-page .section-info > div, #home-page .section-controls > div {
+#services-page .section-info-2 {
+    background-color: var(--section-info-2);
+}
+
+#services-page .section-controls-2 {
+    background-color: var(--section-controls-2);
+}
+
+#services-page .section-info > div, #services-page .section-controls > div {
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
@@ -84,11 +90,11 @@
     border-radius: var(--border-radius-px);
 }
 
-#home-page .section-info > div > h2 {
+#services-page .section-info > div > h2 {
     word-spacing: 10px;
 }
 
-#home-page > :nth-child(3) > img {
+#services-page > :nth-child(3) > img, #services-page > :nth-child(5) > img {
     width: 100%;
     height: 100%;
 
@@ -96,7 +102,7 @@
     object-position: center;
 }
 
-#home-page .section-info > div > img {
+#services-page .section-info > div > img {
     width: 300px;
     height: auto;
 
@@ -104,7 +110,15 @@
     object-position: center;
 }
 
-#home-page .section-controls > div > .service-description {
+#services-page .section-info-2 > div > img {
+    width: 400px;
+    height: auto;
+
+    object-fit: cover;
+    object-position: center;
+}
+
+#services-page .section-controls > div > .service-description {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -121,8 +135,7 @@
 
     background: rgba(0, 0, 0, 0.1);
 }
-
-#home-page .section-controls > div > .try-service-section {
+#services-page .section-controls > div > .try-service-section {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -130,7 +143,7 @@
     width: 80%;
 }
 
-#home-page .section-controls > div > .try-service-section > .try-service-link {
+#services-page .section-controls > div > .try-service-section > .try-service-link {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -142,32 +155,38 @@
     transition: text-shadow 0.3s ease, transform 0.3s ease;
 }
 
-#home-page .section-controls > div > .try-service-section > .try-service-link:hover {
+#services-page .section-controls > div > .try-service-section > .try-service-link:hover {
     text-shadow: 0 0 8px whitesmoke, 0 0 16px whitesmoke;
     transform: scale(1.1);
 }
 
-#home-page .section-controls > div > .try-service-section > .try-service-link:active {
+#services-page .section-controls > div > .try-service-section > .try-service-link:active {
     transform: scale(0.9);
 }
 
+@media (max-width: 1000px) {
+    #services-page .section-info-2 > div > img {
+        width: 350px;
+    }
+}
+
 @media (max-width: 768px) {
-    #home-page > section {
+    #services-page > section {
         flex-direction: column;
 
         height: 1000px;
     }
 
-    #home-page > .data-section > div {
+    #services-page > .data-section > div {
         width: 100%;
     }
 
-    #home-page .section-info > div, #home-page .section-controls > div {
+    #services-page .section-info > div, #services-page .section-controls > div {
         height: 90%;
         width: 90%;
     }
 
-    #home-page .section-info > div > img {
+    #services-page .section-info > div > img {
         width: 60%;
         height: auto;
     }
