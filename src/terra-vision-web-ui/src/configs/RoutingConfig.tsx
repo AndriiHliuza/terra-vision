@@ -8,8 +8,6 @@ import AdminDashboard from "../pages/AdminDashboard.tsx";
 import AdminLayout from "../layouts/AdminLayout.tsx";
 import ApplicationLayout from "../layouts/ApplicationLayout.tsx";
 import MapEditor from "../pages/MapEditor.tsx";
-import Services from "../pages/Services.tsx";
-import About from "../pages/About.tsx";
 
 function RoutingConfig() {
     return (
@@ -17,8 +15,6 @@ function RoutingConfig() {
             <ApplicationLayout>
                 <Routes>
                     <Route path={ROUTES.home} element={<Home/>}/>
-                    <Route path={ROUTES.services} element={<Services/>}/>
-                    <Route path={ROUTES.about} element={<About/>}/>
                     <Route path={ROUTES.landmineDetectionService} element={<LandmineDetectionServicePage/>}/>
                     <Route path={ROUTES.map} element={<Map/>}/>
                     <Route path={ROUTES.admin.route} element={<AdminLayout/>}>

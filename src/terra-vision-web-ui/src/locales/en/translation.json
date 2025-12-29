@@ -1,8 +1,8 @@
 {
   "header": {
     "home": "Home",
-    "services": "Services",
-    "about" : "About",
+    "landmineDetectionService": "Detector",
+    "map": "Map",
     "languages": {
       "en": {
         "fullName": "English",
@@ -17,24 +17,6 @@
   "home": {
     "main": {
       "welcome": "Welcome",
-      "section": {
-        "section-controls": {
-          "try-service-link-text": "Try services"
-        }
-      },
-      "section-1": {
-        "section-info": {
-          "service-title": "Services"
-        },
-        "section-controls": {
-          "section-description": "We create safe environment in Ukraine and the world. Check out our services."
-        }
-      }
-    }
-  },
-  "services": {
-    "main": {
-      "welcome": "Check out our services",
       "section": {
         "section-controls": {
           "try-service-link-text": "Try service"
@@ -57,11 +39,6 @@
         }
       }
     }
-  },
-  "about-page": {
-    "title": "About",
-    "projectName": "Project name",
-    "developedBy": "Developed by"
   },
   "landmine-detection-page": {
     "title": "Detector",
