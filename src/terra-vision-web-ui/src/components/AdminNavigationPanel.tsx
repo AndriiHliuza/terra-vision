@@ -12,19 +12,15 @@ function AdminNavigationPanel() {
 
     const {t} = useTranslation();
 
-    const [isNavPanelCollapsed, setNavPanelCollapsed] = useState( window.innerWidth < 768);
-    const [isNavPanelManuallyCollapsed, setNavPanelManuallyCollapsed] = useState(false);
-
-    useEffect(() => {
-        const onResize = () => {
-            if (window.innerWidth < 768) {
-                setNavPanelCollapsed(true);
-            }
-        };
-
-        window.addEventListener("resize", onResize);
-        return () => window.removeEventListener("resize", onResize);
-    }, []);
+    const [isNavPanelCollapsed, setNavPanelCollapsed] = useState<boolean>(() => {
+        if (window.innerWidth < 768) return true; // small screens always collapsed
+        const saved = localStorage.getItem("adminNavPanelCollapsed");
+        return saved ? JSON.parse(saved) : false;
+    });
+    const [isNavPanelManuallyCollapsed, setNavPanelManuallyCollapsed] = useState<boolean>(() => {
+        const saved = localStorage.getItem("adminNavPanelCollapsedManually");
+        return saved ? JSON.parse(saved) : false;
+    });
 
     const links = [
         {to: ROUTES.admin.subroutes.dashboard, label: t("admin-page.dashboard.tab-name"), icon: dashboardIcon},
@@ -32,9 +28,18 @@ function AdminNavigationPanel() {
     ];
 
     const handleNavPanelCollapse = () => {
-        setNavPanelCollapsed(!isNavPanelCollapsed);
-        setNavPanelManuallyCollapsed(!isNavPanelManuallyCollapsed);
+        setNavPanelCollapsed(prev => {
+            const next = !prev;
+            localStorage.setItem("adminNavPanelCollapsed", JSON.stringify(next));
+            return next;
+        });
+        setNavPanelManuallyCollapsed(prev => {
+            const next = !prev;
+            localStorage.setItem("adminNavPanelCollapsedManually", JSON.stringify(next));
+            return next;
+        });
     };
+
 
     useEffect(() => {
         const onResize = () => {
@@ -45,7 +50,7 @@ function AdminNavigationPanel() {
 
         window.addEventListener("resize", onResize);
         return () => window.removeEventListener("resize", onResize);
-    }, [isNavPanelManuallyCollapsed]);
+    }, [isNavPanelManuallyCollapsed, setNavPanelCollapsed]);
 
     return (
         <div className={clsx("admin-nav-container", {"collapsed": isNavPanelCollapsed})}>

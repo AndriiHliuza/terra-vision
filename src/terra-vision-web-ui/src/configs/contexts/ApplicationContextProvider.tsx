@@ -1,11 +1,7 @@
-import {type ReactNode, useState} from "react";
+import {type PropsWithChildren, useState} from "react";
 import { ApplicationContext } from "../settings.ts";
 
-type ApplicationContextProviderProps = {
-    children: ReactNode;
-}
-
-const ApplicationContextProvider = ({ children }: ApplicationContextProviderProps) => {
+const ApplicationContextProvider = ({ children }: PropsWithChildren) => {
     const [loading, setLoading] = useState(false);
 
     return (

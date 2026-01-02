@@ -1,11 +1,7 @@
 import "../styles/components/LoadingOverlay.css";
 import loadingIcon from "../assets/loading-icon.gif";
 
-type LoadingOverlayProps = {
-    visible: boolean;
-}
-
-function LoadingOverlay({ visible }: LoadingOverlayProps) {
+function LoadingOverlay({ visible }: { visible: boolean }) {
 
     if (!visible) return null;
 

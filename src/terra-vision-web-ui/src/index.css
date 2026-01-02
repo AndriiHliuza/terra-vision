@@ -33,6 +33,7 @@
     /* Map page CSS variables */
     --map-page-text-color: #242424;
     --map-page-glass-border-color: rgba(68, 103, 91, 0.5);
+    --map-editor-page-glass-border-color: rgba(223, 187, 251, 0.5);
 
     /* Base styles */
     font-family: "Rubik Distressed", "Poppins", system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -61,4 +62,10 @@ body {
 @keyframes text-typing {
     from { width: 0; }
     to { width: 100%; }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 0.7; }
+    50% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(1); opacity: 0.7; }
 }

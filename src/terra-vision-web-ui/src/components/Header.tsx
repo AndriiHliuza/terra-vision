@@ -9,7 +9,7 @@ import {Menu, X} from "lucide-react";
 import ukrainianFlag from "../assets/ukraine-flag.png";
 import unitedKingdomFlag from "../assets/united-kingdom-flag.png"
 
-function Header() {
+function Header({ scrollOffset = 1000 }: { scrollOffset?: number }) {
 
     const {t} = useTranslation();
 
@@ -23,7 +23,7 @@ function Header() {
 
     const lastScrollPositionRef = useRef<number>(lastScrollPosition);
     const headerControlsOpenRef = useRef<boolean>(headerControlsOpen);
-    const SCROLL_OFFSET = 1000;
+    // const SCROLL_OFFSET = 1000;
 
     useEffect(() => {
         lastScrollPositionRef.current = lastScrollPosition;
@@ -39,11 +39,11 @@ function Header() {
             const lastScrollPositionValue = lastScrollPositionRef.current;
             const headerControlsOpenStatus = headerControlsOpenRef.current;
 
-            if (headerControlsOpenStatus && currentScrollPositionValue > lastScrollPositionValue && currentScrollPositionValue > SCROLL_OFFSET) {
+            if (headerControlsOpenStatus && currentScrollPositionValue > lastScrollPositionValue && currentScrollPositionValue > scrollOffset) {
                 setHeaderControlsOpen(false);
             }
 
-            setHeaderHidden(currentScrollPositionValue > lastScrollPositionValue && currentScrollPositionValue > SCROLL_OFFSET);
+            setHeaderHidden(currentScrollPositionValue > lastScrollPositionValue && currentScrollPositionValue > scrollOffset);
             setLastScrollPosition(currentScrollPositionValue);
         }
 

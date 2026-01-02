@@ -60,7 +60,7 @@
 
     cursor: pointer;
 
-    transition: all 0.3s ease, transform 0.7s ease;
+    transition: all 0.3s ease, transform 0.5s ease;
     transform: scaleX(1);
 }
 
@@ -207,6 +207,10 @@
 
 .admin-nav-container.collapsed > nav > .admin-nav-sidebar-btn {
     transform: scaleX(-1);
+}
+
+.admin-nav-container.collapsed > nav > .admin-nav-sidebar-btn:hover {
+    transform: scaleX(-1.1);
 }
 
 .admin-nav-container.collapsed > nav > .admin-nav-item {

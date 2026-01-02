@@ -14,9 +14,9 @@
 }
 
 #map-page .leaflet-control-layers {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    position: absolute;
+    bottom: 5px;
+    left: 5px;
 
     background: var(--glass-bg-color);
     border: 2px solid var(--map-page-glass-border-color);

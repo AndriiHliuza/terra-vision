@@ -1,6 +1,6 @@
 import {useEffect, useRef} from "react";
-import type {MatrixBackgroundProps} from "../../commons/models.ts";
-import "../../styles/components/MatrixBackground.css";
+import type {MatrixBackgroundProps} from "../commons/models.ts";
+import "../styles/components/MatrixBackground.css";
 
 export default function MatrixBackground({
                                              speed = 33,

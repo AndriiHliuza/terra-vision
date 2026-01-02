@@ -3,7 +3,7 @@ import {useEffect, useState} from "react";
 import backToTopImg from "../assets/back-to-top.png";
 
 
-function BackToTopBtn() {
+function BackToTopBtn({ scrollOffset = 1000 }: { scrollOffset?: number }) {
 
     const [visible, setVisible] = useState(false);
 
@@ -14,7 +14,6 @@ function BackToTopBtn() {
         });
     };
 
-    const scrollOffset = 1000;
     const handleScroll = () => {
         const currentScroll = window.scrollY;
         setVisible(currentScroll > scrollOffset);

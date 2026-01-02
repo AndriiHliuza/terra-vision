@@ -1,42 +1,54 @@
 import "../styles/pages/MapEditor.css";
 import {
-    Circle,
-    LayersControl,
     MapContainer,
     Marker,
-    Polygon,
     Popup,
-    Rectangle,
-    TileLayer,
     Tooltip
 } from "react-leaflet";
 import {useEffect, useState} from "react";
 import type {MarkerData, Shape} from "../commons/models.ts";
 import {stubMarkers, stubShapes} from "../commons/stub.ts";
-import {MapEventsHandler} from "./Map.tsx";
+import {MapEventsHandler, MapResizeHandler} from "../commons/map-controls.ts";
+import MapLayers from "../components/MapLayers.tsx";
+import MapShapes from "../components/MapShapes.tsx";
+import PartialLoadingOverlay from "../components/PartialLoadingOverlay.tsx";
+import {useTranslation} from "react-i18next";
 
 function MapEditor() {
 
-    // const {setLoading} = useContext(ApplicationContext) as ApplicationContextSettings;
+    const {t} = useTranslation();
+
+    const [selectedLayer, setSelectedLayer] = useState(
+        () => localStorage.getItem("preferredMapLayer") || "OSM Streets"
+    );
+
+    useEffect(() => {
+        localStorage.setItem("preferredMapLayer", selectedLayer);
+    }, [selectedLayer]);
+
+    const [isMapLoading, setMapLoading] = useState(true);
+
     const [shapes, setShapes] = useState<Shape[]>([]);
     const [markers, setMarkers] = useState<MarkerData[]>([]);
 
     // Stub backend data
     useEffect(() => {
         // Simulate async fetch
-        // setLoading(true)
+        setMapLoading(true)
         const timer = setTimeout(() => {
             setShapes(stubShapes);
             setMarkers(stubMarkers);
-            // setLoading(false);
+            setMapLoading(false);
         }, 500);
 
         return () => clearTimeout(timer);
-    }, [/*setLoading*/]);
+    }, []);
+
+    /* ---------- MAP EDIT HANDLERS ---------- */
 
     return (
         <div className="map-editor">
-            <div>MAP EDITOR</div>
+            <h1>{t("admin-page.map-editor.tab-name").toUpperCase()}</h1>
             <div className="map-container">
                 <MapContainer
                     center={[48.4, 31]}
@@ -45,56 +57,9 @@ function MapEditor() {
                     minZoom={2}
                     maxBounds={[[-85, -Infinity], [85, Infinity]]}
                     maxBoundsViscosity={1.0}
+                    worldCopyJump={true}
                 >
-                    <LayersControl position="bottomleft">
-
-                        {/* --- OSM FAMILY --- */}
-                        {/* Streets Layer (Default) */}
-                        <LayersControl.BaseLayer checked name="OSM Streets">
-                            <TileLayer
-                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                            />
-                        </LayersControl.BaseLayer>
-
-                        <LayersControl.BaseLayer name="OSM Humanitarian">
-                            <TileLayer
-                                url="https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"
-                                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Tiles style by HOT OSM'
-                            />
-                        </LayersControl.BaseLayer>
-
-                        <LayersControl.BaseLayer name="OpenTopoMap">
-                            <TileLayer
-                                url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
-                                attribution='Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, SRTM | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a>'
-                            />
-                        </LayersControl.BaseLayer>
-
-
-                        {/* --- ESRI GLOBAL LAYERS --- */}
-                        <LayersControl.BaseLayer name="ESRI Satellite">
-                            <TileLayer
-                                url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-                                attribution='Tiles &copy; Esri — Source: Esri, Maxar, Earthstar Geographics, USDA, USGS'
-                            />
-                        </LayersControl.BaseLayer>
-
-                        <LayersControl.BaseLayer name="ESRI Topographic">
-                            <TileLayer
-                                url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}"
-                                attribution='Tiles &copy; Esri — Esri, DeLorme, NAVTEQ, TomTom, USGS, FAO, NPS'
-                            />
-                        </LayersControl.BaseLayer>
-
-                        {/* --- CARTO --- */}
-                        <LayersControl.BaseLayer name="Carto Light">
-                            <TileLayer
-                                url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-                                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/attributions">CARTO</a>'
-                            />
-                        </LayersControl.BaseLayer>
-                    </LayersControl>
+                    <MapLayers selectedLayer={selectedLayer}/>
 
                     {/* Render markers */}
                     {markers.map(marker => (
@@ -103,56 +68,12 @@ function MapEditor() {
                             <Popup>{marker.popup}</Popup>
                         </Marker>
                     ))}
+                    <MapShapes shapes={shapes}/>
 
-                    {shapes.map((shape) => {
-                        switch (shape.type) {
-                            case "polygon":
-                            case "triangle": {
-                                const polygonDefault = {color: "blue", fillColor: "lightblue", fillOpacity: 0.4};
-                                // const polygonHover = {color: "darkblue", fillColor: "skyblue", fillOpacity: 0.6};
-                                return (
-                                    <Polygon
-                                        key={shape.id}
-                                        positions={shape.coords}
-                                        pathOptions={polygonDefault}
-                                        // eventHandlers={getShapeEventHandlers(polygonDefault, polygonHover)}
-                                    />
-                                );
-                            }
-
-                            case "rectangle": {
-                                const rectDefault = {color: "green", fillColor: "lightgreen", fillOpacity: 0.4};
-                                // const rectHover = {color: "darkgreen", fillColor: "lime", fillOpacity: 0.6};
-                                return (
-                                    <Rectangle
-                                        key={shape.id}
-                                        bounds={shape.bounds}
-                                        pathOptions={rectDefault}
-                                        // eventHandlers={getShapeEventHandlers(rectDefault, rectHover)}
-                                    />
-                                );
-                            }
-
-                            case "circle": {
-                                const circleDefault = {color: "red", fillColor: "pink", fillOpacity: 0.4};
-                                // const circleHover = {color: "darkred", fillColor: "orange", fillOpacity: 0.6};
-                                return (
-                                    <Circle
-                                        key={shape.id}
-                                        center={shape.center}
-                                        radius={shape.radius}
-                                        pathOptions={circleDefault}
-                                        // eventHandlers={getShapeEventHandlers(circleDefault, circleHover)}
-                                    />
-                                );
-                            }
-
-                            default:
-                                return null;
-                        }
-                    })}
-                    <MapEventsHandler/>
+                    <MapEventsHandler setPreferredBaseLayer={setSelectedLayer}/>
+                    <MapResizeHandler/>
                 </MapContainer>
+                <PartialLoadingOverlay visible={isMapLoading}/>
             </div>
         </div>
 
