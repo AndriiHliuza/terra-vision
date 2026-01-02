@@ -5,7 +5,7 @@ import {
     Popup,
     Tooltip
 } from "react-leaflet";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState, type MouseEvent as ReactMouseEvent} from "react";
 import type {MarkerData, Shape} from "../commons/models.ts";
 import {stubMarkers, stubShapes} from "../commons/stub.ts";
 import {MapEventsHandler, MapResizeHandler} from "../commons/map-controls.ts";
@@ -18,18 +18,85 @@ function MapEditor() {
 
     const {t} = useTranslation();
 
+    const [isMapLoading, setMapLoading] = useState(true);
+
+    const [shapes, setShapes] = useState<Shape[]>([]);
+    const [markers, setMarkers] = useState<MarkerData[]>([]);
+
+    const MIN_MAP_CONTAINER_HEIGHT = 500;
+    const MAX_MAP_CONTAINER_HEIGHT = 1000;
+
+    const [mapContainerHeight, setMapContainerHeight] = useState(() => {
+        const storedMapContainerHeight = localStorage.getItem("adminMapContainerHeight");
+        const parsedMapContainerHeight = storedMapContainerHeight ? Number(storedMapContainerHeight) : 900; // default height
+
+        if (Number.isNaN(parsedMapContainerHeight)) return 900;
+
+        return Math.min(
+            Math.max(parsedMapContainerHeight, MIN_MAP_CONTAINER_HEIGHT),
+            MAX_MAP_CONTAINER_HEIGHT
+        );
+    });
+
+    const mapContainerRef = useRef<HTMLDivElement>(null);
+    const isDraggingMapContainerRef = useRef(false);
+    const mapContainerHeightRef = useRef(mapContainerHeight);
+
     const [selectedLayer, setSelectedLayer] = useState(
         () => localStorage.getItem("preferredMapLayer") || "OSM Streets"
     );
+
+    // // ---------- Resize handlers ----------
+    const onMouseDown = (e: ReactMouseEvent<HTMLDivElement>) => {
+        isDraggingMapContainerRef.current = true;
+        e.preventDefault();
+    };
+
+    const onMouseMove = (e: MouseEvent) => {
+        if (!isDraggingMapContainerRef.current) return;
+        const containerTop = mapContainerRef.current?.getBoundingClientRect().top || 0;
+        const newHeight = e.clientY - containerTop;
+        if (newHeight >= MIN_MAP_CONTAINER_HEIGHT && newHeight <= MAX_MAP_CONTAINER_HEIGHT) { // min/max height
+            setMapContainerHeight(newHeight);
+        }
+
+        // ---------- Auto-scroll logic ----------
+        const scrollMargin = 50; // px from viewport edge to start scrolling
+        const scrollSpeed = 10; // px per frame
+
+        if (e.clientY > window.innerHeight - scrollMargin) {
+            // Near bottom, scroll down
+            window.scrollBy({top: scrollSpeed, behavior: "auto"});
+        }
+    };
+
+    const onMouseUp = () => {
+        if (isDraggingMapContainerRef.current) {
+            localStorage.setItem(
+                "adminMapContainerHeight",
+                mapContainerHeightRef.current.toString()
+            );
+        }
+        isDraggingMapContainerRef.current = false;
+    };
 
     useEffect(() => {
         localStorage.setItem("preferredMapLayer", selectedLayer);
     }, [selectedLayer]);
 
-    const [isMapLoading, setMapLoading] = useState(true);
+    useEffect(() => {
+        window.addEventListener("mousemove", onMouseMove);
+        window.addEventListener("mouseup", onMouseUp);
+        return () => {
+            window.removeEventListener("mousemove", onMouseMove);
+            window.removeEventListener("mouseup", onMouseUp);
+        };
+    }, []);
 
-    const [shapes, setShapes] = useState<Shape[]>([]);
-    const [markers, setMarkers] = useState<MarkerData[]>([]);
+    useEffect(() => {
+        mapContainerHeightRef.current = mapContainerHeight;
+    }, [mapContainerHeight]);
+
 
     // Stub backend data
     useEffect(() => {
@@ -49,7 +116,11 @@ function MapEditor() {
     return (
         <div className="map-editor">
             <h1>{t("admin-page.map-editor.tab-name").toUpperCase()}</h1>
-            <div className="map-container">
+            <div
+                className="map-container"
+                ref={mapContainerRef}
+                style={{height: mapContainerHeight}}
+            >
                 <MapContainer
                     center={[48.4, 31]}
                     zoomControl={false}
@@ -73,6 +144,13 @@ function MapEditor() {
                     <MapEventsHandler setPreferredBaseLayer={setSelectedLayer}/>
                     <MapResizeHandler/>
                 </MapContainer>
+
+                {/* Draggable resize handle */}
+                <div
+                    className="resize-handle"
+                    onMouseDown={onMouseDown}
+                />
+
                 <PartialLoadingOverlay visible={isMapLoading}/>
             </div>
         </div>

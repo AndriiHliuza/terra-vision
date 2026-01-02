@@ -64,7 +64,6 @@ function AdminNavigationPanel() {
                 {links.map((link) => (
                     <NavLink
                         key={link.to}
-                        // className="admin-nav-item"
                         className={({isActive}) => clsx("admin-nav-item", {"active-admin-nav-item": isActive})}
                         to={link.to}
                     >

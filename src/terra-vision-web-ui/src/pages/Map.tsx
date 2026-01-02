@@ -1,5 +1,4 @@
 import "../styles/pages/Map.css";
-import "../styles/components/header/MapPageHeader.css";
 import {
     MapContainer,
     Marker,

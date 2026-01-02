@@ -12,9 +12,6 @@
     position: relative;
 
     width: 100%;
-    height: 900px;
-    min-height: 500px;
-    max-height: 2000px;
 
     border-radius: 10px;
     overflow: hidden;
@@ -104,6 +101,32 @@
 .map-editor > .map-container .leaflet-control-layers-base::-webkit-scrollbar-thumb {
     background: var(--map-page-glass-border-color);
     border-radius: 10px;
+}
+
+.map-editor > .map-container > .resize-handle {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    z-index: 1000;
+
+    width: 100%;
+    height: 4px;
+
+    background: rgba(0, 0, 0, 0);
+
+    cursor: ns-resize; /* vertical resize */
+
+    transition: all 0.3s ease;
+}
+
+.map-editor > .map-container > .resize-handle:hover {
+    height: 8px;
+    background: rgba(0, 0, 0, 0.7);
+}
+
+.map-editor > .map-container > .resize-handle:active {
+    height: 8px;
+    background: rgba(0, 0, 0, 0.7);
 }
 
 @media (max-width: 300px) {

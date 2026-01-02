@@ -241,6 +241,10 @@
     height: 57px;
 }
 
+.admin-nav-container.collapsed > nav > .admin-nav-item.active-admin-nav-item {
+    border: 2px solid var(--map-editor-page-glass-border-color);
+}
+
 .admin-nav-container.collapsed  > nav > .admin-nav-item > img {
     width: auto;
     height: 40px;
