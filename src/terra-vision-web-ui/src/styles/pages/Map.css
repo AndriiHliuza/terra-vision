@@ -13,101 +13,198 @@
     cursor: default;
 }
 
-#map-page .leaflet-control-layers {
-    position: absolute;
-    bottom: 5px;
-    left: 5px;
+#map-page > .map-layer-switcher-btn {
+    position: fixed;
+    bottom: 15px;
+    left: 15px;
+    z-index: 2000;
+
+    width: 70px;
+    height: 70px;
 
     background: var(--glass-bg-color);
     border: 2px solid var(--map-page-glass-border-color);
-    border-radius: 20px;
+    border-radius: 25px;
 
     backdrop-filter: blur(var(--glass-blur-px));
     -webkit-backdrop-filter: blur(var(--glass-blur-px));
 
-    padding: 10px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 
-    font-family: "Rubik Distressed", "Poppins", system-ui, Avenir, Helvetica, Arial, sans-serif;
+    transition: all 0.3s ease;
 }
 
-#map-page .leaflet-control-layers label {
+#map-page > .map-layer-switcher-btn:hover {
+    transform: scale(1.05);
+
+    background: var(--glass-hover-bg-color);
+
+    backdrop-filter: blur(var(--glass-blur-px));
+    -webkit-backdrop-filter: blur(var(--glass-blur-px));
+}
+
+#map-page > .map-layer-switcher-btn:active {
+    transform: scale(0.9);
+
+    background: var(--glass-hover-bg-color);
+
+    backdrop-filter: blur(var(--glass-blur-px));
+    -webkit-backdrop-filter: blur(var(--glass-blur-px));
+}
+#map-page > .map-layer-switcher-btn.active {
+    top: 15px;
+    right: 15px;
+
+    bottom: auto;
+    left: auto;
+}
+
+#map-page > .map-layer-switcher-btn > img {
     display: flex;
-    justify-content: flex-start;
+    justify-content: center;
     align-items: center;
 
-    width: 170px;
-    height: 40px;
+    width: 100%;
+    height: auto;
 
-    margin: 10px;
-    padding-left: 10px;
+    transform: scale(1.1);
+
+    transition: all 0.3s ease;
+}
+
+#map-page > .map-layer-switcher-btn.active > img {
+    transform: rotate(180deg) scale(1.2);
+}
+
+#map-page > .map-layer-switcher-container {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1500;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
     background: var(--glass-bg-color);
+
+    backdrop-filter: blur(var(--glass-blur-px));
+    -webkit-backdrop-filter: blur(var(--glass-blur-px));
+
+    overflow: auto;
+    scrollbar-width: thin;
+
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+}
+
+#map-page > .map-layer-switcher-container.opened {
+    transform: translateX(0);
+
+}
+
+#map-page > .map-layer-switcher-container > .map-layer-switcher {
+    position: absolute;
+    top: 100px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+
+    width: 100%;
+}
+
+#map-page > .map-layer-switcher-container > .map-layer-switcher > .map-layer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    width: 380px;
+    height: 200px;
+
+    margin: 10px;
+
+    background: rgba(68, 103, 91, 0.6);
     border: 2px solid var(--map-page-glass-border-color);
-    border-radius: 15px;
+    border-radius: 20px;
 
     cursor: pointer;
 
-    transition: background 0.3s ease, transform 0.2s ease;
+    transition: all 0.3s ease;
 }
 
-#map-page .leaflet-control-layers label:hover {
-    background: var(--glass-hover-bg-color);
-    transform: scale(1.1);
+#map-page > .map-layer-switcher-container > .map-layer-switcher > .map-layer:hover {
+    transform: scale(1.01);
+    background: rgba(15, 44, 22, 0.7);
+    border: 2px solid rgba(15, 44, 22);
 }
 
-#map-page .leaflet-control-layers label:active {
+#map-page > .map-layer-switcher-container > .map-layer-switcher > .map-layer:active {
     transform: scale(0.9);
 }
 
-#map-page .leaflet-control-layers label input {
-    cursor: pointer;
-    accent-color: var(--map-page-text-color); /* color for radio circle in modern browsers */
+#map-page > .map-layer-switcher-container > .map-layer-switcher > .map-layer > div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    height: 100%;
+
+    margin: 0 15px;
+
+    transition: all 0.3s ease;
 }
 
-/* Scrollable layer list */
-#map-page .leaflet-control-layers-overlays,
-#map-page .leaflet-control-layers-base {
-    max-height: 350px;
+#map-page > .map-layer-switcher-container > .map-layer-switcher > .map-layer > img {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
-    overflow-y: auto;
-    overflow-x: hidden;
+    width: 150px;
+    height: 150px;
 
-    padding-right: 5px;     /* avoid scrollbar overlaying content */
+    margin: 10px 15px 10px 10px;
+    border-radius: 15px;
+
+    transition: all 0.3s ease;
 }
 
-/* Nicer thin scrollbar */
-#map-page .leaflet-control-layers-overlays::-webkit-scrollbar,
-#map-page .leaflet-control-layers-base::-webkit-scrollbar {
-    width: 6px;
-}
+@media (max-width: 400px) {
+    #map-page > .map-layer-switcher-container > .map-layer-switcher > .map-layer {
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
 
-#map-page .leaflet-control-layers-overlays::-webkit-scrollbar-thumb,
-#map-page .leaflet-control-layers-base::-webkit-scrollbar-thumb {
-    background: var(--map-page-glass-border-color);
-    border-radius: 10px;
-}
+        width: 100%;
+        height: 250px;
+    }
 
-@media (max-height: 525px) {
-    #map-page .leaflet-control-layers-overlays,
-    #map-page .leaflet-control-layers-base {
-        max-height: 250px;
+    #map-page > .map-layer-switcher-container > .map-layer-switcher > .map-layer > div {
+        height: 40px;
+        padding: 10px 0;
+    }
+
+    #map-page > .map-layer-switcher-container > .map-layer-switcher > .map-layer > img {
+        margin: 10px 10px 15px 10px;
+        border-radius: 15px;
     }
 }
 
-@media (max-height: 400px) {
-    #map-page .leaflet-control-layers-overlays,
-    #map-page .leaflet-control-layers-base {
-        max-height: 150px;
+@media (max-width: 250px) {
+
+    #map-page > .map-layer-switcher-container > .map-layer-switcher > .map-layer {
+        height: 200px;
+    }
+
+    #map-page > .map-layer-switcher-container > .map-layer-switcher > .map-layer > img {
+        width: 100px;
+        height: 100px;
     }
 }
 
-@media (max-height: 300px) {
-    #map-page .leaflet-control-layers-overlays,
-    #map-page .leaflet-control-layers-base {
-        max-height: 50px;
-    }
-}
 
 
 

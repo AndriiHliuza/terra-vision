@@ -13,6 +13,8 @@ import MapLayers from "../components/MapLayers.tsx";
 import MapShapes from "../components/MapShapes.tsx";
 import PartialLoadingOverlay from "../components/PartialLoadingOverlay.tsx";
 import {useTranslation} from "react-i18next";
+import {MAP_LAYERS} from "../configs/settings.ts";
+import clsx from "clsx";
 
 function MapEditor() {
 
@@ -146,13 +148,29 @@ function MapEditor() {
                 </MapContainer>
 
                 {/* Draggable resize handle */}
-                <div
-                    className="resize-handle"
-                    onMouseDown={onMouseDown}
-                />
+                <div className="resize-handle" onMouseDown={onMouseDown}>
+                    <hr/>
+                </div>
 
                 <PartialLoadingOverlay visible={isMapLoading}/>
             </div>
+
+            {/* ✅ External Layer Switcher */}
+            <div className="map-layer-switcher-container">
+                <div className="map-layer-drop-down-btn">Layers</div>
+                <div className="map-layer-switcher">
+                    {MAP_LAYERS.map(layer => (
+                        <button
+                            key={layer.name}
+                            className={clsx({active: layer.name === selectedLayer})}
+                            onClick={() => setSelectedLayer(layer.name)}
+                        >
+                            {layer.name}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
         </div>
 
     )

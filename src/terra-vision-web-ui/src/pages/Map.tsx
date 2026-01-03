@@ -10,10 +10,13 @@ import Header from "../components/Header.tsx";
 import {useContext, useEffect, useState} from "react";
 import type {MarkerData, Shape} from "../commons/models.ts";
 import {stubMarkers, stubShapes} from "../commons/stub.ts";
-import {ApplicationContext, type ApplicationContextSettings} from "../configs/settings.ts";
+import {ApplicationContext, type ApplicationContextSettings, MAP_LAYERS} from "../configs/settings.ts";
 import {MapEventsHandler} from "../commons/map-controls.ts";
 import MapLayers from "../components/MapLayers.tsx";
 import MapShapes from "../components/MapShapes.tsx";
+import clsx from "clsx";
+import mapLayersOpenBtnImg from "../assets/layers.png";
+import mapLayersCloseBtnImg from "../assets/close.png";
 
 function Map() {
 
@@ -28,6 +31,8 @@ function Map() {
     const {setLoading} = useContext(ApplicationContext) as ApplicationContextSettings;
     const [shapes, setShapes] = useState<Shape[]>([]);
     const [markers, setMarkers] = useState<MarkerData[]>([]);
+
+    const [isLayersMenuOpen, setLayersMenuOpen] = useState(false);
 
     // Stub backend data
     useEffect(() => {
@@ -64,8 +69,33 @@ function Map() {
                 ))}
                 <MapShapes shapes={shapes}/>
 
-                <MapEventsHandler setPreferredBaseLayer={setSelectedLayer} />
+                <MapEventsHandler setPreferredBaseLayer={setSelectedLayer}/>
             </MapContainer>
+
+            {/* External Layer Switcher */}
+            <button
+                className={clsx("map-layer-switcher-btn", {active: isLayersMenuOpen})}
+                onClick={() => setLayersMenuOpen(prev => !prev)}
+            >
+                <img src={isLayersMenuOpen ? mapLayersCloseBtnImg : mapLayersOpenBtnImg} alt="Layers"/>
+            </button>
+            <div className={clsx("map-layer-switcher-container", {opened: isLayersMenuOpen})}>
+                <div className="map-layer-switcher">
+                    {MAP_LAYERS.map(layer => (
+                        <div
+                            key={layer.name}
+                            className={clsx("map-layer", {active: layer.name === selectedLayer})}
+                            onClick={() => {
+                                setSelectedLayer(layer.name)
+                                setLayersMenuOpen(false);
+                            }}
+                        >
+                            <div>{layer.name}</div>
+                            <img src={layer.img} alt="Layer Img"/>
+                        </div>
+                    ))}
+                </div>
+            </div>
         </div>
     )
 }
