@@ -15,6 +15,7 @@ import PartialLoadingOverlay from "../components/PartialLoadingOverlay.tsx";
 import {useTranslation} from "react-i18next";
 import {MAP_LAYERS} from "../configs/settings.ts";
 import clsx from "clsx";
+import dropdownBtnImg from "../assets/two-arrows-down.png";
 
 function MapEditor() {
 
@@ -24,6 +25,8 @@ function MapEditor() {
 
     const [shapes, setShapes] = useState<Shape[]>([]);
     const [markers, setMarkers] = useState<MarkerData[]>([]);
+
+    const [isLayersDropDownListOpen, setLayersDropDownListOpen] = useState(false);
 
     const MIN_MAP_CONTAINER_HEIGHT = 500;
     const MAX_MAP_CONTAINER_HEIGHT = 1000;
@@ -156,19 +159,28 @@ function MapEditor() {
             </div>
 
             {/* ✅ External Layer Switcher */}
-            <div className="map-layer-switcher-container">
-                <div className="map-layer-drop-down-btn">Layers</div>
-                <div className="map-layer-switcher">
-                    {MAP_LAYERS.map(layer => (
-                        <button
-                            key={layer.name}
-                            className={clsx({active: layer.name === selectedLayer})}
-                            onClick={() => setSelectedLayer(layer.name)}
-                        >
-                            {layer.name}
-                        </button>
-                    ))}
-                </div>
+            <div
+                className="map-layer-drop-down-controls"
+            >
+                <h2>{t("admin-page.map-editor.layers-section.title")}</h2>
+                <img
+                    src={dropdownBtnImg}
+                    alt="Drop down button"
+                    className={clsx({active: isLayersDropDownListOpen})}
+                    onClick={() => setLayersDropDownListOpen(prev => !prev)}
+                />
+            </div>
+            <div className={clsx("map-layer-switcher", {opened: isLayersDropDownListOpen})}>
+                {MAP_LAYERS.map(layer => (
+                    <div
+                        key={layer.name}
+                        className={clsx("map-layer", {active: layer.name === selectedLayer})}
+                        onClick={() => setSelectedLayer(layer.name)}
+                    >
+                        <div>{layer.name}</div>
+                        <img src={layer.img} alt="Layer Img"/>
+                    </div>
+                ))}
             </div>
 
         </div>

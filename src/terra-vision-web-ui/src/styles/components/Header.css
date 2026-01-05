@@ -341,7 +341,7 @@ header > #header-controls > #language-controls > #language-dropdown-menu > .lang
 
         cursor: pointer;
 
-        transition: all 0.3s ease;
+        transition: all 1s ease;
     }
 
     header > #burger-btn:hover {

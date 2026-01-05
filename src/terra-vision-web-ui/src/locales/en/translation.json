@@ -67,7 +67,10 @@
       "tab-name": "Dashboard"
     },
     "map-editor": {
-      "tab-name": "Map Editor"
+      "tab-name": "Map Editor",
+      "layers-section": {
+        "title": "Layers"
+      }
     }
   },
   "not-found-page": {

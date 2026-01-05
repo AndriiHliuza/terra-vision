@@ -51,6 +51,7 @@
     backdrop-filter: blur(var(--glass-blur-px));
     -webkit-backdrop-filter: blur(var(--glass-blur-px));
 }
+
 #map-page > .map-layer-switcher-btn.active {
     top: 15px;
     right: 15px;
@@ -83,10 +84,6 @@
     left: 0;
     right: 0;
     z-index: 1500;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
 
     background: var(--glass-bg-color);
 
@@ -127,23 +124,27 @@
 
     margin: 10px;
 
-    background: rgba(68, 103, 91, 0.6);
+    background: rgba(0, 0, 0, 0.6);
+    color: whitesmoke;
     border: 2px solid var(--map-page-glass-border-color);
     border-radius: 20px;
 
     cursor: pointer;
 
-    transition: all 0.3s ease;
+    transition: all 0.3s ease, background-color 0.1s ease;
 }
 
 #map-page > .map-layer-switcher-container > .map-layer-switcher > .map-layer:hover {
-    transform: scale(1.01);
-    background: rgba(15, 44, 22, 0.7);
-    border: 2px solid rgba(15, 44, 22);
+    transform: scale(1.05);
+    background: rgba(0, 0, 0, 0.85);
 }
 
 #map-page > .map-layer-switcher-container > .map-layer-switcher > .map-layer:active {
     transform: scale(0.9);
+}
+
+#map-page > .map-layer-switcher-container > .map-layer-switcher > .map-layer.active {
+    text-decoration: underline;
 }
 
 #map-page > .map-layer-switcher-container > .map-layer-switcher > .map-layer > div {

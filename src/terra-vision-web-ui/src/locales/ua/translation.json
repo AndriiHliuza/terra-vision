@@ -67,7 +67,10 @@
       "tab-name": "Інформаційна панель"
     },
     "map-editor": {
-      "tab-name": "Редактор карт"
+      "tab-name": "Редактор карт",
+      "layers-section": {
+        "title": "Шари"
+      }
     }
   },
   "not-found-page": {
