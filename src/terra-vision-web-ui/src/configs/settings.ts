@@ -1,6 +1,6 @@
 import {createContext, type Dispatch, type SetStateAction} from "react";
 import {buildUrl} from "../commons/utils.ts";
-import {URL_TYPE} from "../commons/models.ts";
+import {type TruncateFileNameRule, URL_TYPE} from "../commons/models.ts";
 import layer_OSM_Streets from "../assets/map-layers/OSM_Streets.png"
 import layer_OSM_Humanitarian from "../assets/map-layers/OSM_Humanitarian.png"
 import layer_OpenTopoMap from "../assets/map-layers/OpenTopoMap.png"
@@ -37,7 +37,7 @@ export const ROUTES_WITHOUT_MOUSE_TRAIL = [
 
 export const MAP_LAYERS = [
     {
-        name: "OSM Streets",
+        name: "OSM Standard",
         url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
         attribution: "&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a>",
         img: layer_OSM_Streets
@@ -49,7 +49,7 @@ export const MAP_LAYERS = [
         img: layer_OSM_Humanitarian
     },
     {
-        name: "OpenTopoMap",
+        name: "OSM Topographic",
         url: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
         attribution: "Map data: &copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors, SRTM | Map style: &copy; <a href=\"https://opentopomap.org\">OpenTopoMap</a>",
         img: layer_OpenTopoMap
@@ -73,3 +73,11 @@ export const MAP_LAYERS = [
         img: layer_Carto_Light
     }
 ]
+
+
+export const TRUNCATE_FILE_NAME_RULES: TruncateFileNameRule[] = [
+    { maxScreenWidth: 300, startFileNameLength: 3, endFileNameLength: 4 },
+    { maxScreenWidth: 500, startFileNameLength: 4, endFileNameLength: 6 },
+    { maxScreenWidth: 9999, startFileNameLength: 6, endFileNameLength: 9 }, // desktop fallback
+];
+

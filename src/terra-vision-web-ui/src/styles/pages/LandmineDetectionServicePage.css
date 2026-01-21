@@ -21,7 +21,6 @@
     width: 90%;
     max-width: 1000px;
 
-    margin-top: 130px;
     margin-bottom: 50px;
 
     border: 2px solid var(--glass-border-color);
@@ -31,7 +30,67 @@
     -webkit-backdrop-filter: blur(var(--glass-blur-px));
 }
 
-#lm-detection-service-page > section > .dropzone-container {
+#lm-detection-service-page > .input-section {
+    margin-top: 130px;
+}
+
+#lm-detection-service-page > .input-section > h1 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 90%;
+    min-height: 70px;
+
+    margin-bottom: 0;
+
+    word-spacing: 10px;
+
+    border: 2px solid var(--glass-border-color);
+    border-radius: var(--border-radius-px);
+
+    background-color: var(--glass-hover-bg-color);
+
+    backdrop-filter: blur(var(--glass-blur-px));
+    -webkit-backdrop-filter: blur(var(--glass-blur-px));
+
+    transition: transform 0.5s ease;
+}
+
+#lm-detection-service-page > .input-section > .models-section {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+
+    height: 50px;
+    width: 90%;
+    margin: 30px 0 0 0;
+}
+
+#lm-detection-service-page > .input-section > .models-section > .models-dropdown-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    height: 100%;
+    width: 250px;
+    min-width: 200px;
+}
+
+#lm-detection-service-page > .input-section > .models-section > .model-description {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    height: 100%;
+    width: 100%;
+
+    margin-left: 20px;
+
+    word-spacing: 3px;
+}
+
+#lm-detection-service-page > .input-section > .dropzone-container {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -61,11 +120,11 @@
                 background-color 0.5s ease;
 }
 
-#lm-detection-service-page > section > .dropzone-container::selection {
+#lm-detection-service-page > .input-section > .dropzone-container::selection {
     background: transparent;
 }
 
-#lm-detection-service-page > section > .dropzone-container:hover {
+#lm-detection-service-page > .input-section > .dropzone-container:hover {
     box-shadow: 0 0 8px #3c3c3c, 0 0 16px #3c3c3c;
     text-shadow: 0 0 8px whitesmoke, 0 0 16px whitesmoke;
 
@@ -76,7 +135,7 @@
     background-color: var(--glass-hover-bg-color);
 }
 
-#lm-detection-service-page > section > .dropzone-container:active {
+#lm-detection-service-page > .input-section > .dropzone-container:active {
     transform: scale(0.9);
 }
 
@@ -194,6 +253,8 @@
 }
 
 #lm-detection-service-page .archives-section > .archive-preview-container {
+    position: relative;
+
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -266,6 +327,20 @@
     background: transparent;
 }
 
+#lm-detection-service-page .archives-section > .archive-preview-container > img {
+    position: absolute;
+    top: 15px;
+    left: 10px;
+    z-index: -10;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 30px;
+    height: 30px;
+}
+
 #lm-detection-service-page > section > .controls-wrapper {
     display: flex;
     justify-content: center;
@@ -278,15 +353,15 @@
     align-items: center;
 
     width: 150px;
-    height: 60px;
+    height: 50px;
 
     margin: 0 20px 20px 20px;
 
     font-size: 20px;
-    background: var(--glass-bg-color);
+    background: rgba(100, 149, 237, 0.5);
 
     border: 2px solid var(--glass-border-color);
-    border-radius: var(--button-border-radius);
+    border-radius: 20px;
 
     backdrop-filter: blur(var(--glass-blur-px));
     -webkit-backdrop-filter: blur(var(--glass-blur-px));
@@ -303,6 +378,7 @@
 #lm-detection-service-page > section #clear-all-images-btn:hover, #lm-detection-service-page > section #process-images-btn:hover {
     background: var(--glass-hover-bg-color);
     transform: scale(1.1);
+    width: 200px;
 }
 
 #lm-detection-service-page > section #clear-all-images-btn:active, #lm-detection-service-page > section #process-images-btn:active {
@@ -334,9 +410,7 @@
     transition: transform 0.5s ease;
 }
 
-#lm-detection-service-page > .output-section > h1:hover {
-    transform: scale(1.03);
-}
+
 #lm-detection-service-page > .output-section > .archives-section > .archive-preview-container {
     height: 150px;
 }
@@ -401,6 +475,24 @@
     transform: scale(0.9);
 }
 
+@media (max-width: 600px) {
+    #lm-detection-service-page > .input-section > .models-section {
+        justify-content: center;
+
+        height: 50px;
+        width: 85%;
+    }
+
+    #lm-detection-service-page > .input-section > .models-section > .models-dropdown-container {
+        width: 100%;
+        min-width: 100px;
+    }
+
+    #lm-detection-service-page > .input-section > .models-section > .model-description{
+        display: none;
+    }
+}
+
 @media (max-width: 488px) {
     #lm-detection-service-page > section > .controls-wrapper {
         flex-direction: column;
@@ -417,6 +509,10 @@
         width: 150px;
     }
 
+    #lm-detection-service-page > .input-section > h1 {
+        font-size: 20px;
+    }
+
     #lm-detection-service-page > .output-section > h1 {
         font-size: 20px;
     }
@@ -429,6 +525,10 @@
 
     #lm-detection-service-page .archives-section > .archive-preview-container {
         width: 120px;
+    }
+
+    #lm-detection-service-page > .input-section > h1 {
+        font-size: 15px;
     }
 
     #lm-detection-service-page > .output-section > h1 {

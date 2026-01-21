@@ -38,8 +38,14 @@ export default function MatrixBackground({
         let drops: number[] = [];
 
         const initCanvas = () => {
-            canvas.width = canvas.parentElement?.clientWidth || window.innerWidth;
-            canvas.height = canvas.parentElement?.clientHeight || window.innerHeight;
+            const width = canvas.parentElement?.clientWidth || window.innerWidth;
+            const height = canvas.parentElement?.clientHeight || window.innerHeight;
+
+            canvas.width = width;
+            canvas.height = height;
+
+            canvas.style.width = width + "px";
+            canvas.style.height = height + "px";
 
             const columns = Math.floor(canvas.width / fontSize);
 

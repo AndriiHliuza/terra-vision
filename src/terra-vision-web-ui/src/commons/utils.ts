@@ -1,5 +1,12 @@
-import {type FileItem, URL_TYPE, type UrlType, urlBuilders} from "./models.ts";
+import {
+    type FileItem,
+    URL_TYPE,
+    type UrlType,
+    urlBuilders,
+    type TruncateFileNameRule
+} from "./models.ts";
 import JSZip from "jszip";
+import {useEffect, useState} from "react";
 
 export function isArchive(fileType: string, fileName: string): boolean {
     return fileType.startsWith("application/zip") ||
@@ -15,6 +22,16 @@ export function truncateFileName(fileName: string, startLength: number = 6, endL
     const start: string = fileName.substring(0, startLength);
     const end: string = fileName.substring(fileName.length - endLength);
     return `${start}...${end}`;
+}
+
+export function getTruncateFileNameLengthsByWidth(
+    width: number,
+    rules: TruncateFileNameRule[]
+) {
+    return (
+        rules.find(rule => width <= rule.maxScreenWidth) ??
+        rules[rules.length - 1]
+    );
 }
 
 export async function createArchiveFromFileItems(fileItems: FileItem[]): Promise<Blob> {
@@ -47,5 +64,18 @@ export function buildUrl(
     }
 
     return urlBuilders[urlType](url);
+}
+
+
+export function useScreenWidth() {
+    const [width, setWidth] = useState(window.innerWidth);
+
+    useEffect(() => {
+        const handleResize = () => setWidth(window.innerWidth);
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
+    return width;
 }
 

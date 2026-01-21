@@ -42,6 +42,7 @@
   },
   "landmine-detection-page": {
     "title": "Детектор",
+    "models-dropdown-title": "ОБРАТИ МОДЕЛЬ",
     "drag-and-drop-section-text-for-not-active-drag": "Натисніть або перетягніть зображення чи «.zip» архів",
     "drag-and-drop-section-text-for-active-drag": "Перетягніть зображення чи «.zip» архів...",
     "clear-all-images-btn-text": "Очистити",
@@ -54,6 +55,10 @@
       "files-already-processed-pop-up": {
         "title": "Файли вже оброблені",
         "description": "Оброблені файли можна завантажити з розділу «Оброблені зображення»"
+      },
+      "model-not-selected-pop-up": {
+        "title": "Оберіть модель",
+        "description": "Для обробки даних потрібно обрати модель"
       }
     },
     "processed-files-section": {

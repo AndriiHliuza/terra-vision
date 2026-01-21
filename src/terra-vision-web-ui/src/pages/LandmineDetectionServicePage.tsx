@@ -1,17 +1,33 @@
 import "../styles/pages/LandmineDetectionServicePage.css";
 import Header from "../components/Header.tsx";
-import {useCallback, useState} from "react";
+import {useCallback, useEffect, useRef, useState} from "react";
 import {type FileRejection, useDropzone} from "react-dropzone";
 import {useTranslation} from "react-i18next";
 import {toast} from "react-toastify";
 import PopUp from "../components/PopUp.tsx";
 import downloadIcon from "../assets/download-icon.png";
 import type {FileItem} from "../commons/models.ts";
-import {blobToZip, createArchiveFromFileItems, isArchive, truncateFileName} from "../commons/utils.ts";
+import {
+    blobToZip,
+    createArchiveFromFileItems,
+    getTruncateFileNameLengthsByWidth,
+    isArchive,
+    truncateFileName, useScreenWidth
+} from "../commons/utils.ts";
+import {TRUNCATE_FILE_NAME_RULES} from "../configs/settings.ts";
+import ARCHIVE_IMG from "../assets/archive-icon.png";
+import {Dropdown} from "../components/Dropdown.tsx";
 
 function LandmineDetectionServicePage() {
 
     const {t} = useTranslation();
+
+    const screenWidth = useScreenWidth();
+
+    const {
+        startFileNameLength,
+        endFileNameLength
+    } = getTruncateFileNameLengthsByWidth(screenWidth, TRUNCATE_FILE_NAME_RULES)
 
     const [uploadedImages, setUploadedImages] = useState<FileItem[]>([]);
     const [uploadedArchives, setUploadedArchives] = useState<FileItem[]>([]);
@@ -20,6 +36,18 @@ function LandmineDetectionServicePage() {
     const [processedArchives, setProcessedArchives] = useState<FileItem[]>([]);
 
     const [isProcessed, setProcessed] = useState<boolean>(false);
+
+    const [models, setModels] = useState<string[]>([]);
+    const [selectedModel, setSelectedModel] = useState<string>(() => {
+        return localStorage.getItem("selectedLandmineDetectionModel") ?? "";
+    });
+
+    const outputSectionRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const modelNamesFromBackend = ["FAST", "STANDARD", "LARGE"]
+        setModels(modelNamesFromBackend)
+    }, [selectedModel, t]);
 
     const removeUploadedImage = (id: string) => {
         setUploadedImages(prev => prev.filter(image => image.id !== id));
@@ -46,37 +74,54 @@ function LandmineDetectionServicePage() {
     const clearProcessedFiles = () => {
         setProcessedImages([]);
         setProcessedArchives([]);
+        setProcessed(false)
     }
 
+    useEffect(() => {
+        if (outputSectionRef.current) {
+            outputSectionRef.current.scrollIntoView({behavior: "smooth"});
+        }
+    }, [processedImages, processedArchives]);
+
     const process = async (): Promise<void> => {
-        if (!isProcessed) {
-            if (uploadedImages.length > 0) {
-                const zipBlob: Blob = await createArchiveFromFileItems(uploadedImages);
-                const zipArchive: File = blobToZip(zipBlob, "images.zip");
-                const fileItem: FileItem = {
-                    id: zipArchive.name + "-" + Date.now() + "-" + Math.random().toString(),
-                    file: zipArchive
+        if (selectedModel) {
+            if (!isProcessed) {
+                if (uploadedImages.length > 0) {
+                    const zipBlob: Blob = await createArchiveFromFileItems(uploadedImages);
+                    const zipArchive: File = blobToZip(zipBlob, "images.zip");
+                    const fileItem: FileItem = {
+                        id: zipArchive.name + "-" + Date.now() + "-" + Math.random().toString(),
+                        file: zipArchive
+                    }
+
+                    setProcessedArchives(prev => [
+                        ...prev,
+                        fileItem
+                    ])
                 }
 
-                setProcessedArchives(prev => [
-                    ...prev,
-                    fileItem
-                ])
+                // setProcessedImages and setProcessedArchives are temporary. Will get images from backend after processing them.
+                setProcessedImages(prev => [...prev, ...uploadedImages])
+                setProcessedArchives(prev => [...prev, ...uploadedArchives])
+
+                setProcessed(true);
+            } else {
+                toast.error(
+                    <PopUp
+                        title={t("landmine-detection-page.pop-ups.files-already-processed-pop-up.title")}
+                        description={t("landmine-detection-page.pop-ups.files-already-processed-pop-up.description")}
+                    />
+                );
             }
-
-            // setProcessedImages and setProcessedArchives are temporary. Will get images from backend after processing them.
-            setProcessedImages(prev => [...prev, ...uploadedImages])
-            setProcessedArchives(prev => [...prev, ...uploadedArchives])
-
-            setProcessed(true);
         } else {
             toast.error(
                 <PopUp
-                    title={t("landmine-detection-page.pop-ups.files-already-processed-pop-up.title")}
-                    description={t("landmine-detection-page.pop-ups.files-already-processed-pop-up.description")}
+                    title={t("landmine-detection-page.pop-ups.model-not-selected-pop-up.title")}
+                    description={t("landmine-detection-page.pop-ups.model-not-selected-pop-up.description")}
                 />
             );
         }
+
     }
 
     const onFileDrop = useCallback((files: File[]) => {
@@ -138,8 +183,22 @@ function LandmineDetectionServicePage() {
         <>
             <Header/>
             <div id="lm-detection-service-page">
-                <section>
+                <section className="input-section">
                     <h1>{t("landmine-detection-page.title")}</h1>
+                    <div className="models-section">
+                        <div className="models-dropdown-container">
+                            <Dropdown
+                                label={selectedModel ? selectedModel : t("landmine-detection-page.models-dropdown-title")}
+                                items={models}
+                                onSelect={value => {
+                                    setSelectedModel(value);
+                                    localStorage.setItem("selectedLandmineDetectionModel", value);
+                                }}
+                            />
+                        </div>
+                        <div className="model-description">TRY OUR MODELS</div>
+                    </div>
+
                     {/* Dropzone area */}
                     <div
                         {...getRootProps()}
@@ -168,7 +227,8 @@ function LandmineDetectionServicePage() {
                                         src={imagePreview}
                                         alt={image.file.name}
                                     />
-                                    <div className="image-name-overlay">{truncateFileName(image.file.name)}</div>
+                                    <div
+                                        className="image-name-overlay">{truncateFileName(image.file.name, startFileNameLength, endFileNameLength)}</div>
                                 </div>
                             );
                         })}
@@ -183,7 +243,8 @@ function LandmineDetectionServicePage() {
                                 >
                                     <button onClick={() => removeUploadedArchive(archive.id)}>×</button>
                                     <h4>{t("landmine-detection-page.archive-item-title").toUpperCase()}</h4>
-                                    <div>{truncateFileName(archive.file.name)}</div>
+                                    <div>{truncateFileName(archive.file.name, startFileNameLength, endFileNameLength)}</div>
+                                    <img src={ARCHIVE_IMG} alt="Archive"/>
                                 </div>
                             );
                         })}
@@ -215,7 +276,10 @@ function LandmineDetectionServicePage() {
                 {
                     processedImages.length > 0 || processedArchives.length > 0
                         ? (
-                            <section className="output-section">
+                            <section
+                                ref={outputSectionRef}
+                                className="output-section"
+                            >
                                 <h1>{t("landmine-detection-page.processed-files-section.title")}</h1>
                                 <section className="images-section">
                                     {processedImages.map(image => {
@@ -231,7 +295,7 @@ function LandmineDetectionServicePage() {
                                                     alt={image.file.name}
                                                 />
                                                 <div
-                                                    className="image-name-overlay">{truncateFileName(image.file.name)}</div>
+                                                    className="image-name-overlay">{truncateFileName(image.file.name, startFileNameLength, endFileNameLength)}</div>
                                                 <a
                                                     href={imagePreview}
                                                     download={image.file.name} // filename when downloaded
@@ -254,12 +318,13 @@ function LandmineDetectionServicePage() {
                                             >
                                                 <button onClick={() => removeProcessedArchive(archive.id)}>×</button>
                                                 <h4>{t("landmine-detection-page.archive-item-title").toUpperCase()}</h4>
-                                                <div>{truncateFileName(archive.file.name)}</div>
+                                                <div>{truncateFileName(archive.file.name, startFileNameLength, endFileNameLength)}</div>
                                                 <a
                                                     href={archiveUrl}
                                                     download={archive.file.name} // sets downloaded filename
                                                     className="archive-download-btn"
                                                 >{t("landmine-detection-page.download-archive-btn")}</a>
+                                                <img src={ARCHIVE_IMG} alt="Archive"/>
                                             </div>
                                         );
                                     })}

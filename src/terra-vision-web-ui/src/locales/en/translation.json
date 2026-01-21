@@ -42,6 +42,7 @@
   },
   "landmine-detection-page": {
     "title": "Detector",
+    "models-dropdown-title": "SELECT MODEL",
     "drag-and-drop-section-text-for-not-active-drag": "Click or Drag & Drop images or «.zip» archives here",
     "drag-and-drop-section-text-for-active-drag": "Drop images or «.zip» archives here...",
     "clear-all-images-btn-text": "Clear",
@@ -54,6 +55,10 @@
       "files-already-processed-pop-up": {
         "title": "Files already processed",
         "description": "Processed files can be downloaded from the «Processed images» section"
+      },
+      "model-not-selected-pop-up": {
+        "title": "Select model",
+        "description": "To process data, please choose a model"
       }
     },
     "processed-files-section": {

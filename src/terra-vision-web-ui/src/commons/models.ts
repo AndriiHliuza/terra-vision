@@ -34,3 +34,9 @@ export interface MatrixBackgroundProps {
     backgroundColor?: string;
     backgroundOpacity?: number;
 }
+
+export type TruncateFileNameRule = {
+    maxScreenWidth: number;
+    startFileNameLength: number;
+    endFileNameLength: number;
+};

@@ -183,6 +183,8 @@ function MapEditor() {
                 ))}
             </div>
 
+            <div>Controls</div>
+
         </div>
 
     )
