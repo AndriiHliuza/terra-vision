@@ -3,9 +3,9 @@ import MouseTrail from "./MouseTrail.tsx";
 import {ToastContainer} from "react-toastify";
 import LoadingOverlay from "./LoadingOverlay.tsx";
 import {useContext} from "react";
-import {ApplicationContext, type ApplicationContextSettings} from "../configs/settings.ts";
+import {ApplicationContext, type ApplicationContextSettings} from "../configs/context/contexts.ts";
 
-const SharedComponents = () => {
+const GlobalComponents = () => {
 
     const { loading } = useContext(ApplicationContext) as ApplicationContextSettings;
 
@@ -27,4 +27,4 @@ const SharedComponents = () => {
     )
 }
 
-export default SharedComponents;
+export default GlobalComponents;

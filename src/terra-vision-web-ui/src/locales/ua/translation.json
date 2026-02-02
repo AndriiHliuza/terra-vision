@@ -1,7 +1,7 @@
 {
   "header": {
     "home": "Головна",
-    "landmineDetectionService": "Детектор",
+    "landmine-detector": "Детектор",
     "map": "Карта",
     "languages": {
       "en": {

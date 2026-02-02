@@ -1,11 +1,16 @@
 import "./App.css";
-import RoutingConfig from "./configs/RoutingConfig.tsx";
-import ApplicationContextProvider from "./configs/contexts/ApplicationContextProvider.tsx";
+import Routing from "./configs/Routing.tsx";
+import ApplicationContextProvider from "./configs/context/ApplicationContextProvider.tsx";
+import {BrowserRouter} from "react-router-dom";
+import GlobalComponents from "./components/GlobalComponents.tsx";
 
 function App() {
     return (
         <ApplicationContextProvider>
-            <RoutingConfig/>
+            <BrowserRouter>
+                <Routing/>
+                <GlobalComponents/>
+            </BrowserRouter>
         </ApplicationContextProvider>
     )
 }

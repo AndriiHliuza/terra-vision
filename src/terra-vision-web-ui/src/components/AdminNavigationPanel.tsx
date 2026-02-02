@@ -23,8 +23,8 @@ function AdminNavigationPanel() {
     });
 
     const links = [
-        {to: ROUTES.admin.subroutes.dashboard, label: t("admin-page.dashboard.tab-name"), icon: dashboardIcon},
-        {to: ROUTES.admin.subroutes.mapEditor, label: t("admin-page.map-editor.tab-name"), icon: mapEditorIcon}
+        {to: ROUTES.ADMIN_ROUTES.DASHBOARD, label: t("admin-page.dashboard.tab-name"), icon: dashboardIcon},
+        {to: ROUTES.ADMIN_ROUTES.MAP_EDITOR, label: t("admin-page.map-editor.tab-name"), icon: mapEditorIcon}
     ];
 
     const handleNavPanelCollapse = () => {

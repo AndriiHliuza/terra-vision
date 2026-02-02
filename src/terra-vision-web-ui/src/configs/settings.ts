@@ -1,4 +1,3 @@
-import {createContext, type Dispatch, type SetStateAction} from "react";
 import {buildUrl} from "../commons/utils.ts";
 import {type TruncateFileNameRule, URL_TYPE} from "../commons/models.ts";
 import layer_OSM_Streets from "../assets/map-layers/OSM_Streets.png"
@@ -7,33 +6,34 @@ import layer_OpenTopoMap from "../assets/map-layers/OpenTopoMap.png"
 import layer_ESRI_Satellite from "../assets/map-layers/ESRI_Satellite.png"
 import layer_ESRI_Topographic from "../assets/map-layers/ESRI_Topographic.png"
 import layer_Carto_Light from "../assets/map-layers/Carto_Light.png"
+import unitedKingdomFlag from "../assets/united-kingdom-flag.png";
+import ukrainianFlag from "../assets/ukraine-flag.png";
+
+/* Routing section */
 
 export const ROUTES = {
-    home: "/",
-    map: "/map",
-    landmineDetectionService: "/landmine-detector",
-    admin: {
-        route: "/admin",
-        subroutes: {
-            dashboard: "dashboard",
-            mapEditor: "map/editor"
-        }
+    ROOT: "/",
+    MAP: "map",
+    LANDMINE_DETECTOR: "landmine-detector",
+    ADMIN_ROUTES: {
+        ROOT: "admin",
+        DASHBOARD: "dashboard",
+        MAP_EDITOR: "map-editor"
     },
-    notFound: "*",
+    NOT_FOUND: "*",
 };
-
-export type ApplicationContextSettings = {
-    loading: boolean;
-    setLoading: Dispatch<SetStateAction<boolean>>;
-};
-
-export const ApplicationContext = createContext<ApplicationContextSettings | undefined>(undefined);
 
 export const ROUTES_WITHOUT_MOUSE_TRAIL = [
-    ROUTES.map,
-    buildUrl([ROUTES.admin.route, ROUTES.admin.subroutes.dashboard], URL_TYPE.ABSOLUTE),
-    buildUrl([ROUTES.admin.route, ROUTES.admin.subroutes.mapEditor], URL_TYPE.ABSOLUTE),
+    ROUTES.MAP,
+    buildUrl([ROUTES.ADMIN_ROUTES.ROOT, ROUTES.ADMIN_ROUTES.DASHBOARD], URL_TYPE.ABSOLUTE),
+    buildUrl([ROUTES.ADMIN_ROUTES.ROOT, ROUTES.ADMIN_ROUTES.MAP_EDITOR], URL_TYPE.ABSOLUTE),
 ]
+
+/* Localization */
+
+export const SUPPORTED_LANGUAGES = ["en", "ua"]
+
+/* Map section */
 
 export const MAP_LAYERS = [
     {
@@ -74,6 +74,7 @@ export const MAP_LAYERS = [
     }
 ]
 
+/* Helper section */
 
 export const TRUNCATE_FILE_NAME_RULES: TruncateFileNameRule[] = [
     { maxScreenWidth: 300, startFileNameLength: 3, endFileNameLength: 4 },

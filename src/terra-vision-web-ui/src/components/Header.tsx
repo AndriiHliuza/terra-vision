@@ -1,17 +1,20 @@
 import "../styles/components/Header.css";
 import {useEffect, useRef, useState} from "react";
-import {NavLink} from "react-router-dom";
+import {NavLink, useLocation, useNavigate, useParams} from "react-router-dom";
 import {ROUTES} from "../configs/settings.ts";
-import i18n from "i18next";
 import {useTranslation} from "react-i18next";
 import clsx from 'clsx';
 import {Menu, X} from "lucide-react";
 import ukrainianFlag from "../assets/ukraine-flag.png";
 import unitedKingdomFlag from "../assets/united-kingdom-flag.png"
+import i18n from "../configs/i18n.ts";
 
 function Header({ scrollOffset = 1000 }: { scrollOffset?: number }) {
 
     const {t} = useTranslation();
+    const { lang } = useParams();
+    const navigate = useNavigate();
+    const location = useLocation();
 
     const [headerHidden, setHeaderHidden] = useState(false);
     const [lastScrollPosition, setLastScrollPosition] = useState(0);
@@ -23,7 +26,6 @@ function Header({ scrollOffset = 1000 }: { scrollOffset?: number }) {
 
     const lastScrollPositionRef = useRef<number>(lastScrollPosition);
     const headerControlsOpenRef = useRef<boolean>(headerControlsOpen);
-    // const SCROLL_OFFSET = 1000;
 
     useEffect(() => {
         lastScrollPositionRef.current = lastScrollPosition;
@@ -49,7 +51,7 @@ function Header({ scrollOffset = 1000 }: { scrollOffset?: number }) {
 
         window.addEventListener('scroll', handlePageScroll);
         return () => window.removeEventListener('scroll', handlePageScroll);
-    }, []);
+    }, [scrollOffset]);
 
     useEffect(() => {
         const handleResize = () => {
@@ -81,9 +83,9 @@ function Header({ scrollOffset = 1000 }: { scrollOffset?: number }) {
     }
 
     const links = [
-        {to: ROUTES.home, label: t("header.home")},
-        {to: ROUTES.landmineDetectionService, label: t("header.landmineDetectionService")},
-        {to: ROUTES.map, label: t("header.map")},
+        {to: `/${lang}`, label: t("header.home")},
+        {to: `/${lang}/${ROUTES.LANDMINE_DETECTOR}`, label: t("header.landmine-detector")},
+        {to: `/${lang}/${ROUTES.MAP}`, label: t("header.map")},
     ];
 
     const languages = [
@@ -91,10 +93,19 @@ function Header({ scrollOffset = 1000 }: { scrollOffset?: number }) {
         {code: "ua", label: t("header.languages.ua.fullName"), flagImg: ukrainianFlag},
     ];
 
+    const changeLanguage = (newLang: string) => {
+        if (i18n.language === newLang) return;
+
+        i18n.changeLanguage(newLang).then(() => {
+            const newPath = location.pathname.replace(`/${lang}`, `/${newLang}`);
+            navigate(newPath);
+        })
+    }
+
     return (
         <header className={clsx({"hide-header": headerHidden})}>
             {/* Logo */}
-            <NavLink to={ROUTES.home} id="logo" className={clsx({"hide-header": headerHidden})}>
+            <NavLink to={links[0].to} id="logo" className={clsx({"hide-header": headerHidden})}>
                 <img src="/globe.svg" alt="Terra Logo"/>
             </NavLink>
 
@@ -119,6 +130,7 @@ function Header({ scrollOffset = 1000 }: { scrollOffset?: number }) {
                             <NavLink
                                 to={link.to}
                                 className={({isActive}) => clsx({"active-nav-link": isActive})}
+                                end
                             >
                                 {link.label}
                             </NavLink>
@@ -138,7 +150,7 @@ function Header({ scrollOffset = 1000 }: { scrollOffset?: number }) {
                             <li
                                 key={lang.code}
                                 className="language-dropdown-item"
-                                onClick={() => i18n.changeLanguage(lang.code)}
+                                onClick={() => changeLanguage(lang.code)}
                             >
                                 <div className="language-dropdown-item-text">{lang.label}</div>
                                 <img src={lang.flagImg} alt="Flag image"/>

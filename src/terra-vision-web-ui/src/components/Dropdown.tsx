@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import "../styles/components/Dropdown.css";
 import MENU_IMG from "../assets/menu.png";
+import DOWN_ARROW from "../assets/down-arrow.png";
 import clsx from "clsx";
 
 type DropdownProps = {
@@ -31,7 +32,7 @@ export function Dropdown({ label, items, onSelect }: DropdownProps) {
                 onClick={() => setOpen(o => !o)}
             >
                 <img
-                    src={MENU_IMG}
+                    src={open ? DOWN_ARROW : MENU_IMG}
                     alt="Dropdown"
                 />
                 <div>{label}</div>

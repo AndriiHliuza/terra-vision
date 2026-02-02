@@ -1,4 +1,4 @@
-import "../styles/pages/LandmineDetectionServicePage.css";
+import "../styles/pages/LandmineDetector.css";
 import Header from "../components/Header.tsx";
 import {useCallback, useEffect, useRef, useState} from "react";
 import {type FileRejection, useDropzone} from "react-dropzone";
@@ -18,7 +18,7 @@ import {TRUNCATE_FILE_NAME_RULES} from "../configs/settings.ts";
 import ARCHIVE_IMG from "../assets/archive-icon.png";
 import {Dropdown} from "../components/Dropdown.tsx";
 
-function LandmineDetectionServicePage() {
+function LandmineDetector() {
 
     const {t} = useTranslation();
 
@@ -45,9 +45,12 @@ function LandmineDetectionServicePage() {
     const outputSectionRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
+        // fetch available models from backend
+        // GET /api/terra-vision-ai/models?lang=ua
+        // Returned DTO: models: [ {enName: FAST, lang: ua, langName: ШВИДКА, description: "Model description in specified language"}, {enName: STANDARD, lang: ua, langName: СТАНДАРТНА, description: "Model description in specified language"} ]
         const modelNamesFromBackend = ["FAST", "STANDARD", "LARGE"]
         setModels(modelNamesFromBackend)
-    }, [selectedModel, t]);
+    }, [t]);
 
     const removeUploadedImage = (id: string) => {
         setUploadedImages(prev => prev.filter(image => image.id !== id));
@@ -353,4 +356,4 @@ function LandmineDetectionServicePage() {
     )
 }
 
-export default LandmineDetectionServicePage;
+export default LandmineDetector;

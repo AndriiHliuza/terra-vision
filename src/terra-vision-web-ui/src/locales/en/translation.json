@@ -1,7 +1,7 @@
 {
   "header": {
     "home": "Home",
-    "landmineDetectionService": "Detector",
+    "landmine-detector": "Detector",
     "map": "Map",
     "languages": {
       "en": {

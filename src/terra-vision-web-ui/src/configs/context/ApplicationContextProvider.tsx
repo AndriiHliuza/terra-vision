@@ -1,5 +1,5 @@
 import {type PropsWithChildren, useState} from "react";
-import { ApplicationContext } from "../settings.ts";
+import { ApplicationContext } from "./contexts";
 
 const ApplicationContextProvider = ({ children }: PropsWithChildren) => {
     const [loading, setLoading] = useState(false);

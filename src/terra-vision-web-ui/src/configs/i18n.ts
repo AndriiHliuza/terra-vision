@@ -17,6 +17,6 @@ i18n
             en: {translation: enTranslation},
             ua: {translation: uaTranslation},
         }
-    });
+    }).then();
 
 export default i18n;

@@ -28,6 +28,8 @@
     backdrop-filter: blur(var(--glass-blur-px));
     -webkit-backdrop-filter: blur(var(--glass-blur-px));
 
+    cursor: pointer;
+
     transition: all 0.3s ease;
 }
 
@@ -49,8 +51,6 @@
     display: flex;
     justify-content: center;
     align-items: center;
-
-    cursor: pointer;
 
     transition: all 0.3s ease;
 }

@@ -10,13 +10,14 @@ import Header from "../components/Header.tsx";
 import {useContext, useEffect, useState} from "react";
 import type {MarkerData, Shape} from "../commons/models.ts";
 import {stubMarkers, stubShapes} from "../commons/stub.ts";
-import {ApplicationContext, type ApplicationContextSettings, MAP_LAYERS} from "../configs/settings.ts";
+import {MAP_LAYERS} from "../configs/settings.ts";
 import {MapEventsHandler} from "../commons/map-controls.ts";
 import MapLayers from "../components/MapLayers.tsx";
 import MapShapes from "../components/MapShapes.tsx";
 import clsx from "clsx";
 import mapLayersOpenBtnImg from "../assets/layers.png";
 import mapLayersCloseBtnImg from "../assets/close.png";
+import {ApplicationContext, type ApplicationContextSettings} from "../configs/context/contexts.ts";
 
 function Map() {
 

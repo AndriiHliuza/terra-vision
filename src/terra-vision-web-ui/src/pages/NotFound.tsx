@@ -1,14 +1,15 @@
 import "../styles/pages/NotFound.css";
 import notFoundImg from "../assets/404-error-icon.webp";
 import {NavLink} from "react-router-dom";
-import {ROUTES} from "../configs/settings.ts";
 import leftArrowIcon from "../assets/left-arrow.png";
 import {t} from "i18next";
+import i18n from "../configs/i18n.ts";
+import {ROUTES} from "../configs/settings.ts";
 
 function NotFound() {
     return (
         <main id="not-found-page">
-            <NavLink to={ROUTES.home} className="left-arrow-icon">
+            <NavLink to={`${ROUTES.ROOT}${i18n.language}`} className="left-arrow-icon">
                 <img src={leftArrowIcon} alt="Back to Home Button"/>
             </NavLink>
             <img src={notFoundImg} alt="Not found img"/>
