@@ -6,7 +6,7 @@ import {useTranslation} from "react-i18next";
 import {toast} from "react-toastify";
 import PopUp from "../components/PopUp.tsx";
 import downloadIcon from "../assets/download-icon.png";
-import type {FileItem} from "../commons/models.ts";
+import {type CVModelDescription, type CVModelDescriptionResponse, type FileItem} from "../commons/models.ts";
 import {
     blobToZip,
     createArchiveFromFileItems,
@@ -14,9 +14,11 @@ import {
     isArchive,
     truncateFileName, useScreenWidth
 } from "../commons/utils.ts";
-import {TRUNCATE_FILE_NAME_RULES} from "../configs/settings.ts";
+import {API_URLS, TRUNCATE_FILE_NAME_RULES} from "../configs/settings.ts";
 import ARCHIVE_IMG from "../assets/archive-icon.png";
 import {Dropdown} from "../components/Dropdown.tsx";
+import {axiosWebClient} from "../configs/axiosWebClient.ts";
+import i18n from "../configs/i18n.ts";
 
 function LandmineDetector() {
 
@@ -37,7 +39,7 @@ function LandmineDetector() {
 
     const [isProcessed, setProcessed] = useState<boolean>(false);
 
-    const [models, setModels] = useState<string[]>([]);
+    const [models, setModels] = useState<CVModelDescription[]>([]);
     const [selectedModel, setSelectedModel] = useState<string>(() => {
         return localStorage.getItem("selectedLandmineDetectionModel") ?? "";
     });
@@ -45,11 +47,13 @@ function LandmineDetector() {
     const outputSectionRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        // fetch available models from backend
-        // GET /api/terra-vision-ai/models?lang=ua
-        // Returned DTO: models: [ {enName: FAST, lang: ua, langName: ШВИДКА, description: "Model description in specified language"}, {enName: STANDARD, lang: ua, langName: СТАНДАРТНА, description: "Model description in specified language"} ]
-        const modelNamesFromBackend = ["FAST", "STANDARD", "LARGE"]
-        setModels(modelNamesFromBackend)
+        axiosWebClient.get<CVModelDescriptionResponse>(API_URLS.AI_MODELS_URL, {
+            params: {lang: i18n.language}
+        }).then(response => {
+            setModels(response.data.models)
+        }).catch(err => {
+            console.log(err);
+        })
     }, [t]);
 
     const removeUploadedImage = (id: string) => {
@@ -192,14 +196,17 @@ function LandmineDetector() {
                         <div className="models-dropdown-container">
                             <Dropdown
                                 label={selectedModel ? selectedModel : t("landmine-detection-page.models-dropdown-title")}
-                                items={models}
+                                items={models.map(model => model.name)}
                                 onSelect={value => {
                                     setSelectedModel(value);
                                     localStorage.setItem("selectedLandmineDetectionModel", value);
                                 }}
                             />
                         </div>
-                        <div className="model-description">TRY OUR MODELS</div>
+                        <div className="model-description">{models
+                            .find(model => model.name === selectedModel)
+                            ?.description ?? t("landmine-detection-page.model-description-default-text")
+                        }</div>
                     </div>
 
                     {/* Dropzone area */}

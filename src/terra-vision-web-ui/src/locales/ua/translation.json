@@ -43,6 +43,7 @@
   "landmine-detection-page": {
     "title": "Детектор",
     "models-dropdown-title": "ОБРАТИ МОДЕЛЬ",
+    "model-description-default-text": "Модель не обрано",
     "drag-and-drop-section-text-for-not-active-drag": "Натисніть або перетягніть зображення чи «.zip» архів",
     "drag-and-drop-section-text-for-active-drag": "Перетягніть зображення чи «.zip» архів...",
     "clear-all-images-btn-text": "Очистити",

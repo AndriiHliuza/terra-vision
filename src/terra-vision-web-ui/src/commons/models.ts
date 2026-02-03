@@ -40,3 +40,13 @@ export type TruncateFileNameRule = {
     startFileNameLength: number;
     endFileNameLength: number;
 };
+
+export type CVModelDescription = {
+    id: string;
+    name: string;
+    description: string;
+}
+export type CVModelDescriptionResponse = {
+    lang: string;
+    models: CVModelDescription[];
+}

@@ -1,0 +1,24 @@
+{
+  "models": {
+    "mgt-yolo11-n": {
+      "displayName": "MGT YOLO11 n",
+      "description": "The smallest and fastest model in the MGT YOLO11 series. Ideal for devices with limited resources or applications where speed is critical."
+    },
+    "mgt-yolo11-s": {
+      "displayName": "MGT YOLO11 s",
+      "description": "A compact model balancing speed and accuracy. Suitable for real-time where high performance is needed without significant loss of precision."
+    },
+    "mgt-yolo11-m": {
+      "displayName": "MGT YOLO11 m",
+      "description": "A medium model optimized for higher accuracy while maintaining acceptable speed. Perfect for tasks where reliability is important and processing moderate data volumes."
+    },
+    "mgt-yolo11-l": {
+      "displayName": "MGT YOLO11 l",
+      "description": "A large model with high object detection accuracy."
+    },
+    "mgt-yolo11-x": {
+      "displayName": "MGT YOLO11 x",
+      "description": "The largest and most accurate model in the MGT YOLO11 series."
+    }
+  }
+}

@@ -6,8 +6,6 @@ import layer_OpenTopoMap from "../assets/map-layers/OpenTopoMap.png"
 import layer_ESRI_Satellite from "../assets/map-layers/ESRI_Satellite.png"
 import layer_ESRI_Topographic from "../assets/map-layers/ESRI_Topographic.png"
 import layer_Carto_Light from "../assets/map-layers/Carto_Light.png"
-import unitedKingdomFlag from "../assets/united-kingdom-flag.png";
-import ukrainianFlag from "../assets/ukraine-flag.png";
 
 /* Routing section */
 
@@ -21,13 +19,20 @@ export const ROUTES = {
         MAP_EDITOR: "map-editor"
     },
     NOT_FOUND: "*",
-};
+}
 
 export const ROUTES_WITHOUT_MOUSE_TRAIL = [
     ROUTES.MAP,
     buildUrl([ROUTES.ADMIN_ROUTES.ROOT, ROUTES.ADMIN_ROUTES.DASHBOARD], URL_TYPE.ABSOLUTE),
     buildUrl([ROUTES.ADMIN_ROUTES.ROOT, ROUTES.ADMIN_ROUTES.MAP_EDITOR], URL_TYPE.ABSOLUTE),
 ]
+
+/* API URLS */
+
+export const API_DOMAIN = "http://localhost:8000"
+export const API_URLS = {
+    AI_MODELS_URL: API_DOMAIN + "/api/ai/models"
+}
 
 /* Localization */
 
@@ -80,5 +85,5 @@ export const TRUNCATE_FILE_NAME_RULES: TruncateFileNameRule[] = [
     { maxScreenWidth: 300, startFileNameLength: 3, endFileNameLength: 4 },
     { maxScreenWidth: 500, startFileNameLength: 4, endFileNameLength: 6 },
     { maxScreenWidth: 9999, startFileNameLength: 6, endFileNameLength: 9 }, // desktop fallback
-];
+]
 

@@ -43,6 +43,7 @@
   "landmine-detection-page": {
     "title": "Detector",
     "models-dropdown-title": "SELECT MODEL",
+    "model-description-default-text": "No model selected",
     "drag-and-drop-section-text-for-not-active-drag": "Click or Drag & Drop images or «.zip» archives here",
     "drag-and-drop-section-text-for-active-drag": "Drop images or «.zip» archives here...",
     "clear-all-images-btn-text": "Clear",

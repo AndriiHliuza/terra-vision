@@ -1,13 +1,16 @@
 from fastapi import FastAPI
+from starlette.middleware.cors import CORSMiddleware
+
+from config import ORIGINS
+from routers import models_router
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
-
-
-@app.get("/hello/{name}")
-async def say_hello(name: str):
-    return {"message": f"Hello {name}"}
+app.include_router(models_router, prefix="/api/ai", tags=["models"])

@@ -73,6 +73,7 @@
     margin: 10px;
 
     font-size: 15px;
+    word-spacing: 3px;
 
     font-family: "Rubik Distressed", "Poppins", system-ui, Avenir, Helvetica, Arial, sans-serif;
 }
