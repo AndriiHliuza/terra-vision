@@ -1,12 +1,28 @@
 
 from fastapi import APIRouter, Query
 
-from config import DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES, localization_loader, MODELS_IDS
-from schemas import CVModelDescription, CVModelDescriptionResponse
+from config import DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES
+from schemas import CVModelDescriptionResponse
+from services import get_localized_models_info, check_model_exists_by_name
 
 router = APIRouter(prefix="/models", tags=["models"])
 
-@router.get("/", response_model=CVModelDescriptionResponse)
+@router.get("/{model_name}/exists")
+async def check_model_exists_by_name(
+        model_name: str,
+        lang: str = Query(
+            default=DEFAULT_LANGUAGE,
+            regex=f"^({'|'.join(SUPPORTED_LANGUAGES)})$"
+        )
+):
+    """Check if model exists by ID"""
+    exists = await check_model_exists_by_name(model_name, lang)
+    return {
+        "exists": exists,
+        "model_id": model_name
+    }
+
+@router.get("", response_model=CVModelDescriptionResponse)
 async def get_models(
         lang: str = Query(
             default=DEFAULT_LANGUAGE,
@@ -14,14 +30,4 @@ async def get_models(
         )
 ):
     """Get list of AI models with localized information"""
-
-    localized_models = []
-
-    for model_id in MODELS_IDS:
-        localized_models.append(CVModelDescription(
-            id=model_id,
-            name=localization_loader.get(lang, f"models.{model_id}.displayName", model_id),
-            description=localization_loader.get(lang, f"models.{model_id}.description", model_id),
-        ))
-
-    return CVModelDescriptionResponse(lang=lang, models=localized_models)
+    return await get_localized_models_info(lang)

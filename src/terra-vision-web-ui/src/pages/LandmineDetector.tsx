@@ -6,7 +6,11 @@ import {useTranslation} from "react-i18next";
 import {toast} from "react-toastify";
 import PopUp from "../components/PopUp.tsx";
 import downloadIcon from "../assets/download-icon.png";
-import {type CVModelDescription, type CVModelDescriptionResponse, type FileItem} from "../commons/models.ts";
+import {
+    type CVModelDescription,
+    type CVModelDescriptionResponse,
+    type FileItem
+} from "../commons/models.ts";
 import {
     blobToZip,
     createArchiveFromFileItems,
@@ -51,6 +55,11 @@ function LandmineDetector() {
             params: {lang: i18n.language}
         }).then(response => {
             setModels(response.data.models)
+            const selectedModelExists = response.data.models.find(model => model.name === selectedModel)
+            if (!selectedModelExists) {
+                localStorage.removeItem("selectedLandmineDetectionModel");
+                setSelectedModel("")
+            }
         }).catch(err => {
             console.log(err);
         })
