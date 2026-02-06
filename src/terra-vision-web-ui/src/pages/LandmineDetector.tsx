@@ -23,6 +23,8 @@ import ARCHIVE_IMG from "../assets/archive-icon.png";
 import {Dropdown} from "../components/Dropdown.tsx";
 import {axiosWebClient} from "../configs/axiosWebClient.ts";
 import i18n from "../configs/i18n.ts";
+import axios from "axios";
+import JSZip from "jszip";
 
 function LandmineDetector() {
 
@@ -44,26 +46,35 @@ function LandmineDetector() {
     const [isProcessed, setProcessed] = useState<boolean>(false);
 
     const [models, setModels] = useState<CVModelDescription[]>([]);
-    const [selectedModel, setSelectedModel] = useState<string>(() => {
-        return localStorage.getItem("selectedLandmineDetectionModel") ?? "";
-    });
+    const [selectedModel, setSelectedModel] = useState<CVModelDescription | null>();
 
     const outputSectionRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
+        /* Getting all models */
         axiosWebClient.get<CVModelDescriptionResponse>(API_URLS.AI_MODELS_URL, {
             params: {lang: i18n.language}
         }).then(response => {
             setModels(response.data.models)
-            const selectedModelExists = response.data.models.find(model => model.name === selectedModel)
-            if (!selectedModelExists) {
+
+            /* Checking if stored in localstorage model actually exists */
+            const selectedModelId = localStorage.getItem("selectedLandmineDetectionModel") ?? "";
+            const selectedModel = response.data.models.find(model => model.id === selectedModelId)
+            setSelectedModel(selectedModel)
+            if (!selectedModel) {
                 localStorage.removeItem("selectedLandmineDetectionModel");
-                setSelectedModel("")
             }
+
         }).catch(err => {
             console.log(err);
         })
     }, [t]);
+
+    useEffect(() => {
+        if (outputSectionRef.current) {
+            outputSectionRef.current.scrollIntoView({behavior: "smooth"});
+        }
+    }, [processedImages, processedArchives]);
 
     const removeUploadedImage = (id: string) => {
         setUploadedImages(prev => prev.filter(image => image.id !== id));
@@ -93,33 +104,78 @@ function LandmineDetector() {
         setProcessed(false)
     }
 
-    useEffect(() => {
-        if (outputSectionRef.current) {
-            outputSectionRef.current.scrollIntoView({behavior: "smooth"});
+    async function sendArchivesAndProcessResult(modelId: string, archives: File[], imagesArchiveName: string | undefined) {
+        const formData = new FormData();
+
+        formData.append("modelId", modelId);
+        archives.forEach(archive => formData.append("archives", archive));
+        const response = await axios.post(
+            API_URLS.AI_MODELS_URL,
+            formData,
+            {
+                responseType: "blob",
+                headers: {"Content-Type": "multipart/form-data"}
+            }
+        )
+
+        const outerArchiveBlob: Blob = response.data;
+        const outerZip = await JSZip.loadAsync(outerArchiveBlob);
+
+        const extractedArchives: FileItem[] = [];
+        const extractedImages: FileItem[] = [];
+
+        for (const [archiveName, zipEntry] of Object.entries(outerZip.files)) {
+            if (zipEntry.dir) continue;
+
+            const innerArchiveBlob = await zipEntry.async('blob');
+            const innerArchiveFile: File = new File([innerArchiveBlob], archiveName, {type: innerArchiveBlob.type})
+
+            extractedArchives.push({
+                id: `${archiveName}-${Date.now()}-${crypto.randomUUID().toString()}`,
+                file: innerArchiveFile,
+            });
+
+            if (archiveName === imagesArchiveName) {
+                const innerZip = await JSZip.loadAsync(innerArchiveBlob);
+                for (const [fileName, innerZipEntry] of Object.entries(innerZip.files)) {
+                    if (innerZipEntry.dir) continue;
+
+                    if (fileName.toLowerCase().match(/\.(jpg|jpeg|png|gif|bmp|webp)$/)) {
+                        const imageBlob = await innerZipEntry.async('blob');
+                        const imageFile = new File([imageBlob], fileName, { type: imageBlob.type });
+
+                        extractedImages.push({
+                            id: `${fileName}-${Date.now()}-${crypto.randomUUID().toString()}`,
+                            file: imageFile,
+                        });
+                    }
+                }
+            }
         }
-    }, [processedImages, processedArchives]);
+        setProcessedArchives(extractedArchives);
+        setProcessedImages(extractedImages);
+    }
 
     const process = async (): Promise<void> => {
         if (selectedModel) {
             if (!isProcessed) {
+                let imagesArchive: FileItem | null = null;
                 if (uploadedImages.length > 0) {
                     const zipBlob: Blob = await createArchiveFromFileItems(uploadedImages);
-                    const zipArchive: File = blobToZip(zipBlob, "images.zip");
-                    const fileItem: FileItem = {
-                        id: zipArchive.name + "-" + Date.now() + "-" + Math.random().toString(),
+                    const zipArchiveName = "images-" + Date.now() + "-" + crypto.randomUUID().toString() + ".zip";
+                    const zipArchive: File = blobToZip(zipBlob, zipArchiveName);
+                    imagesArchive = {
+                        id: zipArchive.name,
                         file: zipArchive
                     }
-
-                    setProcessedArchives(prev => [
-                        ...prev,
-                        fileItem
-                    ])
                 }
 
-                // setProcessedImages and setProcessedArchives are temporary. Will get images from backend after processing them.
-                setProcessedImages(prev => [...prev, ...uploadedImages])
-                setProcessedArchives(prev => [...prev, ...uploadedArchives])
+                const archivesToSend: File[] = [
+                    ...uploadedArchives,
+                    ...(imagesArchive ? [imagesArchive] : [])]
+                    .map(archive => archive.file)
 
+                await sendArchivesAndProcessResult(selectedModel.id, archivesToSend, imagesArchive?.id)
                 setProcessed(true);
             } else {
                 toast.error(
@@ -137,7 +193,6 @@ function LandmineDetector() {
                 />
             );
         }
-
     }
 
     const onFileDrop = useCallback((files: File[]) => {
@@ -148,12 +203,12 @@ function LandmineDetector() {
         files.forEach(file => {
             if (file.type.startsWith("image")) {
                 imageFiles.push({
-                    id: file.name + "-" + Date.now() + "-" + Math.random(),
+                    id: file.name + "-" + Date.now() + "-" + crypto.randomUUID().toString(),
                     file: file
                 })
             } else if (isArchive(file.type, file.name)) {
                 archiveFiles.push({
-                    id: file.name + "-" + Date.now() + "-" + Math.random(),
+                    id: file.name + "-" + Date.now() + "-" + crypto.randomUUID().toString(),
                     file: file
                 })
             }
@@ -204,16 +259,19 @@ function LandmineDetector() {
                     <div className="models-section">
                         <div className="models-dropdown-container">
                             <Dropdown
-                                label={selectedModel ? selectedModel : t("landmine-detection-page.models-dropdown-title")}
-                                items={models.map(model => model.name)}
-                                onSelect={value => {
-                                    setSelectedModel(value);
-                                    localStorage.setItem("selectedLandmineDetectionModel", value);
+                                label={selectedModel?.name ? selectedModel.name : t("landmine-detection-page.models-dropdown-title")}
+                                items={models.map(model => ({
+                                    id: model.id,
+                                    name: model.name,
+                                }))}
+                                onSelect={model => {
+                                    setSelectedModel(models.find(m => m.id === model.id));
+                                    localStorage.setItem("selectedLandmineDetectionModel", model.id);
                                 }}
                             />
                         </div>
                         <div className="model-description">{models
-                            .find(model => model.name === selectedModel)
+                            .find(model => model.id === selectedModel?.id)
                             ?.description ?? t("landmine-detection-page.model-description-default-text")
                         }</div>
                     </div>

@@ -134,6 +134,8 @@
 
     cursor: pointer;
 
+    word-spacing: 3px;
+
     transition: all 0.3s ease;
 }
 

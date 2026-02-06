@@ -1,16 +1,21 @@
-import { useState, useRef, useEffect } from "react";
+import {useState, useRef, useEffect} from "react";
 import "../styles/components/Dropdown.css";
 import MENU_IMG from "../assets/menu.png";
 import DOWN_ARROW from "../assets/down-arrow.png";
 import clsx from "clsx";
 
+type DropdownItem = {
+    id: string;
+    name: string;
+}
+
 type DropdownProps = {
     label?: string;
-    items: string[];
-    onSelect: (value: string) => void;
+    items: DropdownItem[];
+    onSelect: (value: DropdownItem) => void;
 };
 
-export function Dropdown({ label, items, onSelect }: DropdownProps) {
+export function Dropdown({label, items, onSelect}: DropdownProps) {
     const [open, setOpen] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
 
@@ -38,21 +43,19 @@ export function Dropdown({ label, items, onSelect }: DropdownProps) {
                 <div>{label}</div>
             </button>
 
-            {/*{open && (*/}
-                <ul className={clsx("dropdown-menu", {opened: open})}>
-                    {items.map(item => (
-                        <li
-                            key={item}
-                            onClick={() => {
-                                onSelect(item);
-                                setOpen(false);
-                            }}
-                        >
-                            {item}
-                        </li>
-                    ))}
-                </ul>
-            {/*)}*/}
+            <ul className={clsx("dropdown-menu", {opened: open})}>
+                {items.map(item => (
+                    <li
+                        key={item.id}
+                        onClick={() => {
+                            onSelect(item);
+                            setOpen(false);
+                        }}
+                    >
+                        {item.name}
+                    </li>
+                ))}
+            </ul>
         </div>
     );
 }
