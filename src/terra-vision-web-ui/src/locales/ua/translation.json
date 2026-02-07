@@ -48,6 +48,10 @@
     "drag-and-drop-section-text-for-active-drag": "Перетягніть зображення чи «.zip» архів...",
     "clear-all-images-btn-text": "Очистити",
     "process-images-btn-text": "Обробити",
+    "processing-message-text": {
+      "text-1": "Будь ласка, зачекайте, поки ми намагаємось обробити...",
+      "text-2": "Це може зайняти декілька хвилин..."
+    },
     "pop-ups": {
       "invalid-file-pop-up": {
         "title": "Невалідний тип файлу",

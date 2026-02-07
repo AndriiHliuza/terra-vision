@@ -341,6 +341,50 @@
     height: 30px;
 }
 
+#lm-detection-service-page > .input-section > .processing-message {
+    position: relative;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+
+    width: 90%;
+    height: 100%;
+
+    margin: 5px 0 20px 0;
+    padding: 5px;
+
+    border: 2px solid var(--glass-border-color);
+    border-radius: 10px;
+
+    color: whitesmoke;
+    background-color: var(--glass-bg-color);
+}
+
+#lm-detection-service-page > .input-section > .processing-message > .processing-message-text {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-size: 20px;
+    word-spacing: 2px;
+
+    margin: 0 5px;
+}
+
+#lm-detection-service-page > .input-section > .processing-message > .partial-loading-overlay {
+    position: static;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    margin: 0 5px;
+}
+
+#lm-detection-service-page > .input-section > .processing-message > .partial-loading-overlay > .loading-image {
+    width: 50px;
+}
+
 #lm-detection-service-page > section > .controls-wrapper {
     display: flex;
     justify-content: center;
@@ -507,6 +551,14 @@
 
     #lm-detection-service-page .archives-section > .archive-preview-container {
         width: 150px;
+    }
+
+    #lm-detection-service-page > .input-section > .processing-message > .processing-message-text {
+        font-size: 15px;
+    }
+
+    #lm-detection-service-page > .input-section > .processing-message > .partial-loading-overlay > .loading-image {
+        width: 35px;
     }
 
     #lm-detection-service-page > .input-section > h1 {

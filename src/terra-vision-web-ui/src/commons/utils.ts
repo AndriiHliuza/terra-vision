@@ -7,6 +7,7 @@ import {
 } from "./models.ts";
 import JSZip from "jszip";
 import {useEffect, useState} from "react";
+import {SUPPORTED_LANGUAGES} from "../configs/settings.ts";
 
 export function isArchive(fileType: string, fileName: string): boolean {
     return fileType.startsWith("application/zip") ||
@@ -50,6 +51,10 @@ export function blobToZip(blob: Blob, fileName: string): File {
     return new File([blob], fileName, { type: "application/zip" });
 }
 
+export function blobToFile(blob: Blob, fileName: string): File {
+    return new File([blob], fileName, { type: blob.type });
+}
+
 export function buildUrl(
     urlSegments: string | string[],
     urlType: UrlType = URL_TYPE.ABSOLUTE
@@ -66,6 +71,12 @@ export function buildUrl(
     return urlBuilders[urlType](url);
 }
 
+export function buildForAllLanguages(urlSegments: string | string[], urlType: UrlType = URL_TYPE.ABSOLUTE) {
+    return SUPPORTED_LANGUAGES.map(lang => {
+        const segments = Array.isArray(urlSegments) ? [lang, ...urlSegments] : [lang, urlSegments];
+        return buildUrl(segments, urlType);
+    });
+}
 
 export function useScreenWidth() {
     const [width, setWidth] = useState(window.innerWidth);

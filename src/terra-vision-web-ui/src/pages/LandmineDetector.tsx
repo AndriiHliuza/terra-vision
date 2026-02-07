@@ -12,6 +12,7 @@ import {
     type FileItem
 } from "../commons/models.ts";
 import {
+    blobToFile,
     blobToZip,
     createArchiveFromFileItems,
     getTruncateFileNameLengthsByWidth,
@@ -25,6 +26,7 @@ import {axiosWebClient} from "../configs/axiosWebClient.ts";
 import i18n from "../configs/i18n.ts";
 import axios from "axios";
 import JSZip from "jszip";
+import PartialLoadingOverlay from "../components/PartialLoadingOverlay.tsx";
 
 function LandmineDetector() {
 
@@ -44,6 +46,7 @@ function LandmineDetector() {
     const [processedArchives, setProcessedArchives] = useState<FileItem[]>([]);
 
     const [isProcessed, setProcessed] = useState<boolean>(false);
+    const [isProcessing, setProcessing] = useState<boolean>(false);
 
     const [models, setModels] = useState<CVModelDescription[]>([]);
     const [selectedModel, setSelectedModel] = useState<CVModelDescription | null>();
@@ -128,7 +131,7 @@ function LandmineDetector() {
             if (zipEntry.dir) continue;
 
             const innerArchiveBlob = await zipEntry.async('blob');
-            const innerArchiveFile: File = new File([innerArchiveBlob], archiveName, {type: innerArchiveBlob.type})
+            const innerArchiveFile: File = blobToFile(innerArchiveBlob, archiveName);
 
             extractedArchives.push({
                 id: `${archiveName}-${Date.now()}-${crypto.randomUUID().toString()}`,
@@ -142,7 +145,7 @@ function LandmineDetector() {
 
                     if (fileName.toLowerCase().match(/\.(jpg|jpeg|png|gif|bmp|webp)$/)) {
                         const imageBlob = await innerZipEntry.async('blob');
-                        const imageFile = new File([imageBlob], fileName, { type: imageBlob.type });
+                        const imageFile = blobToFile(imageBlob, fileName);
 
                         extractedImages.push({
                             id: `${fileName}-${Date.now()}-${crypto.randomUUID().toString()}`,
@@ -152,31 +155,38 @@ function LandmineDetector() {
                 }
             }
         }
-        setProcessedArchives(extractedArchives);
-        setProcessedImages(extractedImages);
+        setProcessedArchives(prev => [...prev, ...extractedArchives]);
+        setProcessedImages(prev => [...prev, ...extractedImages]);
     }
 
-    const process = async (): Promise<void> => {
+    const send = async (): Promise<void> => {
         if (selectedModel) {
             if (!isProcessed) {
-                let imagesArchive: FileItem | null = null;
-                if (uploadedImages.length > 0) {
-                    const zipBlob: Blob = await createArchiveFromFileItems(uploadedImages);
-                    const zipArchiveName = "images-" + Date.now() + "-" + crypto.randomUUID().toString() + ".zip";
-                    const zipArchive: File = blobToZip(zipBlob, zipArchiveName);
-                    imagesArchive = {
-                        id: zipArchive.name,
-                        file: zipArchive
+                try {
+                    setProcessing(true);
+                    let imagesArchive: FileItem | null = null;
+                    if (uploadedImages.length > 0) {
+                        const zipBlob: Blob = await createArchiveFromFileItems(uploadedImages);
+                        const zipArchiveName = `images-${Date.now()}-${crypto.randomUUID().toString()}-.zip`;
+                        const zipArchive: File = blobToZip(zipBlob, zipArchiveName);
+                        imagesArchive = {
+                            id: zipArchive.name,
+                            file: zipArchive
+                        }
                     }
+
+                    const archivesToSend: File[] = [
+                        ...uploadedArchives,
+                        ...(imagesArchive ? [imagesArchive] : [])]
+                        .map(archive => archive.file)
+
+                    await sendArchivesAndProcessResult(selectedModel.id, archivesToSend, imagesArchive?.id)
+                    setProcessed(true);
+
+                    setProcessing(false);
+                } catch {
+                    setProcessing(false);
                 }
-
-                const archivesToSend: File[] = [
-                    ...uploadedArchives,
-                    ...(imagesArchive ? [imagesArchive] : [])]
-                    .map(archive => archive.file)
-
-                await sendArchivesAndProcessResult(selectedModel.id, archivesToSend, imagesArchive?.id)
-                setProcessed(true);
             } else {
                 toast.error(
                     <PopUp
@@ -203,12 +213,12 @@ function LandmineDetector() {
         files.forEach(file => {
             if (file.type.startsWith("image")) {
                 imageFiles.push({
-                    id: file.name + "-" + Date.now() + "-" + crypto.randomUUID().toString(),
+                    id: `${file.name}-${Date.now()}-${crypto.randomUUID().toString()}-.zip`,
                     file: file
                 })
             } else if (isArchive(file.type, file.name)) {
                 archiveFiles.push({
-                    id: file.name + "-" + Date.now() + "-" + crypto.randomUUID().toString(),
+                    id: `${file.name}-${Date.now()}-${crypto.randomUUID().toString()}-.zip`,
                     file: file
                 })
             }
@@ -340,10 +350,21 @@ function LandmineDetector() {
                                     </div>
                                     <div
                                         id="process-images-btn"
-                                        onClick={process}
+                                        onClick={send}
                                     >
                                         {t("landmine-detection-page.process-images-btn-text")}
                                     </div>
+                                </div>
+                            )
+                            : null
+                    }
+
+                    {
+                        isProcessing
+                            ? (
+                                <div className="processing-message">
+                                    <div className="processing-message-text">{t("landmine-detection-page.processing-message-text.text-1")}<br/>{t("landmine-detection-page.processing-message-text.text-2")}</div>
+                                    <PartialLoadingOverlay visible={isProcessing}/>
                                 </div>
                             )
                             : null

@@ -1,4 +1,4 @@
-from .application_config import ORIGINS
+from .config import ORIGINS
 
-from .application_config import SUPPORTED_LANGUAGES
-from .application_config import DEFAULT_LANGUAGE
+from .config import SUPPORTED_LANGUAGES
+from .config import DEFAULT_LANGUAGE

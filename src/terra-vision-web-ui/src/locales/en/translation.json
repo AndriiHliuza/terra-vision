@@ -48,6 +48,10 @@
     "drag-and-drop-section-text-for-active-drag": "Drop images or «.zip» archives here...",
     "clear-all-images-btn-text": "Clear",
     "process-images-btn-text": "Process",
+    "processing-message-text": {
+      "text-1": "Please wait while we try to process...",
+      "text-2": "This my take a few minutes"
+    },
     "pop-ups": {
       "invalid-file-pop-up": {
         "title": "Invalid file type",
