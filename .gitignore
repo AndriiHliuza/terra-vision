@@ -1,1 +1,5 @@
-deployment/yolo-models/mgt-yolo-11-models/
+deployment/yolo-models/mgt-yolo-11-models/mgt-yolo11-n.pt
+deployment/yolo-models/mgt-yolo-11-models/mgt-yolo11-s.pt
+deployment/yolo-models/mgt-yolo-11-models/mgt-yolo11-m.pt
+deployment/yolo-models/mgt-yolo-11-models/mgt-yolo11-l.pt
+deployment/yolo-models/mgt-yolo-11-models/mgt-yolo11-x.pt
