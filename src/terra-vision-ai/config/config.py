@@ -4,6 +4,8 @@ import sys
 from pathlib import Path
 from dotenv import load_dotenv
 
+TERRA_VISION_ROOT_DIR = Path(__file__).parent.parent.parent.parent
+MGT_MODELS_DIR = TERRA_VISION_ROOT_DIR / "deployment" / "yolo-models" / "mgt-yolo-11-models"
 
 ENV_FILE = Path(__file__).resolve().parent.parent.parent.parent / "deployment" / "docker" / "dev" / ".env"
 load_dotenv(dotenv_path=ENV_FILE)

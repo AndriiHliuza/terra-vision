@@ -2,9 +2,11 @@ from typing import List
 
 from fastapi import APIRouter, Query, UploadFile, Form, File
 
-from config import DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES
+from config import DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES, MGT_MODELS_DIR
+from database import mongo_db
 from schemas import CVModelDescriptionResponse
-from services import get_localized_models_info, check_model_exists_by_name, process_archives_and_detect_objects_with_ai
+from services import get_localized_models_info, check_model_exists_by_name, process_archives_and_detect_objects_with_ai, \
+    MODEL_CACHE
 
 router = APIRouter(prefix="/models", tags=["models"])
 
@@ -39,7 +41,28 @@ async def get_models(
 @router.post("")
 async def process_archives(
         modelId: str = Form(...),
-        archives: List[UploadFile] = File(...)
+        archives: List[UploadFile] = File(...),
+        confidence: float = Form(0.25),
+        batch_size: int = Form(16)
 ):
-    return await process_archives_and_detect_objects_with_ai(modelId, archives)
+    return await process_archives_and_detect_objects_with_ai(modelId, archives, confidence, batch_size)
 
+@router.post("/clear-cache")
+async def clear_model_cache():
+    cleared_models = list(MODEL_CACHE.keys())
+    MODEL_CACHE.clear()
+    return {
+        "message": "Model cache cleared",
+        "cleared_models": cleared_models
+    }
+
+@router.get("/health")
+async def health_check():
+    """Health check endpoint"""
+    return {
+        "status": "healthy",
+        "models_directory": str(MGT_MODELS_DIR),
+        "models_directory_exists": MGT_MODELS_DIR.exists(),
+        "cached_models": len(MODEL_CACHE),
+        "mongodb_connected": mongo_db is not None
+    }

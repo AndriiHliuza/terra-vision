@@ -1,3 +1,5 @@
 from .model_service import check_model_exists_by_name
 from .model_service import get_localized_models_info
 from .model_service import process_archives_and_detect_objects_with_ai
+
+from .yolo_service import MODEL_CACHE
