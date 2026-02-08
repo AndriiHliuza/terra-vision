@@ -50,16 +50,12 @@
     "process-images-btn-text": "Process",
     "processing-message-text": {
       "text-1": "Please wait while we try to process...",
-      "text-2": "This my take a few minutes"
+      "text-2": "This may take a few minutes..."
     },
     "pop-ups": {
       "invalid-file-pop-up": {
         "title": "Invalid file type",
         "description": "File «{{name}}» was rejected. Only images and .zip archives are allowed."
-      },
-      "files-already-processed-pop-up": {
-        "title": "Files already processed",
-        "description": "Processed files can be downloaded from the «Processed images» section"
       },
       "model-not-selected-pop-up": {
         "title": "Select model",

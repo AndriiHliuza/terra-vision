@@ -1,8 +1,10 @@
+/* Files */
 export type FileItem = {
     id: string;
     file: File
 }
 
+/* Map */
 export type PolygonShape = { id: string; type: "polygon" | "triangle"; coords: [number, number][] };
 export type RectangleShape = { id: string; type: "rectangle"; bounds: [[number, number], [number, number]] };
 export type CircleShape = { id: string; type: "circle"; center: [number, number]; radius: number };
@@ -15,6 +17,8 @@ export type MarkerData = {
     popup: string;
 };
 
+
+/* URL */
 export const URL_TYPE = {
     ABSOLUTE: "absolute",
     RELATIVE: "relative",
@@ -27,6 +31,8 @@ export const urlBuilders: Record<UrlType, (u: string) => string> = {
     [URL_TYPE.RELATIVE]: (u) => u,
 };
 
+
+/* Background */
 export interface MatrixBackgroundProps {
     speed?: number;
     fontSize?: number;
@@ -35,12 +41,15 @@ export interface MatrixBackgroundProps {
     backgroundOpacity?: number;
 }
 
+
+/* File name per width */
 export type TruncateFileNameRule = {
     maxScreenWidth: number;
     startFileNameLength: number;
     endFileNameLength: number;
 };
 
+/* AI */
 export type CVModelDescription = {
     id: string;
     name: string;

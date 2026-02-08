@@ -1,2 +1,2 @@
-from .model_description import CVModelDescription
-from .model_description_response import CVModelDescriptionResponse
+from .schemas import CVModelDescription
+from .schemas import CVModelDescriptionResponse

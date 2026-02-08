@@ -149,7 +149,10 @@ function Header({ scrollOffset = 1000 }: { scrollOffset?: number }) {
                         {languages.map((lang) => (
                             <li
                                 key={lang.code}
-                                className="language-dropdown-item"
+                                className={clsx(
+                                    "language-dropdown-item",
+                                    { "active-language": lang.code === i18n.language }
+                                )}
                                 onClick={() => changeLanguage(lang.code)}
                             >
                                 <div className="language-dropdown-item-text">{lang.label}</div>

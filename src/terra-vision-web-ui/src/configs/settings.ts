@@ -1,4 +1,4 @@
-import {buildForAllLanguages} from "../commons/utils.ts";
+import {buildUrlForAllLanguages} from "../commons/utils.ts";
 import {type TruncateFileNameRule, URL_TYPE} from "../commons/models.ts";
 import layer_OSM_Streets from "../assets/map-layers/OSM_Streets.png"
 import layer_OSM_Humanitarian from "../assets/map-layers/OSM_Humanitarian.png"
@@ -8,11 +8,9 @@ import layer_ESRI_Topographic from "../assets/map-layers/ESRI_Topographic.png"
 import layer_Carto_Light from "../assets/map-layers/Carto_Light.png"
 
 /* Localization */
-
 export const SUPPORTED_LANGUAGES = ["en", "ua"]
 
 /* Routing section */
-
 export const ROUTES = {
     ROOT: "/",
     MAP: "map",
@@ -26,21 +24,19 @@ export const ROUTES = {
 }
 
 export const ROUTES_WITHOUT_MOUSE_TRAIL = [
-    ...buildForAllLanguages(ROUTES.MAP, URL_TYPE.ABSOLUTE),
-    ...buildForAllLanguages(ROUTES.LANDMINE_DETECTOR, URL_TYPE.ABSOLUTE),
-    ...buildForAllLanguages([ROUTES.ADMIN_ROUTES.ROOT, ROUTES.ADMIN_ROUTES.DASHBOARD], URL_TYPE.ABSOLUTE),
-    ...buildForAllLanguages([ROUTES.ADMIN_ROUTES.ROOT, ROUTES.ADMIN_ROUTES.MAP_EDITOR], URL_TYPE.ABSOLUTE),
+    ...buildUrlForAllLanguages(ROUTES.MAP, URL_TYPE.ABSOLUTE),
+    ...buildUrlForAllLanguages(ROUTES.LANDMINE_DETECTOR, URL_TYPE.ABSOLUTE),
+    ...buildUrlForAllLanguages([ROUTES.ADMIN_ROUTES.ROOT, ROUTES.ADMIN_ROUTES.DASHBOARD], URL_TYPE.ABSOLUTE),
+    ...buildUrlForAllLanguages([ROUTES.ADMIN_ROUTES.ROOT, ROUTES.ADMIN_ROUTES.MAP_EDITOR], URL_TYPE.ABSOLUTE),
 ]
 
 /* API URLS */
-
 export const API_DOMAIN = "http://localhost:8000"
 export const API_URLS = {
     AI_MODELS_URL: API_DOMAIN + "/api/ai/models"
 }
 
 /* Map section */
-
 export const MAP_LAYERS = [
     {
         name: "OSM Standard",
@@ -80,8 +76,7 @@ export const MAP_LAYERS = [
     }
 ]
 
-/* Helper section */
-
+/* File name width for screen width */
 export const TRUNCATE_FILE_NAME_RULES: TruncateFileNameRule[] = [
     {maxScreenWidth: 300, startFileNameLength: 3, endFileNameLength: 4},
     {maxScreenWidth: 500, startFileNameLength: 4, endFileNameLength: 6},

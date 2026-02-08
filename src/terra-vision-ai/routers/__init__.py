@@ -1,1 +1,1 @@
-from .models import router as models_router
+from .model_router import router as model_router

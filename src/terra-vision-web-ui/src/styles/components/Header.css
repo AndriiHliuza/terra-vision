@@ -302,6 +302,9 @@ header > #header-controls > #language-controls > #language-dropdown-menu > .lang
     margin-left: 20px;
 }
 
+header > #header-controls > #language-controls > #language-dropdown-menu > .language-dropdown-item.active-language > .language-dropdown-item-text {
+    text-decoration: underline;
+}
 
 header > #header-controls > #language-controls > #language-dropdown-menu > .language-dropdown-item > img {
     display: flex;

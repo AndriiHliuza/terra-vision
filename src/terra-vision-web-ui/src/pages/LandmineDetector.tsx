@@ -6,18 +6,15 @@ import {useTranslation} from "react-i18next";
 import {toast} from "react-toastify";
 import PopUp from "../components/PopUp.tsx";
 import downloadIcon from "../assets/download-icon.png";
-import {
-    type CVModelDescription,
-    type CVModelDescriptionResponse,
-    type FileItem
-} from "../commons/models.ts";
+import {type CVModelDescription, type CVModelDescriptionResponse, type FileItem} from "../commons/models.ts";
 import {
     blobToFile,
     blobToZip,
     createArchiveFromFileItems,
     getTruncateFileNameLengthsByWidth,
-    isArchive,
-    truncateFileName, useScreenWidth
+    isArchive, isImage,
+    truncateFileName,
+    useScreenWidth
 } from "../commons/utils.ts";
 import {API_URLS, TRUNCATE_FILE_NAME_RULES} from "../configs/settings.ts";
 import ARCHIVE_IMG from "../assets/archive-icon.png";
@@ -34,6 +31,7 @@ function LandmineDetector() {
 
     const screenWidth = useScreenWidth();
 
+    /* getTruncateFileNameLengthsByWidth runs on every render/rerender (when screenWidth changes) */
     const {
         startFileNameLength,
         endFileNameLength
@@ -45,7 +43,6 @@ function LandmineDetector() {
     const [processedImages, setProcessedImages] = useState<FileItem[]>([]);
     const [processedArchives, setProcessedArchives] = useState<FileItem[]>([]);
 
-    const [isProcessed, setProcessed] = useState<boolean>(false);
     const [isProcessing, setProcessing] = useState<boolean>(false);
 
     const [models, setModels] = useState<CVModelDescription[]>([]);
@@ -104,15 +101,14 @@ function LandmineDetector() {
     const clearProcessedFiles = () => {
         setProcessedImages([]);
         setProcessedArchives([]);
-        setProcessed(false)
     }
 
-    async function sendArchivesAndProcessResult(modelId: string, archives: File[], imagesArchiveName: string | undefined) {
+    async function sendArchives(modelId: string, archives: File[]) {
         const formData = new FormData();
 
         formData.append("modelId", modelId);
         archives.forEach(archive => formData.append("archives", archive));
-        const response = await axios.post(
+        return await axios.post(
             API_URLS.AI_MODELS_URL,
             formData,
             {
@@ -120,10 +116,9 @@ function LandmineDetector() {
                 headers: {"Content-Type": "multipart/form-data"}
             }
         )
+    }
 
-        const outerArchiveBlob: Blob = response.data;
-        const outerZip = await JSZip.loadAsync(outerArchiveBlob);
-
+    async function processResult(outerZip: JSZip, imagesArchiveName: string | undefined) {
         const extractedArchives: FileItem[] = [];
         const extractedImages: FileItem[] = [];
 
@@ -143,7 +138,7 @@ function LandmineDetector() {
                 for (const [fileName, innerZipEntry] of Object.entries(innerZip.files)) {
                     if (innerZipEntry.dir) continue;
 
-                    if (fileName.toLowerCase().match(/\.(jpg|jpeg|png|gif|bmp|webp)$/)) {
+                    if (isImage(fileName)) {
                         const imageBlob = await innerZipEntry.async('blob');
                         const imageFile = blobToFile(imageBlob, fileName);
 
@@ -159,42 +154,48 @@ function LandmineDetector() {
         setProcessedImages(prev => [...prev, ...extractedImages]);
     }
 
+    async function sendArchivesAndProcessResult(modelId: string, archives: File[], imagesArchiveName: string | undefined) {
+        const response = await sendArchives(modelId, archives);
+        const outerArchiveBlob: Blob = response.data;
+        const outerZip = await JSZip.loadAsync(outerArchiveBlob);
+        await processResult(outerZip, imagesArchiveName);
+    }
+
+    async function getArchives(): Promise<{
+        "allArchives": File[],
+        "imagesArchive": FileItem | null
+    }> {
+        let imagesArchive: FileItem | null = null;
+        if (uploadedImages.length > 0) {
+            const zipBlob: Blob = await createArchiveFromFileItems(uploadedImages);
+            const zipArchiveName = `images-${Date.now()}-${crypto.randomUUID().toString()}-.zip`;
+            const zipArchive: File = blobToZip(zipBlob, zipArchiveName);
+            imagesArchive = {
+                id: zipArchive.name,
+                file: zipArchive
+            }
+        }
+
+        return {
+            "allArchives": [
+                ...uploadedArchives,
+                ...(imagesArchive ? [imagesArchive] : [])]
+                .map(archive => archive.file),
+            "imagesArchive": imagesArchive
+        };
+    }
+
     const send = async (): Promise<void> => {
         if (selectedModel) {
-            if (!isProcessed) {
-                try {
-                    setProcessing(true);
-                    let imagesArchive: FileItem | null = null;
-                    if (uploadedImages.length > 0) {
-                        const zipBlob: Blob = await createArchiveFromFileItems(uploadedImages);
-                        const zipArchiveName = `images-${Date.now()}-${crypto.randomUUID().toString()}-.zip`;
-                        const zipArchive: File = blobToZip(zipBlob, zipArchiveName);
-                        imagesArchive = {
-                            id: zipArchive.name,
-                            file: zipArchive
-                        }
-                    }
-
-                    const archivesToSend: File[] = [
-                        ...uploadedArchives,
-                        ...(imagesArchive ? [imagesArchive] : [])]
-                        .map(archive => archive.file)
-
-                    await sendArchivesAndProcessResult(selectedModel.id, archivesToSend, imagesArchive?.id)
-                    setProcessed(true);
-
-                    setProcessing(false);
-                } catch {
-                    setProcessing(false);
-                }
-            } else {
-                toast.error(
-                    <PopUp
-                        title={t("landmine-detection-page.pop-ups.files-already-processed-pop-up.title")}
-                        description={t("landmine-detection-page.pop-ups.files-already-processed-pop-up.description")}
-                    />
-                );
-            }
+            setProcessing(true);
+            try {
+                const {
+                    allArchives: archivesToSend,
+                    imagesArchive: imagesArchive
+                } = await getArchives();
+                await sendArchivesAndProcessResult(selectedModel.id, archivesToSend, imagesArchive?.id)
+            } catch (error) { console.error("Error sending archives and images: " + error); }
+            setProcessing(false);
         } else {
             toast.error(
                 <PopUp
@@ -223,8 +224,6 @@ function LandmineDetector() {
                 })
             }
         })
-
-        if (imageFiles.length > 0 || archiveFiles.length > 0) setProcessed(false);
 
         setUploadedImages(prev => [...prev, ...imageFiles])
         setUploadedArchives(prev => [...prev, ...archiveFiles])
@@ -363,7 +362,9 @@ function LandmineDetector() {
                         isProcessing
                             ? (
                                 <div className="processing-message">
-                                    <div className="processing-message-text">{t("landmine-detection-page.processing-message-text.text-1")}<br/>{t("landmine-detection-page.processing-message-text.text-2")}</div>
+                                    <div
+                                        className="processing-message-text">{t("landmine-detection-page.processing-message-text.text-1")}<br/>{t("landmine-detection-page.processing-message-text.text-2")}
+                                    </div>
                                     <PartialLoadingOverlay visible={isProcessing}/>
                                 </div>
                             )

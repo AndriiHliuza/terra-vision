@@ -1,31 +1,23 @@
 from typing import List
-
 from fastapi import APIRouter, Query, UploadFile, Form, File
-
 from config import DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES, MGT_MODELS_DIR
-from database import mongo_db
+from config import mongo_db
 from schemas import CVModelDescriptionResponse
-from services import get_localized_models_info, check_model_exists_by_name, process_archives_and_detect_objects_with_ai, \
-    MODEL_CACHE
+from services import model_service as ms
+from services import yolo_service as ys
 
 router = APIRouter(prefix="/models", tags=["models"])
 
-
-@router.get("/{model_name}/exists")
-async def check_model_exists_by_name(
-        model_name: str,
-        lang: str = Query(
-            default=DEFAULT_LANGUAGE,
-            regex=f"^({'|'.join(SUPPORTED_LANGUAGES)})$"
-        )
+@router.get("/{model_id}/exists")
+async def check_model_exists_by_id(
+        model_id: str
 ):
     """Check if model exists by ID"""
-    exists = await check_model_exists_by_name(model_name, lang)
+    exists = await check_model_exists_by_id(model_id)
     return {
         "exists": exists,
-        "model_id": model_name
+        "model_id": model_id
     }
-
 
 @router.get("", response_model=CVModelDescriptionResponse)
 async def get_models(
@@ -35,7 +27,7 @@ async def get_models(
         )
 ):
     """Get list of AI models with localized information"""
-    return await get_localized_models_info(lang)
+    return await ms.get_localized_models_info(lang)
 
 
 @router.post("")
@@ -45,12 +37,12 @@ async def process_archives(
         confidence: float = Form(0.25),
         batch_size: int = Form(16)
 ):
-    return await process_archives_and_detect_objects_with_ai(modelId, archives, confidence, batch_size)
+    return await ms.process_archives_and_detect_objects_using_cv(modelId, archives, confidence, batch_size)
 
 @router.post("/clear-cache")
 async def clear_model_cache():
-    cleared_models = list(MODEL_CACHE.keys())
-    MODEL_CACHE.clear()
+    cleared_models = list(ys.MODEL_CACHE.keys())
+    ys.MODEL_CACHE.clear()
     return {
         "message": "Model cache cleared",
         "cleared_models": cleared_models
@@ -63,6 +55,6 @@ async def health_check():
         "status": "healthy",
         "models_directory": str(MGT_MODELS_DIR),
         "models_directory_exists": MGT_MODELS_DIR.exists(),
-        "cached_models": len(MODEL_CACHE),
+        "cached_models": len(ys.MODEL_CACHE),
         "mongodb_connected": mongo_db is not None
     }

@@ -2,22 +2,23 @@ import io
 import logging
 from pathlib import Path
 from typing import Dict, List, Tuple
-
 import cv2
 import numpy as np
 import torch
 from PIL import Image
 from fastapi import HTTPException
 from ultralytics import YOLO
-
 from config import MGT_MODELS_DIR
-from database import mongo_db
+from config import mongo_db
 
-device = "cuda" if torch.cuda.is_available() else "cpu"
-device_name = torch.cuda.get_device_name(0) if torch.cuda.is_available() else "cpu"
+PYTORCH_DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+PYTORCH_DEVICE_NAME = torch.cuda.get_device_name(0) if torch.cuda.is_available() else "cpu"
+
 logger = logging.getLogger(__name__)
+
 # Cache for loaded models to avoid reloading
 MODEL_CACHE: Dict[str, YOLO] = {}
+
 
 async def get_available_models() -> Dict[str, str]:
     """
@@ -25,29 +26,27 @@ async def get_available_models() -> Dict[str, str]:
 
     Returns:
         Dictionary mapping model IDs to their .pt file paths
-        Example: {"mgt-yolo-11-n": "models/mgt-yolo-11-n.pt"}
+        Example: {"mgt-yolo-11-n": "models/mgt-yolo11-n.pt"}
     """
     models_collection = mongo_db["models"]
-
     models_cursor = models_collection.find({})
     models = await models_cursor.to_list(length=None)
 
     available_models = {}
-
     for model in models:
         model_id = model.get("_id")
         if model_id:
             model_path = MGT_MODELS_DIR / f"{model_id}.pt"
             available_models[model_id] = str(model_path)
-
     return available_models
+
 
 async def get_model(model_id:str) -> YOLO:
     """
     Load and cache YOLO model based on model_id
 
     Args:
-        model_id: Identifier for the model (e.g., 'mgt-yolo-11-n')
+        model_id: Identifier for the model (e.g., 'mgt-yolo11-n')
 
     Returns:
         Loaded YOLO model
@@ -55,37 +54,14 @@ async def get_model(model_id:str) -> YOLO:
     Raises:
         HTTPException: If model_id is invalid or model file doesn't exist
     """
-    # Get available models from MongoDB
     available_models = await get_available_models()
-
     if model_id not in available_models:
         raise HTTPException(
             status_code=400,
             detail=f"Invalid model ID. Available models: {list(available_models.keys())}"
         )
 
-    # Check if model is already cached
-    if model_id in MODEL_CACHE:
-        logger.info(f"Using cached model: {model_id}")
-        return MODEL_CACHE[model_id]
-
-    # Load new model
-    model_path = available_models[model_id]
-
-    if not Path(model_path).exists():
-        raise HTTPException(
-            status_code=404,
-            detail=f"Model file not found: {model_path}. Please ensure the .pt file exists in {MGT_MODELS_DIR}"
-        )
-
-    logger.info(f"Loading model: {model_id} from {model_path}")
-    model = YOLO(model_path)
-    model.to(device)
-
-    # Cache the model
-    MODEL_CACHE[model_id] = model
-
-    return model
+    return await _get_yolo_model_and_sync_cache(model_id)
 
 
 def preprocess_thermal_image(image_bytes: bytes) -> Tuple[np.ndarray, str, tuple]:
@@ -191,3 +167,30 @@ async def process_images_batch_with_yolo(
                 processed_images[filename] = batch[idx][1]
 
     return processed_images
+
+
+async def _get_yolo_model_and_sync_cache(model_id: str) -> YOLO:
+    available_models = await get_available_models()
+
+    # Check if model is already cached
+    if model_id in MODEL_CACHE:
+        logger.info(f"Using cached model: {model_id}")
+        return MODEL_CACHE[model_id]
+
+    # Load new model
+    model_path = available_models[model_id]
+
+    if not Path(model_path).exists():
+        raise HTTPException(
+            status_code=404,
+            detail=f"Model file not found: {model_path}. Please ensure the .pt file exists in {MGT_MODELS_DIR}"
+        )
+
+    logger.info(f"Loading model: {model_id} from {model_path}")
+    model = YOLO(model_path)
+    model.to(PYTORCH_DEVICE)
+
+    # Cache the model
+    MODEL_CACHE[model_id] = model
+
+    return model
