@@ -6,7 +6,12 @@ import {useTranslation} from "react-i18next";
 import {toast} from "react-toastify";
 import PopUp from "../components/PopUp.tsx";
 import downloadIcon from "../assets/download-icon.png";
-import {type CVModelDescription, type CVModelDescriptionResponse, type FileItem} from "../commons/models.ts";
+import {
+    type CVModelDescription,
+    type CVModelDescriptionResponse,
+    type FileItem,
+    type ProcessingSummary
+} from "../commons/models.ts";
 import {
     blobToFile,
     blobToZip,
@@ -25,7 +30,7 @@ import axios from "axios";
 import JSZip from "jszip";
 import PartialLoadingOverlay from "../components/PartialLoadingOverlay.tsx";
 
-function LandmineDetector() {
+function ComputerVisionDetector() {
 
     const {t} = useTranslation();
 
@@ -106,7 +111,7 @@ function LandmineDetector() {
     async function sendArchives(modelId: string, archives: File[]) {
         const formData = new FormData();
 
-        formData.append("modelId", modelId);
+        formData.append("model_id", modelId);
         archives.forEach(archive => formData.append("archives", archive));
         return await axios.post(
             API_URLS.AI_MODELS_URL,
@@ -118,12 +123,46 @@ function LandmineDetector() {
         )
     }
 
-    async function processResult(outerZip: JSZip, imagesArchiveName: string | undefined) {
+    async function extractProcessingStats(outerZip: JSZip): Promise<ProcessingSummary | null> {
+        try {
+            const statsFile = outerZip.file("processing_stats.json");
+
+            if (!statsFile) {
+                console.warn("processing_stats.json not found in archive");
+                return null;
+            }
+
+            const statsContent = await statsFile.async("string");
+            const stats: ProcessingSummary = JSON.parse(statsContent);
+
+            console.log("Processing Statistics:");
+            console.log(`Total Images: ${stats.overall.total_images}`);
+            console.log(`Successfully Processed: ${stats.overall.successfully_processed_images}`);
+            console.log(`Failed: ${stats.overall.failed_images}`);
+            console.log(`Total Detections: ${stats.overall.total_detections}`);
+            console.log(`Processing Time: ${stats.overall.processing_time_seconds}s`);
+
+            // Log class breakdown
+            Object.values(stats.overall.per_class_stats).forEach(classStat => {
+                console.log(`Class: '${classStat.class_name}': ${classStat.total_detections} detections in ${classStat.images_containing_class} images`);
+            });
+
+            return stats;
+        } catch (error) {
+            console.error("Error extracting processing stats:", error);
+            return null;
+        }
+    }
+
+    async function processResult(outerZip: JSZip, imagesArchiveName: string | undefined, stats: ProcessingSummary | null) {
         const extractedArchives: FileItem[] = [];
         const extractedImages: FileItem[] = [];
 
         for (const [archiveName, zipEntry] of Object.entries(outerZip.files)) {
             if (zipEntry.dir) continue;
+
+            // Skip the stats file - we already extracted it
+            if (archiveName === "processing_stats.json") continue;
 
             const innerArchiveBlob = await zipEntry.async('blob');
             const innerArchiveFile: File = blobToFile(innerArchiveBlob, archiveName);
@@ -152,13 +191,37 @@ function LandmineDetector() {
         }
         setProcessedArchives(prev => [...prev, ...extractedArchives]);
         setProcessedImages(prev => [...prev, ...extractedImages]);
+
+        // Optionally: store stats in state or display them
+        if (stats) {
+            // You can add this to your component state
+            // setProcessingStats(stats);
+
+            // Or show a toast notification with summary
+            console.log(stats)
+            toast.success(
+                <PopUp
+                    title={t("landmine-detection-page.pop-ups.cv-processing-successfully-completed-pop-up.title")}
+                    description={t("landmine-detection-page.pop-ups.cv-processing-successfully-completed-pop-up.description", {
+                        successfully_processed_images: stats.overall.successfully_processed_images.toString(),
+                        total_images: stats.overall.total_images.toString(),
+                        total_detections: stats.overall.total_detections.toString(),
+                        processing_time_seconds: stats.overall.processing_time_seconds.toFixed(2)
+                    })}
+                />
+            );
+        }
     }
 
     async function sendArchivesAndProcessResult(modelId: string, archives: File[], imagesArchiveName: string | undefined) {
         const response = await sendArchives(modelId, archives);
         const outerArchiveBlob: Blob = response.data;
         const outerZip = await JSZip.loadAsync(outerArchiveBlob);
-        await processResult(outerZip, imagesArchiveName);
+
+        // Extract stats first
+        const stats = await extractProcessingStats(outerZip);
+
+        await processResult(outerZip, imagesArchiveName, stats);
     }
 
     async function getArchives(): Promise<{
@@ -452,4 +515,4 @@ function LandmineDetector() {
     )
 }
 
-export default LandmineDetector;
+export default ComputerVisionDetector;

@@ -6,25 +6,27 @@ import {
     Tooltip
 } from "react-leaflet";
 import {useEffect, useRef, useState, type MouseEvent as ReactMouseEvent} from "react";
-import type {MarkerData, Shape} from "../commons/models.ts";
-import {stubMarkers, stubShapes} from "../commons/stub.ts";
+import type {MarkerData} from "../commons/models.ts";
+import {stubMarkers} from "../commons/stub.ts";
 import {MapEventsHandler, MapResizeHandler} from "../commons/map-controls.ts";
 import MapLayers from "../components/MapLayers.tsx";
-import MapShapes from "../components/MapShapes.tsx";
 import PartialLoadingOverlay from "../components/PartialLoadingOverlay.tsx";
 import {useTranslation} from "react-i18next";
-import {MAP_LAYERS} from "../configs/settings.ts";
+import {MAP_LAYERS, ROUTES} from "../configs/settings.ts";
 import clsx from "clsx";
 import dropdownBtnImg from "../assets/two-arrows-down.png";
+import {useNavigate} from "react-router-dom";
 
 function MapEditor() {
 
     const {t} = useTranslation();
+    const navigate = useNavigate();
 
     const [isMapLoading, setMapLoading] = useState(true);
 
-    const [shapes, setShapes] = useState<Shape[]>([]);
     const [markers, setMarkers] = useState<MarkerData[]>([]);
+
+    const [popupPosition, setPopupPosition] = useState<[number, number] | null>(null);
 
     const [isLayersDropDownListOpen, setLayersDropDownListOpen] = useState(false);
 
@@ -108,7 +110,6 @@ function MapEditor() {
         // Simulate async fetch
         setMapLoading(true)
         const timer = setTimeout(() => {
-            setShapes(stubShapes);
             setMarkers(stubMarkers);
             setMapLoading(false);
         }, 500);
@@ -144,9 +145,34 @@ function MapEditor() {
                             <Popup>{marker.popup}</Popup>
                         </Marker>
                     ))}
-                    <MapShapes shapes={shapes}/>
 
-                    <MapEventsHandler setPreferredBaseLayer={setSelectedLayer}/>
+                    {/* ⭐ RIGHT CLICK POPUP */}
+                    {popupPosition && (
+                        <Popup
+                            position={popupPosition}
+                            eventHandlers={{
+                                remove: () => setPopupPosition(null)
+                            }}
+                        >
+                            <div>
+                                <strong>Coordinates:</strong>
+                                <br/>
+                                Lat: {popupPosition[0].toFixed(6)}
+                                <br/>
+                                Lng: {popupPosition[1].toFixed(6)}
+                                <br/>
+                                <button
+                                    onClick={() => navigate(ROUTES.MAP_ROUTES.MARKER)}
+                                >
+                                    ADD
+                                </button>
+                            </div>
+                        </Popup>
+                    )}
+                    <MapEventsHandler
+                        onRightClick={(lat, lng) => setPopupPosition([lat, lng])}
+                        setPreferredBaseLayer={setSelectedLayer}
+                    />
                     <MapResizeHandler/>
                 </MapContainer>
 

@@ -1,196 +1,294 @@
 import io
 import logging
+import time
+from logging import Logger
 from pathlib import Path
-from typing import Dict, List, Tuple
-import cv2
 import numpy as np
 import torch
 from PIL import Image
 from fastapi import HTTPException
 from ultralytics import YOLO
 from config import MGT_MODELS_DIR
-from config import mongo_db
+from repository import models_repository
+from schemas import ProcessingStats, ClassStats, ImageStats, Detection
+from services import image_processor
 
-PYTORCH_DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-PYTORCH_DEVICE_NAME = torch.cuda.get_device_name(0) if torch.cuda.is_available() else "cpu"
+class YOLOService:
+    def __init__(self):
+        self.__pytorch_device: str = "cuda" if torch.cuda.is_available() else "cpu"
+        self.__pytorch_device_name: str = torch.cuda.get_device_name(0) if torch.cuda.is_available() else "cpu"
+        self.__logger: Logger = logging.getLogger(__name__)
+        self.__cached_models: dict[str, YOLO] = {}
 
-logger = logging.getLogger(__name__)
+        self.__batch_stats = ProcessingStats()
 
-# Cache for loaded models to avoid reloading
-MODEL_CACHE: Dict[str, YOLO] = {}
+    def get_pytorch_device(self) -> str:
+        return self.__pytorch_device
 
+    def get_pytorch_device_name(self) -> str:
+        return self.__pytorch_device_name
 
-async def get_available_models() -> Dict[str, str]:
-    """
-    Fetch available models from MongoDB
+    def get_cached_models(self) -> dict[str, YOLO]:
+        return self.__cached_models
 
-    Returns:
-        Dictionary mapping model IDs to their .pt file paths
-        Example: {"mgt-yolo-11-n": "models/mgt-yolo11-n.pt"}
-    """
-    models_collection = mongo_db["models"]
-    models_cursor = models_collection.find({})
-    models = await models_cursor.to_list(length=None)
+    async def get_model(self, model_id: str) -> YOLO:
+        available_models = await YOLOService.get_available_models()
+        if model_id not in available_models:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid model ID. Available models: {list(available_models.keys())}"
+            )
+        return await self.__load_model_or_cache(model_id)
 
-    available_models = {}
-    for model in models:
-        model_id = model.get("_id")
-        if model_id:
-            model_path = MGT_MODELS_DIR / f"{model_id}.pt"
-            available_models[model_id] = str(model_path)
-    return available_models
-
-
-async def get_model(model_id:str) -> YOLO:
-    """
-    Load and cache YOLO model based on model_id
-
-    Args:
-        model_id: Identifier for the model (e.g., 'mgt-yolo11-n')
-
-    Returns:
-        Loaded YOLO model
-
-    Raises:
-        HTTPException: If model_id is invalid or model file doesn't exist
-    """
-    available_models = await get_available_models()
-    if model_id not in available_models:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Invalid model ID. Available models: {list(available_models.keys())}"
-        )
-
-    return await _get_yolo_model_and_sync_cache(model_id)
+    @staticmethod
+    async def get_available_models() -> dict[str, str]:
+        """
+        Fetch available models from MongoDB
+        Returns:
+            Dictionary mapping model IDs to their .pt file paths
+            Example: {"mgt-yolo-11-n": "path/to/models/mgt-yolo11-n.pt"}
+        """
+        models = await models_repository.get_models()
+        available_models: dict[str, str] = {}
+        for model in models:
+            model_id = model.get("_id")
+            if model_id:
+                model_path = MGT_MODELS_DIR / f"{model_id}.pt"
+                available_models[model_id] = str(model_path)
+        return available_models
 
 
-def preprocess_thermal_image(image_bytes: bytes) -> Tuple[np.ndarray, str, tuple]:
-    """
-    Preprocess thermal (grayscale) image for YOLO inference
+    async def __load_model_or_cache(self, model_id: str) -> YOLO:
+        available_models = await YOLOService.get_available_models()
 
-    Args:
-        image_bytes: Raw image bytes
+        if model_id in self.__cached_models: # Check if model is already cached
+            self.__logger.info(f"Using cached model: {model_id}")
+            return self.__cached_models[model_id]
 
-    Returns:
-        Tuple of (processed_image_array, original_format, original_size)
-    """
-    # Load image
-    pil_image = Image.open(io.BytesIO(image_bytes))
-    original_format = pil_image.format if pil_image.format else 'PNG'
-    original_size = pil_image.size
+        # Load new model if model is not in cache
+        model_path = available_models[model_id]
 
-    # Convert to numpy array
-    image_array = np.array(pil_image)
+        if not Path(model_path).exists():
+            exception_details = f"Model file not found: {model_path}. Please ensure the .pt file exists in {MGT_MODELS_DIR}"
+            raise HTTPException(status_code=404, detail=exception_details)
 
-    # Handle different grayscale formats
-    if len(image_array.shape) == 2:
-        # Single channel grayscale - convert to 3 channels for YOLO
-        # YOLO expects 3 channels (RGB), so we duplicate the grayscale channel
-        image_array = cv2.cvtColor(image_array, cv2.COLOR_GRAY2RGB)
-    elif image_array.shape[2] == 4:
-        # RGBA - convert to RGB
-        image_array = cv2.cvtColor(image_array, cv2.COLOR_RGBA2RGB)
+        self.__logger.info(f"Loading model: {model_id} from {model_path}")
+        model = YOLO(model_path)
+        model.to(self.__pytorch_device)
 
-    return image_array, original_format, original_size
+        # Cache the model
+        self.__cached_models[model_id] = model
+
+        return model
+
+    async def process_images_in_batches(
+            self,
+            image_data_list: list[tuple[str, bytes]],
+            model_id: str,
+            confidence_threshold: float = 0.25,
+            batch_size: int = 16,
+    ) -> tuple[dict[str, bytes], ProcessingStats]:
+        """
+        Process multiple images in batches with YOLO model
+        Args:
+            image_data_list: List of tuples (filename, image_bytes)
+            model_id: Which model to use
+            confidence_threshold: Minimum confidence for detections
+            batch_size: Number of images to process at once
+        Returns:
+            Tuple of (Dictionary mapping filenames to processed image bytes, ProcessingStats)
+        """
+        start_time: float = time.time()
+        stats: ProcessingStats = ProcessingStats(total_images=len(image_data_list))
+        all_confidences: list[float] = [] # For calculating overall average confidence
+
+        yolo_model = await self.get_model(model_id)
+        processed_images: dict[str, bytes] = {}
+
+        for i in range(0, len(image_data_list), batch_size):
+            batch: list[tuple[str, bytes]] = image_data_list[i:i + batch_size]
+
+            batch_images: list[np.ndarray] = []
+            batch_filenames: list[str] = []
+            batch_formats: list[str] = []
+
+            for filename, image_bytes in batch:
+                try:
+                    # Convert bytes to PIL Image
+                    image_array, original_format, original_size = image_processor.preprocess_thermal_image(image_bytes)
+
+                    batch_images.append(image_array)
+                    batch_filenames.append(filename)
+                    batch_formats.append(original_format if original_format else 'PNG')
+                except Exception as e:
+                    self.__logger.error(f"Error loading image {filename}: {e}")
+                    processed_images[filename] = image_bytes  # Keep original on error
+                    stats.failed_images += 1
+                    stats.per_image_stats.append(ImageStats(filename = filename)) # Adding failed image stats
+
+            if not batch_images: continue
+
+            self.__logger.info(f"Processing batch of {len(batch_images)} images with {model_id}")
+            results = yolo_model(batch_images, conf=confidence_threshold, verbose=False)
+
+            self.__update_processed_images_list_and_stats_with_confidences(
+                results,
+                batch,
+                batch_filenames,
+                batch_formats,
+                processed_images,
+                stats,
+                all_confidences
+            )
+
+        # Calculate overall average confidence
+        if all_confidences: stats.average_confidence = round(sum(all_confidences) / len(all_confidences), 3)
+
+        # Calculate average confidence per class
+        for class_name, class_stat in stats.per_class_stats.items():
+            if class_stat.total_detections > 0:
+                class_stat.average_confidence = round(
+                    class_stat.confidence_sum / class_stat.total_detections,
+                    3
+                )
+
+        stats.processing_time_seconds = time.time() - start_time
+        return processed_images, stats
 
 
-async def process_images_batch_with_yolo(
-        image_data_list: List[Tuple[str, bytes]],
-        model_id: str,
-        confidence_threshold: float = 0.25,
-        batch_size: int = 16,
-) -> Dict[str, bytes]:
-    """
-    Process multiple images in batches with YOLO model
+    def __update_processed_images_list_and_stats_with_confidences(
+            self,
+            results,
+            batch: list[tuple[str, bytes]],
+            batch_filenames: list[str],
+            batch_formats: list[str],
+            processed_images: dict[str, bytes],
+            stats: ProcessingStats,
+            all_confidences: list[float]
+    ):
+        for index, result in enumerate(results):
+            filename = batch_filenames[index]
+            image_format = batch_formats[index]
 
-    Args:
-        image_data_list: List of tuples (filename, image_bytes)
-        model_id: Which model to use
-        confidence_threshold: Minimum confidence for detections
-        batch_size: Number of images to process at once
-
-    Returns:
-        Dictionary mapping filenames to processed image bytes
-    """
-    yolo_model = await get_model(model_id)
-    processed_images = {}
-
-    for i in range(0, len(image_data_list), batch_size):
-        batch = image_data_list[i:i + batch_size]
-
-        batch_images = []
-        batch_filenames = []
-        batch_formats = []
-
-        for filename, image_bytes in batch:
             try:
-                # Convert bytes to PIL Image
-                image_array, original_format, original_size = preprocess_thermal_image(image_bytes)
-
-                batch_images.append(image_array)
-                batch_filenames.append(filename)
-                batch_formats.append(original_format if original_format else 'PNG')
-            except Exception as e:
-                logger.error(f"Error loading image {filename}: {e}")
-                # Keep original on error
-                processed_images[filename] = image_bytes
-
-        if not batch_images:
-            continue
-
-        logger.info(f"Processing batch of {len(batch_images)} images with {model_id}")
-        results = yolo_model(batch_images, conf=confidence_threshold, verbose=False)
-
-        # Process results
-        for idx, result in enumerate(results):
-            filename = batch_filenames[idx]
-            image_format = batch_formats[idx]
-
-            try:
-                # Get annotated image
-                annotated_image = result.plot()
-
-                # Convert to bytes
-                annotated_pil = Image.fromarray(annotated_image)
-                output_buffer = io.BytesIO()
-                annotated_pil.save(output_buffer, format=image_format)
-
-                processed_images[filename] = output_buffer.getvalue()
+                # Convert annotated image to bytes
+                processed_images[filename] = YOLOService.__convert_annotated_image_to_bytes(result, image_format)
 
                 # Print detection info
                 num_detections = len(result.boxes)
-                logger.info(f"✓ {filename}: {num_detections} detections")
+                self.__logger.info(f"✓ {filename}: {num_detections} detections")
 
+                # Update overall statistics
+                self.__update_stats_and_confidences_for_single_image_result(result, filename, num_detections, stats, all_confidences)
             except Exception as e:
-                logger.info(f"✗ Error processing result for {filename}: {e}")
-                # Keep original on error
-                processed_images[filename] = batch[idx][1]
+                self.__logger.info(f"✗ Error processing result for {filename}: {e}")
+                processed_images[filename] = batch[index][1]  # Keep original on error
+                stats.failed_images += 1
+                stats.per_image_stats.append(ImageStats(filename = filename)) # Add failed image stats
 
-    return processed_images
+
+    @staticmethod
+    def __convert_annotated_image_to_bytes(result, image_format: str) -> bytes:
+        """
+        Converts a result's annotated image into bytes.
+        """
+        annotated_image = result.plot()
+        annotated_pil = Image.fromarray(annotated_image)
+        output_buffer = io.BytesIO()
+        annotated_pil.save(output_buffer, format=image_format)
+        return output_buffer.getvalue()
+
+    def __update_stats_and_confidences_for_single_image_result(
+            self,
+            result,
+            filename: str,
+            num_detections: int,
+            stats: ProcessingStats,
+            all_confidences: list[float],
+    ):
+        # Collect statistics
+        stats.total_detections += num_detections
+        stats.successfully_processed_images += 1
+
+        # Collect detections with bounding boxes
+        detections = []
+
+        # Get confidences for this image
+        image_confidences = []
 
 
-async def _get_yolo_model_and_sync_cache(model_id: str) -> YOLO:
-    available_models = await get_available_models()
+        if hasattr(result.boxes, 'xyxy') and len(result.boxes.xyxy) > 0:
+            for idx_box in range(len(result.boxes.xyxy)):
+                # Get bounding box coordinates
+                bbox = result.boxes.xyxy[idx_box]
+                x1, y1, x2, y2 = float(bbox[0]), float(bbox[1]), float(bbox[2]), float(bbox[3])
 
-    # Check if model is already cached
-    if model_id in MODEL_CACHE:
-        logger.info(f"Using cached model: {model_id}")
-        return MODEL_CACHE[model_id]
+                # Get confidence
+                conf = float(result.boxes.conf[idx_box])
+                image_confidences.append(conf)
 
-    # Load new model
-    model_path = available_models[model_id]
+                # Get class name
+                cls_id = int(result.boxes.cls[idx_box])
+                class_name = result.names[cls_id]
 
-    if not Path(model_path).exists():
-        raise HTTPException(
-            status_code=404,
-            detail=f"Model file not found: {model_path}. Please ensure the .pt file exists in {MGT_MODELS_DIR}"
-        )
+                # Create detection object
+                detection = Detection(
+                    classname=class_name,
+                    confidence=round(conf, 3),
+                    x1=round(x1, 2),
+                    y1=round(y1, 2),
+                    x2=round(x2, 2),
+                    y2=round(y2, 2)
+                )
+                detections.append(detection)
 
-    logger.info(f"Loading model: {model_id} from {model_path}")
-    model = YOLO(model_path)
-    model.to(PYTORCH_DEVICE)
+                all_confidences.append(conf)
 
-    # Cache the model
-    MODEL_CACHE[model_id] = model
+        image_avg_conf = sum(image_confidences) / len(image_confidences) if image_confidences else 0.0
+        image_max_conf = max(image_confidences) if image_confidences else 0.0
 
-    return model
+        # Add per-image stats
+        stats.per_image_stats.append(ImageStats(
+            filename=filename,
+            num_detections=num_detections,
+            average_confidence=round(image_avg_conf, 3),
+            max_confidence=round(image_max_conf, 3),
+            detections=detections,
+            is_successfully_processed=True
+        ))
+
+        if num_detections > 0: stats.images_with_detections += 1
+
+        # Track per-class statistics
+        classes_in_image = set()
+        if hasattr(result.boxes, 'cls') and len(result.boxes.cls) > 0:
+            for idx_box, cls_id in enumerate(result.boxes.cls):
+                class_name = result.names[int(cls_id)]
+                classes_in_image.add(class_name)
+
+                # Initialize class stats if not exists
+                if class_name not in stats.per_class_stats:
+                    stats.per_class_stats[class_name] = ClassStats(class_name=class_name)
+
+                # Get confidence for this detection
+                conf = float(result.boxes.conf[idx_box])
+
+                # Increment detection count for this class
+                stats.per_class_stats[class_name].total_detections += 1
+                stats.per_class_stats[class_name].confidence_sum += conf
+                stats.per_class_stats[class_name].min_confidence = min(
+                    stats.per_class_stats[class_name].min_confidence,
+                    conf
+                )
+                stats.per_class_stats[class_name].max_confidence = max(
+                    stats.per_class_stats[class_name].max_confidence,
+                    conf
+                )
+
+            # Count images containing each class (once per image)
+            for class_name in classes_in_image:
+                stats.per_class_stats[class_name].images_containing_class += 1
+
+        self.__logger.info(f"✓ {filename}: {num_detections} detections (avg conf: {image_avg_conf:.3f})")
+
+YOLO_SERVICE = YOLOService()

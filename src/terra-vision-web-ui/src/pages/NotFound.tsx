@@ -1,7 +1,7 @@
 import "../styles/pages/NotFound.css";
 import notFoundImg from "../assets/404-error-icon.webp";
 import {NavLink} from "react-router-dom";
-import leftArrowIcon from "../assets/left-arrow.png";
+import leftArrowIcon from "../assets/home.png";
 import {t} from "i18next";
 import i18n from "../configs/i18n.ts";
 import {ROUTES} from "../configs/settings.ts";

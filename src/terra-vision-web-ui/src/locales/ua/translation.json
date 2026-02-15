@@ -50,7 +50,7 @@
     "process-images-btn-text": "Обробити",
     "processing-message-text": {
       "text-1": "Будь ласка, зачекайте, поки ми намагаємось обробити...",
-      "text-2": "Це може зайняти декілька хвилин..."
+      "text-2": "Це може зайняти декілька секунд..."
     },
     "pop-ups": {
       "invalid-file-pop-up": {
@@ -60,6 +60,10 @@
       "model-not-selected-pop-up": {
         "title": "Оберіть модель",
         "description": "Для обробки даних потрібно обрати модель"
+      },
+      "cv-processing-successfully-completed-pop-up": {
+        "title": "Обробка завершена",
+        "description": "Оброблено {{successfully_processed_images}}/{{total_images}} зображень з {{total_detections}} виявленими об'єктами за {{processing_time_seconds}}с."
       }
     },
     "processed-files-section": {

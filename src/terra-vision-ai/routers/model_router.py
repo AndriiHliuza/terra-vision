@@ -3,8 +3,7 @@ from fastapi import APIRouter, Query, UploadFile, Form, File
 from config import DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES, MGT_MODELS_DIR
 from config import mongo_db
 from schemas import CVModelDescriptionResponse
-from services import model_service as ms
-from services import yolo_service as ys
+from services import model_service as ms, cv_service as cvs, yolo_service as ys
 
 router = APIRouter(prefix="/models", tags=["models"])
 
@@ -13,7 +12,7 @@ async def check_model_exists_by_id(
         model_id: str
 ):
     """Check if model exists by ID"""
-    exists = await check_model_exists_by_id(model_id)
+    exists = await ms.check_model_exists_by_id(model_id)
     return {
         "exists": exists,
         "model_id": model_id
@@ -27,22 +26,22 @@ async def get_models(
         )
 ):
     """Get list of AI models with localized information"""
-    return await ms.get_localized_models_info(lang)
+    return await ms.get_models_info_in_specified_language(lang)
 
 
 @router.post("")
-async def process_archives(
-        modelId: str = Form(...),
+async def detect_objects(
+        model_id: str = Form(...),
         archives: List[UploadFile] = File(...),
         confidence: float = Form(0.25),
         batch_size: int = Form(16)
 ):
-    return await ms.process_archives_and_detect_objects_using_cv(modelId, archives, confidence, batch_size)
+    return await cvs.CV_MODEL_SERVICE.detect_objects(model_id, archives, confidence, batch_size)
 
 @router.post("/clear-cache")
 async def clear_model_cache():
-    cleared_models = list(ys.MODEL_CACHE.keys())
-    ys.MODEL_CACHE.clear()
+    cleared_models = list(ys.YOLO_SERVICE.get_cached_models().keys())
+    ys.YOLO_SERVICE.get_cached_models().clear()
     return {
         "message": "Model cache cleared",
         "cleared_models": cleared_models
@@ -55,6 +54,6 @@ async def health_check():
         "status": "healthy",
         "models_directory": str(MGT_MODELS_DIR),
         "models_directory_exists": MGT_MODELS_DIR.exists(),
-        "cached_models": len(ys.MODEL_CACHE),
+        "cached_models": len(ys.YOLO_SERVICE.get_cached_models()),
         "mongodb_connected": mongo_db is not None
     }

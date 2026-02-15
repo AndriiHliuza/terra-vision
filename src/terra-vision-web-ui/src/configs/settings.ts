@@ -13,8 +13,11 @@ export const SUPPORTED_LANGUAGES = ["en", "ua"]
 /* Routing section */
 export const ROUTES = {
     ROOT: "/",
-    MAP: "map",
-    LANDMINE_DETECTOR: "landmine-detector",
+    MAP_ROUTES: {
+        ROOT: "map",
+        MARKER: "marker",
+    },
+    LANDMINE_DETECTOR: "cv-detector",
     ADMIN_ROUTES: {
         ROOT: "admin",
         DASHBOARD: "dashboard",
@@ -24,7 +27,7 @@ export const ROUTES = {
 }
 
 export const ROUTES_WITHOUT_MOUSE_TRAIL = [
-    ...buildUrlForAllLanguages(ROUTES.MAP, URL_TYPE.ABSOLUTE),
+    ...buildUrlForAllLanguages(ROUTES.MAP_ROUTES.ROOT, URL_TYPE.ABSOLUTE),
     ...buildUrlForAllLanguages(ROUTES.LANDMINE_DETECTOR, URL_TYPE.ABSOLUTE),
     ...buildUrlForAllLanguages([ROUTES.ADMIN_ROUTES.ROOT, ROUTES.ADMIN_ROUTES.DASHBOARD], URL_TYPE.ABSOLUTE),
     ...buildUrlForAllLanguages([ROUTES.ADMIN_ROUTES.ROOT, ROUTES.ADMIN_ROUTES.MAP_EDITOR], URL_TYPE.ABSOLUTE),

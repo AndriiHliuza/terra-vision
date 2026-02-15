@@ -8,18 +8,21 @@ import {
 import "leaflet/dist/leaflet.css";
 import Header from "../components/Header.tsx";
 import {useContext, useEffect, useState} from "react";
-import type {MarkerData, Shape} from "../commons/models.ts";
-import {stubMarkers, stubShapes} from "../commons/stub.ts";
-import {MAP_LAYERS} from "../configs/settings.ts";
+import type {MarkerData} from "../commons/models.ts";
+import {stubMarkers} from "../commons/stub.ts";
+import {MAP_LAYERS, ROUTES} from "../configs/settings.ts";
 import {MapEventsHandler} from "../commons/map-controls.ts";
 import MapLayers from "../components/MapLayers.tsx";
-import MapShapes from "../components/MapShapes.tsx";
 import clsx from "clsx";
 import mapLayersOpenBtnImg from "../assets/layers.png";
 import mapLayersCloseBtnImg from "../assets/close.png";
 import {ApplicationContext, type ApplicationContextSettings} from "../configs/context/contexts.ts";
+import {Outlet, useNavigate} from "react-router-dom";
 
 function Map() {
+
+    const navigate = useNavigate();
+    const [popupPosition, setPopupPosition] = useState<[number, number] | null>(null);
 
     const [selectedLayer, setSelectedLayer] = useState(
         () => localStorage.getItem("preferredMapLayer") || "OSM Streets"
@@ -30,7 +33,6 @@ function Map() {
     }, [selectedLayer]);
 
     const {setLoading} = useContext(ApplicationContext) as ApplicationContextSettings;
-    const [shapes, setShapes] = useState<Shape[]>([]);
     const [markers, setMarkers] = useState<MarkerData[]>([]);
 
     const [isLayersMenuOpen, setLayersMenuOpen] = useState(false);
@@ -40,7 +42,6 @@ function Map() {
         // Simulate async fetch
         setLoading(true)
         const timer = setTimeout(() => {
-            setShapes(stubShapes);
             setMarkers(stubMarkers);
             setLoading(false);
         }, 500);
@@ -68,9 +69,35 @@ function Map() {
                         <Popup>{marker.popup}</Popup>
                     </Marker>
                 ))}
-                <MapShapes shapes={shapes}/>
 
-                <MapEventsHandler setPreferredBaseLayer={setSelectedLayer}/>
+                <MapEventsHandler
+                    onRightClick={(lat, lng) => setPopupPosition([lat, lng])}
+                    setPreferredBaseLayer={setSelectedLayer}
+                />
+
+                {/* ⭐ RIGHT CLICK POPUP */}
+                {popupPosition && (
+                    <Popup
+                        position={popupPosition}
+                        eventHandlers={{
+                            remove: () => setPopupPosition(null)
+                        }}
+                    >
+                        <div>
+                            <strong>Coordinates:</strong>
+                            <br/>
+                            Lat: {popupPosition[0].toFixed(6)}
+                            <br/>
+                            Lng: {popupPosition[1].toFixed(6)}
+                            <br/>
+                            <button
+                                onClick={() => navigate(ROUTES.MAP_ROUTES.MARKER)}
+                            >
+                                ADD
+                            </button>
+                        </div>
+                    </Popup>
+                )}
             </MapContainer>
 
             {/* External Layer Switcher */}
@@ -97,6 +124,7 @@ function Map() {
                     ))}
                 </div>
             </div>
+            <Outlet/>
         </div>
     )
 }

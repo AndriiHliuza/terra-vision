@@ -3,33 +3,17 @@ import L from "leaflet";
 import {useEffect} from "react";
 
 type MapEventsHandlerProps = {
+    onRightClick: (lat: number, lng: number) => void;
     setPreferredBaseLayer?: (name: string) => void;
 }
 
-export function MapEventsHandler({ setPreferredBaseLayer }: MapEventsHandlerProps) {
-    const map = useMapEvents({
-        click: (e) => {
-            // Change cursor to crosshair on click
-            const mapContainer = map.getContainer();
-            const originalCursor = mapContainer.style.cursor;
-            mapContainer.style.cursor = "crosshair";
-
-            // Show popup at clicked location
-            const {lat, lng} = e.latlng;
-            L.popup()
-                .setLatLng([lat, lng])
-                .setContent(`
-                    <div>
-                        <strong>Coordinates:</strong><br/>
-                        Lat: ${lat.toFixed(6)}<br/>
-                        Lng: ${lng.toFixed(6)}
-                    </div>
-                `).openOn(e.target);
-
-            // Revert cursor back to original after short delay
-            setTimeout(() => {
-                mapContainer.style.cursor = originalCursor || "";
-            }, 300); // 300ms
+export function MapEventsHandler({
+                                     onRightClick,
+                                     setPreferredBaseLayer
+                                 }: MapEventsHandlerProps) {
+    useMapEvents({
+        contextmenu: (e) => {
+            onRightClick(e.latlng.lat, e.latlng.lng);
         },
         baselayerchange: (e) => {
             const layerName = e.name;

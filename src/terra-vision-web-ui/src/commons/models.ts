@@ -5,7 +5,7 @@ export type FileItem = {
 }
 
 /* Map */
-export type PolygonShape = { id: string; type: "polygon" | "triangle"; coords: [number, number][] };
+export type PolygonShape = { id: string; type: "polygon" | "triangle"; coords: [number, number][][] };
 export type RectangleShape = { id: string; type: "rectangle"; bounds: [[number, number], [number, number]] };
 export type CircleShape = { id: string; type: "circle"; center: [number, number]; radius: number };
 export type Shape = PolygonShape | RectangleShape | CircleShape;
@@ -58,4 +58,54 @@ export type CVModelDescription = {
 export type CVModelDescriptionResponse = {
     lang: string;
     models: CVModelDescription[];
+}
+
+/* CV object detection statistics DTOs */
+export interface ClassStats {
+    class_name: string;
+    total_detections: number;
+    images_containing_class: number;
+    average_confidence: number;
+    min_confidence: number;
+    max_confidence: number;
+}
+
+export interface Detection {
+    classname: string;
+    confidence: number;
+    x1: number;
+    y1: number;
+    x2: number;
+    y2: number;
+}
+
+export interface ImageStats {
+    filename: string;
+    num_detections: number;
+    average_confidence: number;
+    max_confidence: number;
+    detections: Detection[];
+    is_successfully_processed: boolean;
+}
+
+export interface ProcessingStats {
+    total_images: number;
+    successfully_processed_images: number;
+    failed_images: number;
+    total_detections: number;
+    images_with_detections: number;
+    processing_time_seconds: number;
+    average_confidence: number;
+    per_class_stats: Record<string, ClassStats>;
+    per_image_stats: ImageStats[];
+    average_detections_per_image: number;
+    percentage_of_images_with_detection: number;
+}
+
+export interface ProcessingSummary {
+    overall: ProcessingStats;
+    by_archive: Record<string, ProcessingStats>;
+    model_id: string;
+    confidence_threshold: number;
+    batch_size: number;
 }

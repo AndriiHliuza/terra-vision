@@ -7,20 +7,6 @@ function MapShapes({ shapes }: { shapes: Shape[] }) {
         <>
             {shapes.map((shape) => {
                 switch (shape.type) {
-                    case "polygon":
-                    case "triangle": {
-                        const polygonDefault = {color: "blue", fillColor: "lightblue", fillOpacity: 0.4};
-                        const polygonHover = {color: "darkblue", fillColor: "skyblue", fillOpacity: 0.6};
-                        return (
-                            <Polygon
-                                key={shape.id}
-                                positions={shape.coords}
-                                pathOptions={polygonDefault}
-                                eventHandlers={getShapeEventHandlers(polygonDefault, polygonHover)}
-                            />
-                        );
-                    }
-
                     case "rectangle": {
                         const rectDefault = {color: "green", fillColor: "lightgreen", fillOpacity: 0.4};
                         const rectHover = {color: "darkgreen", fillColor: "lime", fillOpacity: 0.6};
@@ -44,6 +30,19 @@ function MapShapes({ shapes }: { shapes: Shape[] }) {
                                 radius={shape.radius}
                                 pathOptions={circleDefault}
                                 eventHandlers={getShapeEventHandlers(circleDefault, circleHover)}
+                            />
+                        );
+                    }
+
+                    case "polygon": {
+                        const polygonDefault = {color: "blue", fillColor: "lightblue", fillOpacity: 0.4};
+                        const polygonHover = {color: "darkblue", fillColor: "skyblue", fillOpacity: 0.6};
+                        return (
+                            <Polygon
+                                key={shape.id}
+                                positions={shape.coords}
+                                pathOptions={polygonDefault}
+                                eventHandlers={getShapeEventHandlers(polygonDefault, polygonHover)}
                             />
                         );
                     }
