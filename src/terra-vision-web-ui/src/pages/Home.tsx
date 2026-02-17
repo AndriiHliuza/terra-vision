@@ -34,7 +34,7 @@ function Home() {
                             </div>
                             <div className="try-service-section">
                                 <Link
-                                    to={ROUTES.LANDMINE_DETECTOR}
+                                    to={ROUTES.COMPUTER_VISION_DETECTION_ROUTES.ROOT}
                                     className="try-service-link"
                                 >
                                     {t("home.main.section.section-controls.try-service-link-text")}

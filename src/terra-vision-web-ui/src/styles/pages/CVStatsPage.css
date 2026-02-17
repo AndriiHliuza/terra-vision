@@ -1,0 +1,34 @@
+.cv-stats-page {
+    width: 100%;
+}
+
+.cv-stats-page > main {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+
+    width: 100%;
+    height: 100%;
+    min-height: 100vh;
+
+    background: #f2f7fb;
+    color: #242424;
+}
+
+.cv-stats-page > main > .stats-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+
+    height: 100%;
+    width: 90%;
+    max-width: 1000px;
+
+    margin-top: 130px;
+    margin-bottom: 50px;
+
+    background: rgba(186, 205, 251, 0.55);
+    border-radius: 10px;
+}

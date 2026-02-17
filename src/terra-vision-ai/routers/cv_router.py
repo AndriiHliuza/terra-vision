@@ -1,24 +1,22 @@
-from typing import List
-from fastapi import APIRouter, Query, UploadFile, Form, File
-from config import DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES, MGT_MODELS_DIR
-from config import mongo_db
+from fastapi import APIRouter, Form, UploadFile, File, Query
+from config import MGT_MODELS_DIR, mongo_db, DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES
 from schemas import CVModelDescriptionResponse
-from services import model_service as ms, cv_service as cvs, yolo_service as ys
+from services import cv_service as cvs, cv_model_service as cvms, yolo_service as ys
 
-router = APIRouter(prefix="/models", tags=["models"])
+router = APIRouter(prefix="/cv")
 
-@router.get("/{model_id}/exists")
+@router.get("/models/{model_id}/exists")
 async def check_model_exists_by_id(
         model_id: str
 ):
     """Check if model exists by ID"""
-    exists = await ms.check_model_exists_by_id(model_id)
+    exists = await cvms.check_model_exists_by_id(model_id)
     return {
         "exists": exists,
         "model_id": model_id
     }
 
-@router.get("", response_model=CVModelDescriptionResponse)
+@router.get("/models", response_model=CVModelDescriptionResponse)
 async def get_models(
         lang: str = Query(
             default=DEFAULT_LANGUAGE,
@@ -26,13 +24,12 @@ async def get_models(
         )
 ):
     """Get list of AI models with localized information"""
-    return await ms.get_models_info_in_specified_language(lang)
-
+    return await cvms.get_models_info_in_specified_language(lang)
 
 @router.post("")
 async def detect_objects(
         model_id: str = Form(...),
-        archives: List[UploadFile] = File(...),
+        archives: list[UploadFile] = File(...),
         confidence: float = Form(0.25),
         batch_size: int = Form(16)
 ):

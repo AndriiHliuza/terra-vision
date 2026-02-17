@@ -17,7 +17,13 @@ export const ROUTES = {
         ROOT: "map",
         MARKER: "marker",
     },
-    LANDMINE_DETECTOR: "cv-detector",
+    COMPUTER_VISION_DETECTION_ROUTES: {
+        ROOT: "cv-detection",
+        STATS_ROUTE: {
+            ROOT: "stats",
+            RAW_JSON: "raw"
+        }
+    },
     ADMIN_ROUTES: {
         ROOT: "admin",
         DASHBOARD: "dashboard",
@@ -28,7 +34,7 @@ export const ROUTES = {
 
 export const ROUTES_WITHOUT_MOUSE_TRAIL = [
     ...buildUrlForAllLanguages(ROUTES.MAP_ROUTES.ROOT, URL_TYPE.ABSOLUTE),
-    ...buildUrlForAllLanguages(ROUTES.LANDMINE_DETECTOR, URL_TYPE.ABSOLUTE),
+    ...buildUrlForAllLanguages(ROUTES.COMPUTER_VISION_DETECTION_ROUTES.ROOT, URL_TYPE.ABSOLUTE),
     ...buildUrlForAllLanguages([ROUTES.ADMIN_ROUTES.ROOT, ROUTES.ADMIN_ROUTES.DASHBOARD], URL_TYPE.ABSOLUTE),
     ...buildUrlForAllLanguages([ROUTES.ADMIN_ROUTES.ROOT, ROUTES.ADMIN_ROUTES.MAP_EDITOR], URL_TYPE.ABSOLUTE),
 ]
@@ -36,7 +42,8 @@ export const ROUTES_WITHOUT_MOUSE_TRAIL = [
 /* API URLS */
 export const API_DOMAIN = "http://localhost:8000"
 export const API_URLS = {
-    AI_MODELS_URL: API_DOMAIN + "/api/ai/models"
+    AI_MODELS_URL: API_DOMAIN + "/api/ai/cv/models",
+    AI_CV_URL: API_DOMAIN + "/api/ai/cv"
 }
 
 /* Map section */

@@ -10,18 +10,18 @@ import Header from "../components/Header.tsx";
 import {useContext, useEffect, useState} from "react";
 import type {MarkerData} from "../commons/models.ts";
 import {stubMarkers} from "../commons/stub.ts";
-import {MAP_LAYERS, ROUTES} from "../configs/settings.ts";
+import {MAP_LAYERS} from "../configs/settings.ts";
 import {MapEventsHandler} from "../commons/map-controls.ts";
 import MapLayers from "../components/MapLayers.tsx";
 import clsx from "clsx";
 import mapLayersOpenBtnImg from "../assets/layers.png";
 import mapLayersCloseBtnImg from "../assets/close.png";
-import {ApplicationContext, type ApplicationContextSettings} from "../configs/context/contexts.ts";
-import {Outlet, useNavigate} from "react-router-dom";
+import {ApplicationContext, type ApplicationContextData} from "../configs/context/contexts.ts";
+import {Outlet} from "react-router-dom";
+import MapPositionDetailsPopup from "../components/MapPositionDetailsPopup.tsx";
 
 function Map() {
 
-    const navigate = useNavigate();
     const [popupPosition, setPopupPosition] = useState<[number, number] | null>(null);
 
     const [selectedLayer, setSelectedLayer] = useState(
@@ -32,7 +32,7 @@ function Map() {
         localStorage.setItem("preferredMapLayer", selectedLayer);
     }, [selectedLayer]);
 
-    const {setLoading} = useContext(ApplicationContext) as ApplicationContextSettings;
+    const {setLoading} = useContext(ApplicationContext) as ApplicationContextData;
     const [markers, setMarkers] = useState<MarkerData[]>([]);
 
     const [isLayersMenuOpen, setLayersMenuOpen] = useState(false);
@@ -83,19 +83,7 @@ function Map() {
                             remove: () => setPopupPosition(null)
                         }}
                     >
-                        <div>
-                            <strong>Coordinates:</strong>
-                            <br/>
-                            Lat: {popupPosition[0].toFixed(6)}
-                            <br/>
-                            Lng: {popupPosition[1].toFixed(6)}
-                            <br/>
-                            <button
-                                onClick={() => navigate(ROUTES.MAP_ROUTES.MARKER)}
-                            >
-                                ADD
-                            </button>
-                        </div>
+                        <MapPositionDetailsPopup lat={popupPosition[0]} lng={popupPosition[1]}/>
                     </Popup>
                 )}
             </MapContainer>

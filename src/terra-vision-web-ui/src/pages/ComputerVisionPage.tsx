@@ -1,6 +1,6 @@
-import "../styles/pages/LandmineDetector.css";
+import "../styles/pages/ComputerVisionPage.css";
 import Header from "../components/Header.tsx";
-import {useCallback, useEffect, useRef, useState} from "react";
+import {useCallback, useContext, useEffect, useRef, useState} from "react";
 import {type FileRejection, useDropzone} from "react-dropzone";
 import {useTranslation} from "react-i18next";
 import {toast} from "react-toastify";
@@ -21,7 +21,7 @@ import {
     truncateFileName,
     useScreenWidth
 } from "../commons/utils.ts";
-import {API_URLS, TRUNCATE_FILE_NAME_RULES} from "../configs/settings.ts";
+import {API_URLS, ROUTES, TRUNCATE_FILE_NAME_RULES} from "../configs/settings.ts";
 import ARCHIVE_IMG from "../assets/archive-icon.png";
 import {Dropdown} from "../components/Dropdown.tsx";
 import {axiosWebClient} from "../configs/axiosWebClient.ts";
@@ -29,11 +29,16 @@ import i18n from "../configs/i18n.ts";
 import axios from "axios";
 import JSZip from "jszip";
 import PartialLoadingOverlay from "../components/PartialLoadingOverlay.tsx";
+import {useNavigate} from "react-router-dom";
+import {ApplicationContext} from "../configs/context/contexts.ts";
 
-function ComputerVisionDetector() {
+function ComputerVisionPage() {
 
     const {t} = useTranslation();
-
+    const navigate = useNavigate();
+    const applicationContext = useContext(ApplicationContext);
+    if (!applicationContext) throw new Error("ApplicationContext not found");
+    const { UPLOADED_DATA, PROCESSED_DATA } = applicationContext.CV_DETECTION
     const screenWidth = useScreenWidth();
 
     /* getTruncateFileNameLengthsByWidth runs on every render/rerender (when screenWidth changes) */
@@ -42,17 +47,11 @@ function ComputerVisionDetector() {
         endFileNameLength
     } = getTruncateFileNameLengthsByWidth(screenWidth, TRUNCATE_FILE_NAME_RULES)
 
-    const [uploadedImages, setUploadedImages] = useState<FileItem[]>([]);
-    const [uploadedArchives, setUploadedArchives] = useState<FileItem[]>([]);
-
-    const [processedImages, setProcessedImages] = useState<FileItem[]>([]);
-    const [processedArchives, setProcessedArchives] = useState<FileItem[]>([]);
-
     const [isProcessing, setProcessing] = useState<boolean>(false);
 
     const [models, setModels] = useState<CVModelDescription[]>([]);
     const [selectedModel, setSelectedModel] = useState<CVModelDescription | null>();
-
+    
     const outputSectionRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -79,33 +78,31 @@ function ComputerVisionDetector() {
         if (outputSectionRef.current) {
             outputSectionRef.current.scrollIntoView({behavior: "smooth"});
         }
-    }, [processedImages, processedArchives]);
+    }, [PROCESSED_DATA.images, PROCESSED_DATA.archives]);
 
     const removeUploadedImage = (id: string) => {
-        setUploadedImages(prev => prev.filter(image => image.id !== id));
+        UPLOADED_DATA.setImages(prev => prev.filter(image => image.id !== id));
     };
 
     const removeUploadedArchive = (id: string) => {
-        setUploadedArchives(prev => prev.filter(archive => archive.id !== id));
+        UPLOADED_DATA.setArchives(prev => prev.filter(archive => archive.id !== id));
     };
 
     const clearUploadedFiles = () => {
-        setUploadedImages([]);
-        setUploadedArchives([]);
+        UPLOADED_DATA.clear();
     }
 
     const removeProcessedImage = (id: string) => {
-        setProcessedImages(prev => prev.filter(image => image.id !== id));
+        PROCESSED_DATA.setImages(prev => prev.filter(image => image.id !== id));
     };
 
     const removeProcessedArchive = (id: string) => {
-        setProcessedArchives(prev => prev.filter(archive => archive.id !== id));
+        PROCESSED_DATA.setArchives(prev => prev.filter(archive => archive.id !== id));
     };
 
 
     const clearProcessedFiles = () => {
-        setProcessedImages([]);
-        setProcessedArchives([]);
+        PROCESSED_DATA.clear();
     }
 
     async function sendArchives(modelId: string, archives: File[]) {
@@ -114,7 +111,7 @@ function ComputerVisionDetector() {
         formData.append("model_id", modelId);
         archives.forEach(archive => formData.append("archives", archive));
         return await axios.post(
-            API_URLS.AI_MODELS_URL,
+            API_URLS.AI_CV_URL,
             formData,
             {
                 responseType: "blob",
@@ -189,16 +186,11 @@ function ComputerVisionDetector() {
                 }
             }
         }
-        setProcessedArchives(prev => [...prev, ...extractedArchives]);
-        setProcessedImages(prev => [...prev, ...extractedImages]);
+        PROCESSED_DATA.setArchives(prev => [...prev, ...extractedArchives]);
+        PROCESSED_DATA.setImages(prev => [...prev, ...extractedImages]);
 
-        // Optionally: store stats in state or display them
         if (stats) {
-            // You can add this to your component state
-            // setProcessingStats(stats);
-
-            // Or show a toast notification with summary
-            console.log(stats)
+            PROCESSED_DATA.setStats(stats);
             toast.success(
                 <PopUp
                     title={t("landmine-detection-page.pop-ups.cv-processing-successfully-completed-pop-up.title")}
@@ -217,10 +209,7 @@ function ComputerVisionDetector() {
         const response = await sendArchives(modelId, archives);
         const outerArchiveBlob: Blob = response.data;
         const outerZip = await JSZip.loadAsync(outerArchiveBlob);
-
-        // Extract stats first
-        const stats = await extractProcessingStats(outerZip);
-
+        const stats = await extractProcessingStats(outerZip); // Extract stats first
         await processResult(outerZip, imagesArchiveName, stats);
     }
 
@@ -229,8 +218,8 @@ function ComputerVisionDetector() {
         "imagesArchive": FileItem | null
     }> {
         let imagesArchive: FileItem | null = null;
-        if (uploadedImages.length > 0) {
-            const zipBlob: Blob = await createArchiveFromFileItems(uploadedImages);
+        if (UPLOADED_DATA.images.length > 0) {
+            const zipBlob: Blob = await createArchiveFromFileItems(UPLOADED_DATA.images);
             const zipArchiveName = `images-${Date.now()}-${crypto.randomUUID().toString()}-.zip`;
             const zipArchive: File = blobToZip(zipBlob, zipArchiveName);
             imagesArchive = {
@@ -241,7 +230,7 @@ function ComputerVisionDetector() {
 
         return {
             "allArchives": [
-                ...uploadedArchives,
+                ...UPLOADED_DATA.archives,
                 ...(imagesArchive ? [imagesArchive] : [])]
                 .map(archive => archive.file),
             "imagesArchive": imagesArchive
@@ -257,7 +246,9 @@ function ComputerVisionDetector() {
                     imagesArchive: imagesArchive
                 } = await getArchives();
                 await sendArchivesAndProcessResult(selectedModel.id, archivesToSend, imagesArchive?.id)
-            } catch (error) { console.error("Error sending archives and images: " + error); }
+            } catch (error) {
+                console.error("Error sending archives and images: " + error);
+            }
             setProcessing(false);
         } else {
             toast.error(
@@ -288,9 +279,9 @@ function ComputerVisionDetector() {
             }
         })
 
-        setUploadedImages(prev => [...prev, ...imageFiles])
-        setUploadedArchives(prev => [...prev, ...archiveFiles])
-    }, [])
+        UPLOADED_DATA.setImages(prev => [...prev, ...imageFiles])
+        UPLOADED_DATA.setArchives(prev => [...prev, ...archiveFiles])
+    }, [UPLOADED_DATA])
 
     const onFileDropRejected = useCallback((fileRejections: FileRejection[]) => {
         fileRejections.forEach((fileRejection) => {
@@ -325,7 +316,7 @@ function ComputerVisionDetector() {
     return (
         <>
             <Header/>
-            <div id="lm-detection-service-page">
+            <div id="cv-detection-service-page">
                 <section className="input-section">
                     <h1>{t("landmine-detection-page.title")}</h1>
                     <div className="models-section">
@@ -364,7 +355,7 @@ function ComputerVisionDetector() {
                     </div>
 
                     <section className="images-section">
-                        {uploadedImages.map(image => {
+                        {UPLOADED_DATA.images.map(image => {
                             const imagePreview = URL.createObjectURL(image.file);
                             return (
                                 <div
@@ -384,7 +375,7 @@ function ComputerVisionDetector() {
                     </section>
 
                     <section className="archives-section">
-                        {uploadedArchives.map(archive => {
+                        {UPLOADED_DATA.archives.map(archive => {
                             return (
                                 <div
                                     key={archive.id}
@@ -400,8 +391,8 @@ function ComputerVisionDetector() {
                     </section>
 
                     {
-                        uploadedImages.length > 0 ||
-                        uploadedArchives.length > 0
+                        UPLOADED_DATA.images.length > 0 ||
+                        UPLOADED_DATA.archives.length > 0
                             ? (
                                 <div className="controls-wrapper">
                                     <div
@@ -436,7 +427,7 @@ function ComputerVisionDetector() {
 
                 </section>
                 {
-                    processedImages.length > 0 || processedArchives.length > 0
+                    PROCESSED_DATA.images.length > 0 || PROCESSED_DATA.archives.length > 0
                         ? (
                             <section
                                 ref={outputSectionRef}
@@ -444,7 +435,7 @@ function ComputerVisionDetector() {
                             >
                                 <h1>{t("landmine-detection-page.processed-files-section.title")}</h1>
                                 <section className="images-section">
-                                    {processedImages.map(image => {
+                                    {PROCESSED_DATA.images.map(image => {
                                         const imagePreview = URL.createObjectURL(image.file);
                                         return (
                                             <div
@@ -471,7 +462,7 @@ function ComputerVisionDetector() {
                                 </section>
 
                                 <section className="archives-section">
-                                    {processedArchives.map(archive => {
+                                    {PROCESSED_DATA.archives.map(archive => {
                                         const archiveUrl = URL.createObjectURL(archive.file);
                                         return (
                                             <div
@@ -493,14 +484,27 @@ function ComputerVisionDetector() {
                                 </section>
 
                                 {
-                                    processedImages.length > 0 ||
-                                    processedArchives.length > 0
-                                        ? <div
-                                            id="clear-all-images-btn"
-                                            onClick={clearProcessedFiles}
-                                        >
-                                            {t("landmine-detection-page.clear-all-images-btn-text")}
-                                        </div>
+                                    PROCESSED_DATA.images.length > 0 ||
+                                    PROCESSED_DATA.archives.length > 0
+                                        ? (
+                                            <div className="controls-wrapper">
+                                                <div
+                                                    id="clear-all-images-btn"
+                                                    onClick={clearProcessedFiles}
+                                                >
+                                                    {t("landmine-detection-page.clear-all-images-btn-text")}
+                                                </div>
+                                                {PROCESSED_DATA.stats
+                                                    ? <div
+                                                        id="view-stats-btn"
+                                                        onClick={() => navigate(ROUTES.COMPUTER_VISION_DETECTION_ROUTES.STATS_ROUTE.ROOT)}
+                                                    >
+                                                        {t("landmine-detection-page.view-stats-btn-text")}
+                                                    </div>
+                                                    : null
+                                                }
+                                            </div>
+                                        )
                                         : null
                                 }
 
@@ -515,4 +519,4 @@ function ComputerVisionDetector() {
     )
 }
 
-export default ComputerVisionDetector;
+export default ComputerVisionPage;

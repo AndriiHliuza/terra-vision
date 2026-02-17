@@ -3,13 +3,15 @@ import {ROUTES} from "./settings.ts";
 import Home from "../pages/Home.tsx";
 import Map from "../pages/Map.tsx";
 import NotFound from "../pages/NotFound.tsx";
-import ComputerVisionDetector from "../pages/ComputerVisionDetector.tsx";
+import ComputerVisionPage from "../pages/ComputerVisionPage.tsx";
 import AdminDashboard from "../pages/AdminDashboard.tsx";
 import AdminLayout from "../layouts/AdminLayout.tsx";
 import MapEditor from "../pages/MapEditor.tsx";
 import Localization from "./Localization.tsx";
 import i18n from "./i18n.ts";
 import {SimpleChartPage} from "../components/SimpleChartPage.tsx";
+import CVStatsPage from "../pages/CVStatsPage.tsx";
+import CVStatsRawJSONPage from "../pages/CVStatsRawJSONPage.tsx";
 
 function Routing() {
     return (
@@ -19,7 +21,13 @@ function Routing() {
 
             <Route path=":lang/*" element={<Localization/>}>
                 <Route index element={<Home/>}/>
-                <Route path={ROUTES.LANDMINE_DETECTOR} element={<ComputerVisionDetector/>}/>
+                <Route path={ROUTES.COMPUTER_VISION_DETECTION_ROUTES.ROOT}>
+                    <Route index element={<ComputerVisionPage/>}/>
+                    <Route path={ROUTES.COMPUTER_VISION_DETECTION_ROUTES.STATS_ROUTE.ROOT}>
+                        <Route index element={<CVStatsPage />}/>
+                        <Route path={ROUTES.COMPUTER_VISION_DETECTION_ROUTES.STATS_ROUTE.RAW_JSON} element={<CVStatsRawJSONPage />} />
+                    </Route>
+                </Route>
                 <Route path={ROUTES.MAP_ROUTES.ROOT}>
                     <Route index element={<Map/>}/>
                     <Route path={ROUTES.MAP_ROUTES.MARKER} element={<div>Marker Page</div>} />

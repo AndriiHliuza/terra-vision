@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: terra-vision-auth
+
+app:
+  security:
+    allowed-origins:
+      - http://localhost:5173
+    jwt:
+      issuer: http://localhost:8080
+    key-pair:
+      size: 2048

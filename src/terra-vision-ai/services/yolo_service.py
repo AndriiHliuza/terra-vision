@@ -9,9 +9,9 @@ from PIL import Image
 from fastapi import HTTPException
 from ultralytics import YOLO
 from config import MGT_MODELS_DIR
-from repository import models_repository
+from repository import cv_repository as cv_repo
 from schemas import ProcessingStats, ClassStats, ImageStats, Detection
-from services import image_processor
+from services import image_processing_service as img_ps
 
 class YOLOService:
     def __init__(self):
@@ -48,7 +48,7 @@ class YOLOService:
             Dictionary mapping model IDs to their .pt file paths
             Example: {"mgt-yolo-11-n": "path/to/models/mgt-yolo11-n.pt"}
         """
-        models = await models_repository.get_models()
+        models = await cv_repo.get_models()
         available_models: dict[str, str] = {}
         for model in models:
             model_id = model.get("_id")
@@ -115,7 +115,7 @@ class YOLOService:
             for filename, image_bytes in batch:
                 try:
                     # Convert bytes to PIL Image
-                    image_array, original_format, original_size = image_processor.preprocess_thermal_image(image_bytes)
+                    image_array, original_format, original_size = img_ps.preprocess_thermal_image(image_bytes)
 
                     batch_images.append(image_array)
                     batch_filenames.append(filename)

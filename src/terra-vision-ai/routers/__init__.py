@@ -1,1 +1,1 @@
-from .model_router import router as model_router
+from .cv_router import router as cv_router

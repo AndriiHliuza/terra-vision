@@ -509,6 +509,53 @@ header > #header-controls > #language-controls > #language-dropdown-menu > .lang
 
 
 
+
+/* ------ CVStatsPage Header styles ------- */
+
+.cv-stats-page > header {
+    color: var(--cv-stats-page-text-color);
+}
+
+.cv-stats-page > header > #header-controls > nav {
+    border: 2px solid var(--cv-stats-page-glass-border-color);
+}
+
+.cv-stats-page > header .nav-menu-item > hr {
+    border: 1px solid var(--cv-stats-page-glass-border-color);
+}
+
+.cv-stats-page > header .nav-menu-item > a:hover {
+    border: 2px solid var(--cv-stats-page-glass-border-color);
+}
+
+.cv-stats-page > header .nav-menu-item > a.active-nav-link {
+    border: 2px solid var(--cv-stats-page-glass-border-color);
+}
+
+.cv-stats-page > header #language-controls-btn {
+    border: 2px solid var(--cv-stats-page-glass-border-color);
+}
+
+.cv-stats-page > header > #header-controls > #language-controls:hover > #language-controls-btn {
+    border: 2px solid var(--cv-stats-page-glass-border-color);
+}
+
+.cv-stats-page > header > #header-controls > #language-controls > #language-dropdown-menu > .language-dropdown-item {
+    border: 2px solid var(--cv-stats-page-glass-border-color);
+}
+
+@media (max-width: 768px) {
+    #map-page > header .nav-menu-item > a.active-nav-link {
+        border: none;
+    }
+
+    #map-page > header > #burger-btn {
+        border: 2px solid var(--cv-stats-page-glass-border-color);
+    }
+}
+
+
+
 /* ------ MapPage Header styles ------- */
 
 #map-page > header > #header-controls > nav {

@@ -48,6 +48,7 @@
     "drag-and-drop-section-text-for-active-drag": "Drop images or «.zip» archives here...",
     "clear-all-images-btn-text": "Clear",
     "process-images-btn-text": "Process",
+    "view-stats-btn-text": "View details",
     "processing-message-text": {
       "text-1": "Please wait while we try to process...",
       "text-2": "This may take a few seconds..."

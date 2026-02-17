@@ -84,7 +84,7 @@ function Header({ scrollOffset = 1000 }: { scrollOffset?: number }) {
 
     const links = [
         {to: `/${lang}`, label: t("header.home")},
-        {to: `/${lang}/${ROUTES.LANDMINE_DETECTOR}`, label: t("header.landmine-detector")},
+        {to: `/${lang}/${ROUTES.COMPUTER_VISION_DETECTION_ROUTES.ROOT}`, label: t("header.landmine-detector")},
         {to: `/${lang}/${ROUTES.MAP_ROUTES.ROOT}`, label: t("header.map")},
     ];
 

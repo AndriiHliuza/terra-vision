@@ -35,6 +35,9 @@
     --map-page-glass-border-color: rgba(68, 103, 91, 0.5);
     --map-editor-page-glass-border-color: rgba(223, 187, 251, 0.5);
 
+    --cv-stats-page-text-color: #242424;
+    --cv-stats-page-glass-border-color: rgba(33, 54, 83, 0.45);
+
     /* Base styles */
     font-family: "Rubik Distressed", "Poppins", system-ui, Avenir, Helvetica, Arial, sans-serif;
     line-height: 1.5;

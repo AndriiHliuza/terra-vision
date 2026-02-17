@@ -17,6 +17,10 @@ export type MarkerData = {
     popup: string;
 };
 
+export interface LocationProps {
+    lat: number;
+    lng: number;
+}
 
 /* URL */
 export const URL_TYPE = {

@@ -1,4 +1,4 @@
-#lm-detection-service-page {
+#cv-detection-service-page {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -12,7 +12,7 @@
     background-size: auto 600px;
 }
 
-#lm-detection-service-page > section {
+#cv-detection-service-page > section {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -30,11 +30,11 @@
     -webkit-backdrop-filter: blur(var(--glass-blur-px));
 }
 
-#lm-detection-service-page > .input-section {
+#cv-detection-service-page > .input-section {
     margin-top: 130px;
 }
 
-#lm-detection-service-page > .input-section > h1 {
+#cv-detection-service-page > .input-section > h1 {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -57,7 +57,7 @@
     transition: transform 0.5s ease;
 }
 
-#lm-detection-service-page > .input-section > .models-section {
+#cv-detection-service-page > .input-section > .models-section {
     display: flex;
     justify-content: flex-start;
     align-items: center;
@@ -67,7 +67,7 @@
     margin: 30px 0 0 0;
 }
 
-#lm-detection-service-page > .input-section > .models-section > .models-dropdown-container {
+#cv-detection-service-page > .input-section > .models-section > .models-dropdown-container {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -77,7 +77,7 @@
     min-width: 200px;
 }
 
-#lm-detection-service-page > .input-section > .models-section > .model-description {
+#cv-detection-service-page > .input-section > .models-section > .model-description {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -90,7 +90,7 @@
     word-spacing: 3px;
 }
 
-#lm-detection-service-page > .input-section > .dropzone-container {
+#cv-detection-service-page > .input-section > .dropzone-container {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -120,11 +120,11 @@
                 background-color 0.5s ease;
 }
 
-#lm-detection-service-page > .input-section > .dropzone-container::selection {
+#cv-detection-service-page > .input-section > .dropzone-container::selection {
     background: transparent;
 }
 
-#lm-detection-service-page > .input-section > .dropzone-container:hover {
+#cv-detection-service-page > .input-section > .dropzone-container:hover {
     box-shadow: 0 0 8px #3c3c3c, 0 0 16px #3c3c3c;
     text-shadow: 0 0 8px whitesmoke, 0 0 16px whitesmoke;
 
@@ -135,18 +135,18 @@
     background-color: var(--glass-hover-bg-color);
 }
 
-#lm-detection-service-page > .input-section > .dropzone-container:active {
+#cv-detection-service-page > .input-section > .dropzone-container:active {
     transform: scale(0.9);
 }
 
-#lm-detection-service-page > section > .images-section {
+#cv-detection-service-page > section > .images-section {
     display: flex;
     justify-content: center;
     align-items: center;
     flex-wrap: wrap;
 }
 
-#lm-detection-service-page .images-section > .image-preview-container {
+#cv-detection-service-page .images-section > .image-preview-container {
     position: relative;
 
     display: flex;
@@ -165,12 +165,12 @@
                 background-color 0.8s ease;
 }
 
-#lm-detection-service-page .images-section > .image-preview-container:hover {
+#cv-detection-service-page .images-section > .image-preview-container:hover {
     transform: scale(1.1);
     filter: brightness(50%);
 }
 
-#lm-detection-service-page .images-section > .image-preview-container > img {
+#cv-detection-service-page .images-section > .image-preview-container > img {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -187,11 +187,11 @@
     cursor: grab;
 }
 
-#lm-detection-service-page .images-section > .image-preview-container > img:active {
+#cv-detection-service-page .images-section > .image-preview-container > img:active {
     cursor: grabbing;
 }
 
-#lm-detection-service-page .images-section > .image-preview-container > .image-name-overlay {
+#cv-detection-service-page .images-section > .image-preview-container > .image-name-overlay {
     position: absolute;
     bottom: 0;
     left: 0;
@@ -215,11 +215,11 @@
     transition: opacity 0.8s ease;
 }
 
-#lm-detection-service-page .images-section > .image-preview-container:hover > .image-name-overlay {
+#cv-detection-service-page .images-section > .image-preview-container:hover > .image-name-overlay {
     opacity: 1;
 }
 
-#lm-detection-service-page .images-section > .image-preview-container > button {
+#cv-detection-service-page .images-section > .image-preview-container > button {
     position: absolute;
     top: 0;
     right: 0;
@@ -241,18 +241,18 @@
     cursor: pointer;
 }
 
-#lm-detection-service-page .images-section > .image-preview-container > button::selection {
+#cv-detection-service-page .images-section > .image-preview-container > button::selection {
     background: transparent;
 }
 
-#lm-detection-service-page > section > .archives-section {
+#cv-detection-service-page > section > .archives-section {
     display: flex;
     justify-content: center;
     align-items: center;
     flex-wrap: wrap;
 }
 
-#lm-detection-service-page .archives-section > .archive-preview-container {
+#cv-detection-service-page .archives-section > .archive-preview-container {
     position: relative;
 
     display: flex;
@@ -278,12 +278,12 @@
                 background-color 0.8s ease;
 }
 
-#lm-detection-service-page .archives-section > .archive-preview-container:hover {
+#cv-detection-service-page .archives-section > .archive-preview-container:hover {
     transform: scale(1.03);
     background: var(--glass-hover-bg-color);
 }
 
-#lm-detection-service-page .archives-section > .archive-preview-container > h4 {
+#cv-detection-service-page .archives-section > .archive-preview-container > h4 {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -292,7 +292,7 @@
     margin-bottom: 0;
 }
 
-#lm-detection-service-page .archives-section > .archive-preview-container > div {
+#cv-detection-service-page .archives-section > .archive-preview-container > div {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -301,7 +301,7 @@
     height: 100%;
 }
 
-#lm-detection-service-page .archives-section > .archive-preview-container > button {
+#cv-detection-service-page .archives-section > .archive-preview-container > button {
     position: absolute;
     top: -5px;
     right: -5px;
@@ -323,11 +323,11 @@
     cursor: pointer;
 }
 
-#lm-detection-service-page .archives-section > .archive-preview-container > button::selection {
+#cv-detection-service-page .archives-section > .archive-preview-container > button::selection {
     background: transparent;
 }
 
-#lm-detection-service-page .archives-section > .archive-preview-container > img {
+#cv-detection-service-page .archives-section > .archive-preview-container > img {
     position: absolute;
     top: 15px;
     left: 10px;
@@ -341,7 +341,7 @@
     height: 30px;
 }
 
-#lm-detection-service-page > .input-section > .processing-message {
+#cv-detection-service-page > .input-section > .processing-message {
     position: relative;
     display: flex;
     justify-content: space-around;
@@ -360,7 +360,7 @@
     background-color: var(--glass-bg-color);
 }
 
-#lm-detection-service-page > .input-section > .processing-message > .processing-message-text {
+#cv-detection-service-page > .input-section > .processing-message > .processing-message-text {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -371,7 +371,7 @@
     margin: 0 5px;
 }
 
-#lm-detection-service-page > .input-section > .processing-message > .partial-loading-overlay {
+#cv-detection-service-page > .input-section > .processing-message > .partial-loading-overlay {
     position: static;
 
     display: flex;
@@ -381,17 +381,19 @@
     margin: 0 5px;
 }
 
-#lm-detection-service-page > .input-section > .processing-message > .partial-loading-overlay > .loading-image {
+#cv-detection-service-page > .input-section > .processing-message > .partial-loading-overlay > .loading-image {
     width: 50px;
 }
 
-#lm-detection-service-page > section > .controls-wrapper {
+#cv-detection-service-page > section > .controls-wrapper {
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-#lm-detection-service-page > section #clear-all-images-btn, #lm-detection-service-page > section #process-images-btn {
+#cv-detection-service-page > section #clear-all-images-btn,
+#cv-detection-service-page > section #process-images-btn,
+#cv-detection-service-page > section #view-stats-btn {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -415,25 +417,31 @@
     transition: all 0.3s ease;
 }
 
-#lm-detection-service-page > section #clear-all-images-btn::selection, #lm-detection-service-page > section #process-images-btn::selection {
+#cv-detection-service-page > section #clear-all-images-btn::selection,
+#cv-detection-service-page > section #process-images-btn::selection,
+#cv-detection-service-page > section #view-stats-btn::selection {
     background: transparent;
 }
 
-#lm-detection-service-page > section #clear-all-images-btn:hover, #lm-detection-service-page > section #process-images-btn:hover {
+#cv-detection-service-page > section #clear-all-images-btn:hover,
+#cv-detection-service-page > section #process-images-btn:hover,
+#cv-detection-service-page > section #view-stats-btn:hover {
     background: var(--glass-hover-bg-color);
     transform: scale(1.1);
     width: 200px;
 }
 
-#lm-detection-service-page > section #clear-all-images-btn:active, #lm-detection-service-page > section #process-images-btn:active {
+#cv-detection-service-page > section #clear-all-images-btn:active,
+#cv-detection-service-page > section #process-images-btn:active,
+#cv-detection-service-page > section #view-stats-btn:active {
     transform: scale(0.9);
 }
 
-#lm-detection-service-page > .output-section {
+#cv-detection-service-page > .output-section {
     margin-top: 0;
 }
 
-#lm-detection-service-page > .output-section > h1 {
+#cv-detection-service-page > .output-section > h1 {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -455,22 +463,22 @@
 }
 
 
-#lm-detection-service-page > .output-section > .archives-section > .archive-preview-container {
+#cv-detection-service-page > .output-section > .archives-section > .archive-preview-container {
     height: 150px;
 }
 
-#lm-detection-service-page .images-section > .image-preview-container > .image-download-btn {
+#cv-detection-service-page .images-section > .image-preview-container > .image-download-btn {
     position: absolute;
     transform: translate(0, 15%);
     opacity: 0;
     transition: opacity 0.5s ease;
 }
 
-#lm-detection-service-page .images-section > .image-preview-container:hover > .image-download-btn {
+#cv-detection-service-page .images-section > .image-preview-container:hover > .image-download-btn {
     opacity: 1;
 }
 
-#lm-detection-service-page .images-section > .image-preview-container > .image-download-btn > .image-download-icon {
+#cv-detection-service-page .images-section > .image-preview-container > .image-download-btn > .image-download-icon {
     width: 50px;
     height: 50px;
 
@@ -479,17 +487,17 @@
     transition: transform 0.5s ease, opacity 0.3s ease;
 }
 
-#lm-detection-service-page .images-section > .image-preview-container > .image-download-btn > .image-download-icon:hover {
+#cv-detection-service-page .images-section > .image-preview-container > .image-download-btn > .image-download-icon:hover {
     transform: scale(1.1);
     opacity: 1;
 }
 
-#lm-detection-service-page .images-section > .image-preview-container > .image-download-btn > .image-download-icon:active {
+#cv-detection-service-page .images-section > .image-preview-container > .image-download-btn > .image-download-icon:active {
     transform: scale(0.9);
     opacity: 1;
 }
 
-#lm-detection-service-page .archives-section > .archive-preview-container > .archive-download-btn {
+#cv-detection-service-page .archives-section > .archive-preview-container > .archive-download-btn {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -509,81 +517,83 @@
     transition: transform 0.5s ease, opacity 0.3s ease;
 }
 
-#lm-detection-service-page .archives-section > .archive-preview-container > .archive-download-btn:hover {
+#cv-detection-service-page .archives-section > .archive-preview-container > .archive-download-btn:hover {
     opacity: 1;
     transform: scale(1.05);
 }
 
-#lm-detection-service-page .archives-section > .archive-preview-container > .archive-download-btn:active {
+#cv-detection-service-page .archives-section > .archive-preview-container > .archive-download-btn:active {
     opacity: 1;
     transform: scale(0.9);
 }
 
 @media (max-width: 600px) {
-    #lm-detection-service-page > .input-section > .models-section {
+    #cv-detection-service-page > .input-section > .models-section {
         justify-content: center;
 
         height: 50px;
         width: 85%;
     }
 
-    #lm-detection-service-page > .input-section > .models-section > .models-dropdown-container {
+    #cv-detection-service-page > .input-section > .models-section > .models-dropdown-container {
         width: 100%;
         min-width: 100px;
     }
 
-    #lm-detection-service-page > .input-section > .models-section > .model-description{
+    #cv-detection-service-page > .input-section > .models-section > .model-description{
         display: none;
     }
 }
 
 @media (max-width: 488px) {
-    #lm-detection-service-page > section > .controls-wrapper {
+    #cv-detection-service-page > section > .controls-wrapper {
         flex-direction: column;
     }
 }
 
 @media (max-width: 300px) {
-    #lm-detection-service-page .images-section > .image-preview-container {
+    #cv-detection-service-page .images-section > .image-preview-container {
         width: 150px;
         height: 150px;
     }
 
-    #lm-detection-service-page .archives-section > .archive-preview-container {
+    #cv-detection-service-page .archives-section > .archive-preview-container {
         width: 150px;
     }
 
-    #lm-detection-service-page > .input-section > .processing-message > .processing-message-text {
+    #cv-detection-service-page > .input-section > .processing-message > .processing-message-text {
         font-size: 15px;
     }
 
-    #lm-detection-service-page > .input-section > .processing-message > .partial-loading-overlay > .loading-image {
+    #cv-detection-service-page > .input-section > .processing-message > .partial-loading-overlay > .loading-image {
         width: 35px;
     }
 
-    #lm-detection-service-page > .input-section > h1 {
+    #cv-detection-service-page > .input-section > h1 {
         font-size: 20px;
     }
 
-    #lm-detection-service-page > .output-section > h1 {
+    #cv-detection-service-page > .output-section > h1 {
         font-size: 20px;
     }
 }
 
 @media (max-width: 200px) {
-    #lm-detection-service-page > section #clear-all-images-btn, #lm-detection-service-page > section #process-images-btn {
+    #cv-detection-service-page > section #clear-all-images-btn,
+    #cv-detection-service-page > section #process-images-btn,
+    #cv-detection-service-page > section #view-stats-btn {
         width: 120px;
     }
 
-    #lm-detection-service-page .archives-section > .archive-preview-container {
+    #cv-detection-service-page .archives-section > .archive-preview-container {
         width: 120px;
     }
 
-    #lm-detection-service-page > .input-section > h1 {
+    #cv-detection-service-page > .input-section > h1 {
         font-size: 15px;
     }
 
-    #lm-detection-service-page > .output-section > h1 {
+    #cv-detection-service-page > .output-section > h1 {
         font-size: 15px;
     }
 }

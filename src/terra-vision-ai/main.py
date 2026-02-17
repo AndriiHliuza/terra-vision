@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
 from config import ORIGINS
-from routers import model_router
+from routers import cv_router
 
 app = FastAPI()
 app.add_middleware(
@@ -13,4 +13,4 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(model_router, prefix="/api/ai", tags=["models"])
+app.include_router(cv_router, prefix="/api/ai")

@@ -3,11 +3,11 @@ import MouseTrail from "./MouseTrail.tsx";
 import {ToastContainer} from "react-toastify";
 import LoadingOverlay from "./LoadingOverlay.tsx";
 import {useContext} from "react";
-import {ApplicationContext, type ApplicationContextSettings} from "../configs/context/contexts.ts";
+import {ApplicationContext, type ApplicationContextData} from "../configs/context/contexts.ts";
 
 const GlobalComponents = () => {
 
-    const { loading } = useContext(ApplicationContext) as ApplicationContextSettings;
+    const { loading } = useContext(ApplicationContext) as ApplicationContextData;
 
     return (
         <>
