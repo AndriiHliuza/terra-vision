@@ -7,25 +7,33 @@ import clsx from 'clsx';
 import {Menu, X} from "lucide-react";
 import ukrainianFlag from "../assets/ukraine-flag.png";
 import unitedKingdomFlag from "../assets/united-kingdom-flag.png"
+import doubleDownArrowImg from "../assets/double-down-arrow.png";
 import i18n from "../configs/i18n.ts";
+import {useScreenWidth} from "../commons/utils.ts";
 
-function Header({ scrollOffset = 1000 }: { scrollOffset?: number }) {
+function Header({scrollOffset = 1000}: { scrollOffset?: number }) {
 
     const {t} = useTranslation();
-    const { lang } = useParams();
+    const {lang} = useParams();
     const navigate = useNavigate();
     const location = useLocation();
+
+    const [userAuthenticated, setUserAuthenticated] = useState(true); // This is just a stub
+    const [userImageExists, setUserImageExists] = useState(true); // This is just a stub
 
     const [headerHidden, setHeaderHidden] = useState(false);
     const [lastScrollPosition, setLastScrollPosition] = useState(0);
     const [headerControlsOpen, setHeaderControlsOpen] = useState(false);
+    const [languageDropdownOpen, setLanguageDropdownOpen] = useState(false);
 
     const headerControlsRef = useRef<HTMLDivElement>(null);
     const burgerBtnRef = useRef<HTMLButtonElement>(null);
-
+    const languageControlsRef = useRef<HTMLDivElement>(null);
 
     const lastScrollPositionRef = useRef<number>(lastScrollPosition);
     const headerControlsOpenRef = useRef<boolean>(headerControlsOpen);
+
+    const screenWidth = useScreenWidth();
 
     useEffect(() => {
         lastScrollPositionRef.current = lastScrollPosition;
@@ -64,13 +72,24 @@ function Header({ scrollOffset = 1000 }: { scrollOffset?: number }) {
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
+            const target = event.target as Node;
+
+            // Close burger menu
             if (
                 headerControlsRef.current &&
                 burgerBtnRef.current &&
-                !headerControlsRef.current.contains(event.target as Node) &&
-                !burgerBtnRef.current.contains(event.target as Node)
+                !headerControlsRef.current.contains(target) &&
+                !burgerBtnRef.current.contains(target)
             ) {
                 setHeaderControlsOpen(false);
+            }
+
+            // Close language dropdown
+            if (
+                languageControlsRef.current &&
+                !languageControlsRef.current.contains(target)
+            ) {
+                setLanguageDropdownOpen(false);
             }
         };
 
@@ -100,6 +119,8 @@ function Header({ scrollOffset = 1000 }: { scrollOffset?: number }) {
             const newPath = location.pathname.replace(`/${lang}`, `/${newLang}`);
             navigate(newPath);
         })
+
+        setLanguageDropdownOpen(false);
     }
 
     return (
@@ -138,20 +159,51 @@ function Header({ scrollOffset = 1000 }: { scrollOffset?: number }) {
                         </div>
                     ))}
                 </nav>
+                <div className={clsx("auth-controls", {"hide-header": headerHidden})}>
+                    <NavLink
+                        to={userAuthenticated ? `/${lang}/${ROUTES.ACCOUNT_ROUTES.ROOT}` : `/${lang}/${ROUTES.SIGN_IN}`}
+                        className="auth-link">
+                        {
+                            userAuthenticated
+                                ? screenWidth > 768
+                                    ? userImageExists
+                                        ? <img src="/globe.svg" alt="Terra Logo"/>
+                                        : <div>default image</div>
+                                    : <div>Account</div>
+                                : <div> Sign in</div>
+                        }
+                    </NavLink>
+                </div>
 
                 {/* Language controls */}
-                <div id="language-controls" className={clsx({"hide-header": headerHidden})}>
-                    <div id="language-controls-btn">
-                        <img src={languages.find(lang => lang.code === i18n.language)?.flagImg} alt="Flag image"/>
-                        <div className="language-controls-btn-text">{t(`header.languages.${i18n.language}.shortName`).toUpperCase()}</div>
+                <div
+                    id="language-controls"
+                    className={clsx({"hide-header": headerHidden})}
+                    ref={languageControlsRef}
+                >
+                    <div
+                        id="language-controls-btn"
+                        className={clsx({"open-language-dropdown": languageDropdownOpen})}
+                    >
+                        <div className="chosen-language-section">
+                            <img src={languages.find(lang => lang.code === i18n.language)?.flagImg} alt="Flag image"/>
+                            <div
+                                className="language-controls-btn-text">{t(`header.languages.${i18n.language}.shortName`).toUpperCase()}</div>
+                        </div>
+                        <img
+                            className="dropdown-arrow-btn"
+                            src={doubleDownArrowImg}
+                            alt="Dropdown arrow"
+                            onClick={() => setLanguageDropdownOpen(prev => !prev)}
+                        />
                     </div>
-                    <ul id="language-dropdown-menu">
+                    <ul id="language-dropdown-menu" className={clsx({"open-language-dropdown": languageDropdownOpen})}>
                         {languages.map((lang) => (
                             <li
                                 key={lang.code}
                                 className={clsx(
                                     "language-dropdown-item",
-                                    { "active-language": lang.code === i18n.language }
+                                    {"active-language": lang.code === i18n.language}
                                 )}
                                 onClick={() => changeLanguage(lang.code)}
                             >

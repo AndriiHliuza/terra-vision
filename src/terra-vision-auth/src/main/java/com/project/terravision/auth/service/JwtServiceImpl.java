@@ -3,12 +3,12 @@ package com.project.terravision.auth.service;
 import com.project.terravision.auth.model.enums.TokenType;
 import com.project.terravision.auth.config.properties.SecurityProperties;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.oauth2.jwt.*;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -17,15 +17,19 @@ public class JwtServiceImpl implements JwtService {
 
     private final JwtEncoder jwtEncoder;
     private final SecurityProperties securityProperties;
-    private final SecurityContextProviderService securityContextProviderService;
-    private final JwtDecoder jwtDecoder;
+    private final SecurityContextProviderService securityContextProviderService;;
 
     @Override
     public String generateTokenForUserInSecurityContext(Map<String, Object> claims, TokenType tokenType) {
-        User user = securityContextProviderService.getUser();
-        if (tokenType == TokenType.REFRESH) claims.put("roles", securityContextProviderService.getAuthorities());
+        String username = securityContextProviderService.getUsername();
+        List<String> roles = securityContextProviderService.getRoles();
+        List<String> permissions = securityContextProviderService.getPermissions();
+
+        if (tokenType == TokenType.ACCESS) claims.put("roles", roles);
+        if (tokenType == TokenType.ACCESS) claims.put("permissions", permissions);
         claims.put("type",  tokenType);
-        return generateToken(user.getUsername(), claims, tokenType);
+
+        return generateToken(username, claims, tokenType);
     }
 
     @Override

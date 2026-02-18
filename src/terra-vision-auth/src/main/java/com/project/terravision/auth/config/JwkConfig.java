@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class JWKConfig {
+public class JwkConfig {
     @Bean
     public JWKSource<SecurityContext> jwkSource(RSAKeyService rsaKeyService) {
         return (jwkSelector, _) -> {

@@ -108,6 +108,9 @@ function ComputerVisionPage() {
     async function sendArchives(modelId: string, archives: File[]) {
         const formData = new FormData();
 
+        const randomUserId = crypto.randomUUID()
+        console.log("random user id: " + randomUserId);
+        formData.append("user_id", randomUserId);
         formData.append("model_id", modelId);
         archives.forEach(archive => formData.append("archives", archive));
         return await axios.post(

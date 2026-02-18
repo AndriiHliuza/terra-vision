@@ -37,10 +37,21 @@ public class SecurityContextProviderServiceImpl implements SecurityContextProvid
     }
 
     public List<String> getRoles() {
-        return getUser().getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
+        return getAuthorities().stream()
                 .filter(Objects::nonNull)
                 .filter(role -> role.startsWith("ROLE_"))
                 .toList();
+    }
+
+    @Override
+    public List<String> getPermissions() {
+        return getAuthorities().stream()
+                .filter(Objects::nonNull)
+                .filter(this::isPermission)
+                .toList();
+    }
+
+    private boolean isPermission(String permission) {
+        return permission.startsWith("READ_") || permission.startsWith("WRITE_");
     }
 }

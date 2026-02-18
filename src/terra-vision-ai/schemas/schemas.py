@@ -1,14 +1,16 @@
+from typing import Generic, TypeVar
 from pydantic import BaseModel, Field, computed_field
 
+T = TypeVar("T")
 
 class CVModelDescription(BaseModel):
-    id: str = Field(description="Unique identifier for the AI model")
+    id: str = Field(description="Unique identifier for the AI models")
     name: str = Field(description="Human-readable display name")
-    description: str = Field(description="Detailed description of model capabilities")
+    description: str = Field(description="Detailed description of models capabilities")
 
 
 class CVModelDescriptionResponse(BaseModel):
-    lang: str = Field(description="Language code of the model")
+    lang: str = Field(description="Language code of the models")
     models: list[CVModelDescription] = Field(description="List of AI models")
 
 # Statistics schemas
@@ -75,3 +77,12 @@ class ProcessingSummary(BaseModel):
     model_id: str
     confidence_threshold: float
     batch_size: int
+
+# Pagination response
+
+class PaginatedResponse(BaseModel, Generic[T]):
+    items: list[T]
+    total: int
+    page: int
+    page_size: int
+    total_pages: int

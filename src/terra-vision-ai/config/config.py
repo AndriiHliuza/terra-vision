@@ -11,10 +11,6 @@ DEPLOYMENT_ENV_FILE = TERRA_VISION_DEPLOYMENT_DIR / "docker" / "dev" / ".env"
 
 load_dotenv(dotenv_path=DEPLOYMENT_ENV_FILE)
 
-ORIGINS = [
-    "http://localhost:5173"
-]
-
 SUPPORTED_LANGUAGES = ["en", "ua"]
 DEFAULT_LANGUAGE = "en"
 

@@ -40,7 +40,6 @@ services:
     networks:
       - terra-vision-network
 
-
 networks:
   terra-vision-network:
     driver: bridge
@@ -53,3 +52,4 @@ volumes:
 
   terra-vision-ai-mongo-configdb-volume:
     name: terra-vision-ai-mongo-configdb-volume
+  

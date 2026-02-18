@@ -36,7 +36,7 @@ class YOLOService:
         if model_id not in available_models:
             raise HTTPException(
                 status_code=400,
-                detail=f"Invalid model ID. Available models: {list(available_models.keys())}"
+                detail=f"Invalid models ID. Available models: {list(available_models.keys())}"
             )
         return await self.__load_model_or_cache(model_id)
 
@@ -45,7 +45,7 @@ class YOLOService:
         """
         Fetch available models from MongoDB
         Returns:
-            Dictionary mapping model IDs to their .pt file paths
+            Dictionary mapping models IDs to their .pt file paths
             Example: {"mgt-yolo-11-n": "path/to/models/mgt-yolo11-n.pt"}
         """
         models = await cv_repo.get_models()
@@ -61,22 +61,22 @@ class YOLOService:
     async def __load_model_or_cache(self, model_id: str) -> YOLO:
         available_models = await YOLOService.get_available_models()
 
-        if model_id in self.__cached_models: # Check if model is already cached
-            self.__logger.info(f"Using cached model: {model_id}")
+        if model_id in self.__cached_models: # Check if models is already cached
+            self.__logger.info(f"Using cached models: {model_id}")
             return self.__cached_models[model_id]
 
-        # Load new model if model is not in cache
+        # Load new models if models is not in cache
         model_path = available_models[model_id]
 
         if not Path(model_path).exists():
             exception_details = f"Model file not found: {model_path}. Please ensure the .pt file exists in {MGT_MODELS_DIR}"
             raise HTTPException(status_code=404, detail=exception_details)
 
-        self.__logger.info(f"Loading model: {model_id} from {model_path}")
+        self.__logger.info(f"Loading models: {model_id} from {model_path}")
         model = YOLO(model_path)
         model.to(self.__pytorch_device)
 
-        # Cache the model
+        # Cache the models
         self.__cached_models[model_id] = model
 
         return model
@@ -89,10 +89,10 @@ class YOLOService:
             batch_size: int = 16,
     ) -> tuple[dict[str, bytes], ProcessingStats]:
         """
-        Process multiple images in batches with YOLO model
+        Process multiple images in batches with YOLO models
         Args:
             image_data_list: List of tuples (filename, image_bytes)
-            model_id: Which model to use
+            model_id: Which models to use
             confidence_threshold: Minimum confidence for detections
             batch_size: Number of images to process at once
         Returns:

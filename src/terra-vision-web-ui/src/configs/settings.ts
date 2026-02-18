@@ -24,6 +24,10 @@ export const ROUTES = {
             RAW_JSON: "raw"
         }
     },
+    SIGN_IN: "sign-in",
+    ACCOUNT_ROUTES: {
+        ROOT: "account"
+    },
     ADMIN_ROUTES: {
         ROOT: "admin",
         DASHBOARD: "dashboard",
@@ -40,7 +44,7 @@ export const ROUTES_WITHOUT_MOUSE_TRAIL = [
 ]
 
 /* API URLS */
-export const API_DOMAIN = "http://localhost:8000"
+export const API_DOMAIN = "http://localhost:8080"
 export const API_URLS = {
     AI_MODELS_URL: API_DOMAIN + "/api/ai/cv/models",
     AI_CV_URL: API_DOMAIN + "/api/ai/cv"

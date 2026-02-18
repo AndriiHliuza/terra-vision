@@ -155,6 +155,74 @@ header .nav-menu-item > a.active-nav-link:active {
     transform: scale(0.5);
 }
 
+header > #header-controls > .auth-controls {
+    position: fixed;
+    z-index: 1000;
+    top: 15px;
+    right: 145px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 90px;
+    height: 70px;
+
+    cursor: pointer;
+
+    transition: transform 1s ease;
+}
+
+header > #header-controls > .auth-controls.hide-header {
+    transform: translateY(calc(-100% - 50px));
+}
+
+header > #header-controls > .auth-controls > .auth-link {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 100%;
+    height: 100%;
+
+    background: var(--glass-bg-color);
+
+    border: 2px solid var(--glass-border-color);
+    border-radius: 50px;
+
+    backdrop-filter: blur(var(--glass-blur-px));
+    -webkit-backdrop-filter: blur(var(--glass-blur-px));
+
+    transition: transform 0.3s ease;
+}
+
+header > #header-controls > .auth-controls > .auth-link:hover {
+    text-shadow: 0 0 8px whitesmoke, 0 0 16px whitesmoke;
+    transform: scale(1.05);
+
+    background: var(--glass-hover-bg-color);
+
+    backdrop-filter: blur(var(--glass-blur-px));
+    -webkit-backdrop-filter: blur(var(--glass-blur-px));
+}
+
+header > #header-controls > .auth-controls > .auth-link:active {
+    transform: scale(0.9);
+}
+
+header > #header-controls > .auth-controls > .auth-link > img {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: auto;
+    height: 100%;
+
+    border-radius: 50px;
+
+    transition: transform 0.3s ease;
+}
+
 header > #header-controls > #language-controls {
     position: fixed;
     z-index: 1000;
@@ -166,8 +234,6 @@ header > #header-controls > #language-controls {
     align-items: center;
 
     height: 70px;
-
-    cursor: pointer;
 
     transition: transform 1s ease;
 }
@@ -181,7 +247,7 @@ header #language-controls-btn {
     justify-content: center;
     align-items: center;
 
-    width: 90px;
+    width: 115px;
     height: 100%;
 
     background: var(--glass-bg-color);
@@ -203,32 +269,55 @@ header > #header-controls > #language-controls:hover > #language-controls-btn {
 
     backdrop-filter: blur(var(--glass-blur-px));
     -webkit-backdrop-filter: blur(var(--glass-blur-px));
-
-    width: 200px;
 }
 
-header > #header-controls > #language-controls > #language-controls-btn:active {
-    transform: scale(0.5);
+header #language-controls-btn > .chosen-language-section {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    height: 50px;
+    width: 55px;
+
+    border: 2px solid rgba(100, 149, 237, 0.2);
+    border-radius: 15px;
+
+    backdrop-filter: blur(var(--glass-blur-px));
+    -webkit-backdrop-filter: blur(var(--glass-blur-px));
+
+    margin-right: 5px;
 }
 
-header #language-controls-btn > img {
+header #language-controls-btn > .chosen-language-section > img {
     display: flex;
     justify-content: center;
     align-items: center;
 
+    width: 20px;
+    height: auto;
+}
+
+header #language-controls-btn > .chosen-language-section > .language-controls-btn-text {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+header #language-controls-btn > .dropdown-arrow-btn {
     width: auto;
-    height: 20px;
+    height: 30px;
 
-    margin-left: 20px;
-    margin-right: 10px;
+    margin-left: 0;
+    margin-right: 0;
+
+    transition: all 0.3s ease;
+
+    cursor: pointer;
 }
 
-header #language-controls-btn > .language-controls-btn-text {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    margin-right: 20px;
+header #language-controls-btn.open-language-dropdown > .dropdown-arrow-btn {
+    transform: scaleY(-1);
 }
 
 header > #header-controls > #language-controls > #language-dropdown-menu {
@@ -246,14 +335,14 @@ header > #header-controls > #language-controls > #language-dropdown-menu {
     padding: 0;
 
     opacity: 0;
-    transform: translateY(10px);
+    transform: translate(200px, 0);
     pointer-events: none; /* prevent clicking when hidden */
     transition: all 0.3s ease;
 }
 
-header > #header-controls > #language-controls:hover > #language-dropdown-menu {
+header > #header-controls > #language-controls > #language-dropdown-menu.open-language-dropdown {
     opacity: 1;
-    transform: translateY(0);
+    transform: translate(0, 0);
     pointer-events: auto;
 }
 
@@ -291,7 +380,7 @@ header > #header-controls > #language-controls > #language-dropdown-menu > .lang
 }
 
 header > #header-controls > #language-controls > #language-dropdown-menu > .language-dropdown-item:active {
-    transform: scale(0.5);
+    transform: scale(0.9);
 }
 
 header > #header-controls > #language-controls > #language-dropdown-menu > .language-dropdown-item > .language-dropdown-item-text {
@@ -451,6 +540,22 @@ header > #header-controls > #language-controls > #language-dropdown-menu > .lang
         transform: scale(0.9);
     }
 
+    header > #header-controls > .auth-controls {
+        position: relative;
+        top: 0;
+        left: 0;
+        right: 0;
+
+        width: 100%;
+        height: 50px;
+
+        margin-top: 10px;
+
+        cursor: pointer;
+
+        transition: transform 0.3s ease;
+    }
+
     header > #header-controls > #language-controls {
         position: relative;
         top: 0;
@@ -460,7 +565,7 @@ header > #header-controls > #language-controls > #language-dropdown-menu > .lang
         width: 100%;
         height: auto;
 
-        margin-top: 15px;
+        margin-top: 10px;
 
         cursor: pointer;
 
@@ -472,6 +577,10 @@ header > #header-controls > #language-controls > #language-dropdown-menu > .lang
     }
 
     header #language-controls-btn {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
         width: 100%;
         height: 50px;
     }
@@ -481,8 +590,24 @@ header > #header-controls > #language-controls > #language-dropdown-menu > .lang
         width: 100%;
     }
 
-    header > #header-controls > #language-controls > #language-controls-btn:active {
-        transform: scale(0.9);
+    header #language-controls-btn > .chosen-language-section {
+        flex-direction: row;
+
+        margin-left: 15px;
+        height: 35px;
+        width: 100px;
+    }
+
+    header #language-controls-btn > .chosen-language-section > img {
+        margin-right: 10px;
+    }
+
+    header #language-controls-btn > .chosen-language-section > .language-controls-btn-text {
+        margin-left: 5px;
+    }
+
+    header #language-controls-btn > .dropdown-arrow-btn {
+        margin-right: 15px;
     }
 
     header > #header-controls > #language-controls > #language-dropdown-menu {
@@ -491,6 +616,12 @@ header > #header-controls > #language-controls > #language-dropdown-menu > .lang
         top: 35px;
         left: 0;
         right: 0;
+
+        transform: translate(0, 10px);
+    }
+
+    header > #header-controls > #language-controls > #language-dropdown-menu.open-language-dropdown {
+        transform: translate(0, 0);
     }
 
     header > #header-controls > #language-controls > #language-dropdown-menu > .language-dropdown-item {
@@ -498,12 +629,22 @@ header > #header-controls > #language-controls > #language-dropdown-menu > .lang
         width: 100%;
     }
 
-    header > #header-controls > #language-controls > #language-dropdown-menu > .language-dropdown-item:hover {
+    header > #header-controls > .auth-controls > .auth-link:hover {
         transform: scale(1.03);
     }
 
-    header > #header-controls > #language-controls > #language-dropdown-menu > .language-dropdown-item:active {
+    header > #header-controls > .auth-controls > .auth-link:active {
         transform: scale(0.9);
+    }
+
+    header > #header-controls > #language-controls > #language-dropdown-menu > .language-dropdown-item:hover {
+        transform: scale(1.03);
+    }
+}
+
+@media (max-width: 300px) {
+    header > #header-controls > #language-controls > #language-dropdown-menu > .language-dropdown-item > .language-dropdown-item-text {
+        font-size: 10px;
     }
 }
 

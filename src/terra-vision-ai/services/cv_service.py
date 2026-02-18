@@ -5,10 +5,10 @@ import zipfile
 
 from fastapi import UploadFile, HTTPException
 from starlette.responses import StreamingResponse
-
 from schemas import ProcessingStats, ProcessingSummary, ClassStats
 from services import utils
 from services.yolo_service import YOLO_SERVICE
+from services import processing_summary_service as proc_sum_service
 
 LOGGER = logging.getLogger(__name__)
 
@@ -19,10 +19,11 @@ class CVModelService:
 
     async def detect_objects(
             self,
+            user_id: str,
             model_id: str,
             archives: list[UploadFile],
             confidence: float = 0.25,
-            batch_size: int = 16
+            batch_size: int = 16,
     ):
         # Aggregate stats across all archives
         overall_start = time.time()
@@ -32,7 +33,7 @@ class CVModelService:
         # Log the start of detection
         _log__start_cv_object_detection(model_id, archives, confidence, batch_size)
 
-        # Check if model exists both in database and file system to load it (model)
+        # Check if models exists both in database and file system to load it (models)
         await _check_model_exists_in_db_and_file_system(model_id)
 
         result_zip_archive_buffer = io.BytesIO()
@@ -74,6 +75,8 @@ class CVModelService:
                 confidence_threshold=confidence,
                 batch_size=batch_size
             )
+
+            if user_id: await proc_sum_service.save_processing_summary(user_id, stats_summary)
 
             # Add stats summary file to the zip
             result_zip.writestr(

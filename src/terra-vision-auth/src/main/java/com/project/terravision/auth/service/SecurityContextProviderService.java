@@ -15,4 +15,5 @@ public interface SecurityContextProviderService {
     String getUsername();
     List<String> getAuthorities();
     List<String> getRoles();
+    List<String> getPermissions();
 }
