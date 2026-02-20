@@ -1,3 +1,15 @@
+import type {UUID} from "node:crypto";
+
+/* User */
+export type User = {
+    id: UUID;
+    username: string;
+    role: UserRole;
+}
+
+export type UserRole = "MANAGER" | "ADMIN" | "USER"
+
+
 /* Files */
 export type FileItem = {
     id: string;

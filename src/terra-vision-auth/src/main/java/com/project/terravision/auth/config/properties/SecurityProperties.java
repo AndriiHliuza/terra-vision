@@ -5,13 +5,14 @@ import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
 @Getter @Setter
 @ConfigurationProperties(prefix = "app.security")
 public class SecurityProperties {
-    private List<String> allowedOrigins;
+    private List<String> allowedOrigins = new ArrayList<>();
     private final Jwt jwt = new Jwt();
     private final KeyPair keyPair = new KeyPair();
 

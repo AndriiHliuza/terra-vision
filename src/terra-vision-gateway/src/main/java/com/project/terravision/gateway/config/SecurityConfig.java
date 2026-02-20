@@ -16,8 +16,15 @@ import java.util.List;
 @Configuration
 public class SecurityConfig {
 
-    private final String[] PERMIT_ALL_PATHS = {
-            "/api/auth/**",
+    public static final String BEARER_PREFIX = "Bearer ";
+
+    public static final String[] PERMIT_ALL_PATHS = {
+            "/api/auth/login",
+            "/api/auth/refresh",
+            "/api/auth/.well-known/jwks.json", // JSON Web Key Set
+            "/api/auth/rotate-key",
+            "/api/auth/sign-up",
+            "/api/auth/public",
             "/api/ai/**"
     };
 
@@ -26,6 +33,9 @@ public class SecurityConfig {
         return http
                 .cors(Customizer.withDefaults())
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
+                .headers(headerSpec -> headerSpec
+                        .contentSecurityPolicy(contentSecurityPolicySpec -> contentSecurityPolicySpec
+                                .policyDirectives(policyDirectives)))
                 .authorizeExchange(exchange -> exchange
                         .pathMatchers(PERMIT_ALL_PATHS).permitAll()
                         .anyExchange().authenticated()
@@ -66,7 +76,34 @@ public class SecurityConfig {
     }
 
     private boolean isPermission(String permission) {
-        return permission.startsWith("READ_") ||  permission.startsWith("WRITE_");
+        return permission.startsWith("READ_") || permission.startsWith("WRITE_");
     }
 
+    /*
+     * default-src 'self'
+     * Fallback rule for any resource type not explicitly defined.
+     * If browser needs to load something and there is no specific rule for it, it falls back to this.
+     *
+     * script-src 'self'
+     * Only execute JavaScript files from own domain.
+     *
+     * connect-src 'self' http://localhost:8080
+     * Only allow network requests (fetch, axios) to own domain AND gateway.
+     *
+     * style-src 'self'
+     * Only load CSS stylesheets from own domain.
+     *
+     * font-src 'self'
+     * Only load fonts from your own domain.
+     *
+     * frame-ancestors 'none'
+     * Your app cannot be embedded inside an iframe on any website including your own.
+     * */
+    private final String policyDirectives = "default-src 'self'; " +
+            "script-src 'self'; " +
+            "connect-src 'self' http://localhost:8080; " +
+            "style-src 'self'; 'unsafe-inline'; " +
+            "img-src 'self'" +
+            "font-src 'self'; " +
+            "frame-ancestors 'none'";
 }

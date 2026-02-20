@@ -7,6 +7,37 @@ spring:
       server:
         webflux:
           routes:
+            - id: auth-service-refresh
+              uri: http://localhost:8082
+              predicates:
+                - Path=/api/auth/refresh
+              filters:
+                - name: RefreshTokenCookieToRequestBodyConversion
+                  args:
+                    refreshTokenCookieName: refreshToken
+                - name: AuthResponseToCookie
+                  args:
+                    accessTokenCookieName: accessToken
+                    refreshTokenCookieName: refreshToken
+                    refreshPath: /api/auth/refresh
+                    sameSite: Strict
+                    secure: false
+                    accessTokenMaxAgeMinutes: 15
+                    refreshTokenMaxAgeDays: 7
+            - id: auth-service-login
+              uri: http://localhost:8082
+              predicates:
+                - Path=/api/auth/login
+              filters:
+                - name: AuthResponseToCookie
+                  args:
+                    accessTokenCookieName: accessToken
+                    refreshTokenCookieName: refreshToken
+                    refreshPath: /api/auth/refresh
+                    sameSite: Strict
+                    secure: false
+                    accessTokenMaxAgeMinutes: 15
+                    refreshTokenMaxAgeDays: 7
             - id: auth-service
               uri: http://localhost:8082
               predicates:
@@ -31,3 +62,9 @@ spring:
       resourceserver:
         jwt:
           jwk-set-uri: http://localhost:8082/api/auth/.well-known/jwks.json
+
+application:
+  gateway:
+    filters:
+      access-token-to-authorization-header-filter:
+        accessTokenCookieName: accessToken

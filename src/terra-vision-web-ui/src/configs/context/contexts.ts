@@ -1,7 +1,8 @@
 import {createContext, type Dispatch, type SetStateAction} from "react";
-import type {FileItem, ProcessingSummary} from "../../commons/models.ts";
+import type {FileItem, ProcessingSummary, User} from "../../commons/models.ts";
 
 export type ApplicationContextData = {
+    USER: User | null;
     loading: boolean;
     setLoading: Dispatch<SetStateAction<boolean>>;
     CV_DETECTION: {

@@ -19,7 +19,7 @@ public class AuthenticationController {
     private final RSAKeyService rsaKeyService;
 
     @PostMapping("/login")
-    public AuthenticationResponse login(@RequestBody AuthenticationRequest authenticationRequest) {
+    public AuthenticationResponse authenticate(@RequestBody AuthenticationRequest authenticationRequest) {
         return authenticationService.authenticate(authenticationRequest);
     }
 

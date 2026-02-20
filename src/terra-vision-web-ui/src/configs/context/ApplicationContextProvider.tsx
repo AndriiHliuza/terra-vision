@@ -14,6 +14,7 @@ const ApplicationContextProvider = ({ children }: PropsWithChildren) => {
 
     return (
         <ApplicationContext.Provider value={{
+            USER: null,
             loading,
             setLoading,
             CV_DETECTION: {
