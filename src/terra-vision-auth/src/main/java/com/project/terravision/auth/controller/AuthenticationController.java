@@ -38,4 +38,9 @@ public class AuthenticationController {
     public void rotateKey() throws NoSuchAlgorithmException {
         rsaKeyService.rotateKey();
     }
+
+    @PostMapping("/logout")
+    public void logout() {
+        System.out.println("Logout called");
+    }
 }

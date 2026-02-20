@@ -6,8 +6,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.gateway.filter.GatewayFilterChain;
-import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpCookie;
 import org.springframework.http.HttpHeaders;
@@ -15,6 +13,8 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.WebFilter;
+import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
@@ -22,7 +22,7 @@ import java.util.Arrays;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class AccessTokenCookieToAuthorizationHeaderConversionFilter implements GlobalFilter, Ordered {
+public class AccessTokenCookieToAuthorizationHeaderConversionFilter implements WebFilter, Ordered {
 
     @Value("${application.gateway.filters.access-token-to-authorization-header-filter.accessTokenCookieName}")
     private String accessTokenCookieName;
@@ -31,10 +31,9 @@ public class AccessTokenCookieToAuthorizationHeaderConversionFilter implements G
 
     @NullMarked
     @Override
-    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+    public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getPath().toString();
-
         boolean isExcluded = Arrays.stream(SecurityConfig.PERMIT_ALL_PATHS)
                 .anyMatch(excludedPath -> pathMatcher.match(excludedPath, path));
         if (isExcluded) return chain.filter(exchange);

@@ -7,6 +7,20 @@ spring:
       server:
         webflux:
           routes:
+            - id: auth-service-login
+              uri: http://localhost:8082
+              predicates:
+                - Path=/api/auth/login
+              filters:
+                - name: AuthResponseToCookie
+                  args:
+                    accessTokenCookieName: accessToken
+                    refreshTokenCookieName: refreshToken
+                    refreshPath: /api/auth/refresh
+                    sameSite: Strict
+                    secure: false
+                    accessTokenMaxAgeMinutes: 15
+                    refreshTokenMaxAgeDays: 7
             - id: auth-service-refresh
               uri: http://localhost:8082
               predicates:
@@ -24,20 +38,18 @@ spring:
                     secure: false
                     accessTokenMaxAgeMinutes: 15
                     refreshTokenMaxAgeDays: 7
-            - id: auth-service-login
+            - id: auth-service-logout
               uri: http://localhost:8082
               predicates:
-                - Path=/api/auth/login
+                - Path=/api/auth/logout
               filters:
-                - name: AuthResponseToCookie
+                - name: ClearAuthCookies
                   args:
                     accessTokenCookieName: accessToken
                     refreshTokenCookieName: refreshToken
                     refreshPath: /api/auth/refresh
                     sameSite: Strict
                     secure: false
-                    accessTokenMaxAgeMinutes: 15
-                    refreshTokenMaxAgeDays: 7
             - id: auth-service
               uri: http://localhost:8082
               predicates:

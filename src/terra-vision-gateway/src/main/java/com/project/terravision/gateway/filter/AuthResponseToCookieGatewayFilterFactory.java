@@ -8,10 +8,12 @@ import org.jspecify.annotations.NullMarked;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.cloud.gateway.filter.factory.rewrite.ModifyResponseBodyGatewayFilterFactory;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+import tools.jackson.databind.ObjectMapper;
 
 import java.time.Duration;
 
@@ -19,22 +21,35 @@ import java.time.Duration;
 @Component
 public class AuthResponseToCookieGatewayFilterFactory extends AbstractGatewayFilterFactory<AuthResponseToCookieGatewayFilterFactory.Config> {
 
+    private final ObjectMapper objectMapper;
     private final ModifyResponseBodyGatewayFilterFactory modifyResponseBodyFilter;
 
-    public AuthResponseToCookieGatewayFilterFactory(ModifyResponseBodyGatewayFilterFactory modifyResponseBodyFilter) {
+    public AuthResponseToCookieGatewayFilterFactory(
+            ModifyResponseBodyGatewayFilterFactory modifyResponseBodyFilter,
+            ObjectMapper objectMapper
+    ) {
         super(Config.class);
         this.modifyResponseBodyFilter = modifyResponseBodyFilter;
+        this.objectMapper = objectMapper;
     }
 
     @NullMarked
     @Override
     public GatewayFilter apply(Config config) {
         return modifyResponseBodyFilter.apply(rewriteConfig -> rewriteConfig
-                .setInClass(AuthenticationResponse.class)   // what we receive from auth service
-                .setOutClass(SanitizedAuthenticationResponse.class)   // what we send to React
-                .setRewriteFunction(AuthenticationResponse.class, SanitizedAuthenticationResponse.class,
-                        (exchange, authResponse) -> {
+                .setInClass(Object.class)   // what we receive from auth service
+                .setOutClass(Object.class)   // what we send to React
+                .setRewriteFunction(Object.class, Object.class,
+                        (exchange, originalBody) -> {
 
+                            // Check if response is successful first
+                            HttpStatusCode statusCode = exchange.getResponse().getStatusCode();
+                            if (statusCode == null || !statusCode.is2xxSuccessful()) {
+                                log.warn("Auth service returned non-2xx status: {}", statusCode);
+                                return Mono.justOrEmpty(originalBody);
+                            }
+
+                            AuthenticationResponse authResponse = objectMapper.convertValue(originalBody, AuthenticationResponse.class);
                             //noinspection ConstantValue
                             if (authResponse == null) {
                                 log.warn("AuthResponse is null — auth service returned non authenticated response body");

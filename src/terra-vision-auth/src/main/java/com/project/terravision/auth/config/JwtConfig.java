@@ -22,7 +22,7 @@ public class JwtConfig {
     * Decodes jwt from String to Jwt and checks signature and verifies expiration
     * */
     @Bean
-    public JwtDecoder jwtDecoder(JWKSource<SecurityContext> jwkSource) throws JOSEException {
+    public JwtDecoder jwtDecoder(JWKSource<SecurityContext> jwkSource) {
         return NimbusJwtDecoder.withJwkSource(jwkSource).build();
     }
 }

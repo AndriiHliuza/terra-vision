@@ -29,6 +29,8 @@ public class SecurityConfig {
             "/api/auth/.well-known/jwks.json", // JSON Web Key Set
             "/api/auth/rotate-key",
             "/api/auth/sign-up",
+            "/api/auth/logout",
+
             "/api/auth/public"
     };
 
