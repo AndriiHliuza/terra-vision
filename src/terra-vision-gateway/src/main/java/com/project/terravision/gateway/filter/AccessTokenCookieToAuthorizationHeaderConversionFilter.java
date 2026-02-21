@@ -2,6 +2,7 @@ package com.project.terravision.gateway.filter;
 
 import com.project.terravision.gateway.config.SecurityConfig;
 import com.project.terravision.gateway.service.CookieService;
+import com.project.terravision.gateway.service.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
@@ -11,13 +12,10 @@ import org.springframework.http.HttpCookie;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
-import org.springframework.util.AntPathMatcher;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
-
-import java.util.Arrays;
 
 @Slf4j
 @Component
@@ -27,16 +25,13 @@ public class AccessTokenCookieToAuthorizationHeaderConversionFilter implements W
     @Value("${application.gateway.filters.access-token-to-authorization-header-filter.accessTokenCookieName}")
     private String accessTokenCookieName;
     private final CookieService cookieService;
-    private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
     @NullMarked
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getPath().toString();
-        boolean isExcluded = Arrays.stream(SecurityConfig.PERMIT_ALL_PATHS)
-                .anyMatch(excludedPath -> pathMatcher.match(excludedPath, path));
-        if (isExcluded) return chain.filter(exchange);
+        if (SecurityUtils.isPathPublic(path)) return chain.filter(exchange);
 
         if (request.getHeaders().containsHeader(HttpHeaders.AUTHORIZATION)) return chain.filter(exchange);
 
@@ -52,7 +47,7 @@ public class AccessTokenCookieToAuthorizationHeaderConversionFilter implements W
 
     @Override
     public int getOrder() {
-        return Ordered.HIGHEST_PRECEDENCE + 100;
+        return Ordered.HIGHEST_PRECEDENCE + 100; // Lower value means higher priority. The one with higher priority runs first
     }
 
     private ServerHttpRequest buildMutatedRequest(ServerWebExchange exchange, String accessToken) {

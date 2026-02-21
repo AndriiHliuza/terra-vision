@@ -2,6 +2,18 @@ spring:
   application:
     name: terra-vision-auth
 
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/terra_vision_auth_db
+    username: ${TERRA_VISION_POSTGRES_USER:postgres}
+    password: ${TERRA_VISION_POSTGRES_PASSWORD:postgres}
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: ${TERRA_VISION_AUTH_REDIS_PASSWORD:adminpassword}
+
 server:
   port: 8082
 

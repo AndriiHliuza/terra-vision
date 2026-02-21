@@ -1,0 +1,36 @@
+services:
+  dev-tools-terra-vision-ai-mongo-express:
+    image: mongo-express:1.0.2
+    container_name: dev-tools-terra-vision-ai-mongo-expresss
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_SERVER: terra-vision-ai-mongo
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${TERRA_VISION_AI_MONGO_DB_ROOT_USERNAME}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${TERRA_VISION_AI_MONGO_DB_ROOT_PASSWORD}
+      ME_CONFIG_BASICAUTH_ENABLED: true
+      ME_CONFIG_BASICAUTH_USERNAME: ${TERRA_VISION_AI_MONGO_EXPRESS_USERNAME}
+      ME_CONFIG_BASICAUTH_PASSWORD: ${TERRA_VISION_AI_MONGO_EXPRESS_USERNAME}
+    networks:
+      - terra-vision-network
+  
+  dev-tools-terra-vision-redis-insight:
+    image: redis/redisinsight:3.0
+    container_name: dev-tools-terra-vision-redis-insight
+    restart: always
+    ports:
+      - "5540:5540"
+    volumes:
+      - dev-tools-terra-vision-redis-insight-data-volume:/data
+    networks:
+      - terra-vision-network
+
+networks:
+    terra-vision-network:
+        external: true
+        name: terra-vision-network
+        
+volumes:
+    dev-tools-terra-vision-redis-insight-data-volume:
+        name: dev-tools-terra-vision-redis-insight-data-volume

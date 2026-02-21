@@ -21,6 +21,7 @@ public class UserDetailsServiceInMemoryImpl implements UserDetailsService {
 
     private final PasswordEncoder passwordEncoder;
 
+    // Only called on login
     @Override
     public @NonNull UserDetails loadUserByUsername(@NonNull String username) throws UsernameNotFoundException {
         //todo Load users from database
@@ -54,7 +55,7 @@ public class UserDetailsServiceInMemoryImpl implements UserDetailsService {
             authorities.addAll(permissions);
 
             return User.builder()
-                    .username("John")
+                    .username("Bob")
                     .password(passwordEncoder.encode("12345678"))
                     .roles("ADMIN")
                     .authorities(authorities)

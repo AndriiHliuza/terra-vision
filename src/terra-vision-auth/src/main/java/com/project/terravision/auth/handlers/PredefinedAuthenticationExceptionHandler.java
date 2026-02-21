@@ -1,4 +1,4 @@
-package com.project.terravision.auth.exceptions.handlers;
+package com.project.terravision.auth.handlers;
 
 import com.nimbusds.jose.proc.BadJOSEException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,14 +14,14 @@ import java.net.URI;
 
 @Slf4j
 @RestControllerAdvice
-public class TokenExceptionHandler {
+public class PredefinedAuthenticationExceptionHandler {
 
     @ExceptionHandler(BadJOSEException.class)
     public ProblemDetail handleBadJOSEException(BadJOSEException e, HttpServletRequest request) {
         log.error(e.getMessage(), e);
         return getProblemDetailForTokenExceptions(
                 request,
-                "Invalid token",
+                "Invalid jwt",
                 e.getMessage());
     }
 
@@ -30,7 +30,7 @@ public class TokenExceptionHandler {
         log.error(e.getMessage(), e);
         return getProblemDetailForTokenExceptions(
                 request,
-                "Invalid token",
+                "Invalid jwt",
                 e.getMessage());
     }
 
@@ -39,7 +39,7 @@ public class TokenExceptionHandler {
         log.error(e.getMessage(), e);
         return getProblemDetailForTokenExceptions(
                 request,
-                "Token validation failed",
+                "JWT validation failed",
                 e.getMessage());
     }
 

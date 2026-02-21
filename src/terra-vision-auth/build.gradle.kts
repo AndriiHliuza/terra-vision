@@ -26,16 +26,22 @@ repositories {
 
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-webmvc")
+
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.security:spring-security-oauth2-jose")
-
 	implementation("org.springframework.boot:spring-boot-starter-security-oauth2-resource-server")
-	testImplementation("org.springframework.boot:spring-boot-starter-security-oauth2-resource-server-test")
+
+	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+	implementation("org.springframework.boot:spring-boot-starter-data-redis")
+	implementation("org.postgresql:postgresql:42.7.10")
 
 	compileOnly("org.projectlombok:lombok")
 	annotationProcessor("org.projectlombok:lombok")
-	testImplementation("org.springframework.boot:spring-boot-starter-security-test")
+
 	testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
+	testImplementation("org.springframework.boot:spring-boot-starter-security-test")
+	testImplementation("org.springframework.boot:spring-boot-starter-security-oauth2-resource-server-test")
+
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 

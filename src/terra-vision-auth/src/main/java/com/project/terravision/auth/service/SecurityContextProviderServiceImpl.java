@@ -44,6 +44,13 @@ public class SecurityContextProviderServiceImpl implements SecurityContextProvid
     }
 
     @Override
+    public List<String> getRolesNoPrefix() {
+        return getRoles().stream()
+                .map(role -> role.replace("ROLE_", ""))
+                .toList();
+    }
+
+    @Override
     public List<String> getPermissions() {
         return getAuthorities().stream()
                 .filter(Objects::nonNull)

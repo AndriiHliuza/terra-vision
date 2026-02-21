@@ -1,55 +1,81 @@
 services:
-  terra-vision-ai-mongo:
-    image: mongo:8.2.4
-    container_name: terra-vision-ai-mongo
-    restart: always
-    ports:
-      - "27017:27017"
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${TERRA_VISION_AI_MONGO_DB_ROOT_USERNAME}
-      MONGO_INITDB_ROOT_PASSWORD: ${TERRA_VISION_AI_MONGO_DB_ROOT_PASSWORD}
-    volumes:
-      - terra-vision-ai-mongo-db-volume:/data/db
-      - terra-vision-ai-mongo-configdb-volume:/data/configdb
-      - ./terra-vision-ai-mongo-init.js://docker-entrypoint-initdb.d/terra-vision-ai-mongo-init.js:ro
-    networks:
-      - terra-vision-network
-    healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-  
-  terra-vision-ai-mongo-express:
-    image: mongo-express:1.0.2
-    container_name: terra-vision-ai-mongo-express
-    restart: always
-    ports:
-      - 8081:8081
-    environment:
-      ME_CONFIG_MONGODB_SERVER: terra-vision-ai-mongo
-      ME_CONFIG_MONGODB_ADMINUSERNAME: ${TERRA_VISION_AI_MONGO_DB_ROOT_USERNAME}
-      ME_CONFIG_MONGODB_ADMINPASSWORD: ${TERRA_VISION_AI_MONGO_DB_ROOT_PASSWORD}
-      ME_CONFIG_BASICAUTH_ENABLED: true
-      ME_CONFIG_BASICAUTH_USERNAME: ${TERRA_VISION_AI_MONGO_EXPRESS_USERNAME}
-      ME_CONFIG_BASICAUTH_PASSWORD: ${TERRA_VISION_AI_MONGO_EXPRESS_USERNAME}
-    depends_on:
-      terra-vision-ai-mongo:
-        condition: service_healthy
-    networks:
-      - terra-vision-network
+    terra-vision-ai-mongo:
+        image: mongo:8.2.4
+        container_name: terra-vision-ai-mongo
+        restart: always
+        ports:
+            - "27017:27017"
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: ${TERRA_VISION_AI_MONGO_DB_ROOT_USERNAME}
+            MONGO_INITDB_ROOT_PASSWORD: ${TERRA_VISION_AI_MONGO_DB_ROOT_PASSWORD}
+        volumes:
+            - terra-vision-ai-mongo-db-volume:/data/db
+            - terra-vision-ai-mongo-configdb-volume:/data/configdb
+            - ./terra-vision-ai-mongo-init.js://docker-entrypoint-initdb.d/terra-vision-ai-mongo-init.js:ro
+        networks:
+            - terra-vision-network
+
+    terra-vision-auth-redis:
+        image: redis:8.2.4
+        container_name: terra-vision-auth-redis
+        ports:
+            - "6379:6379"
+        command: redis-server --requirepass ${TERRA_VISION_AUTH_REDIS_PASSWORD}
+        volumes:
+            - terra-vision-auth-redis-data-volume:/data
+        networks:
+            - terra-vision-network
+    
+    terra-vision-postgres:
+        image: postgres:14.2
+        container_name: terra-vision-postgres
+        restart: always
+        environment:
+            POSTGRES_USER: ${TERRA_VISION_POSTGRES_USER}
+            POSTGRES_PASSWORD: ${TERRA_VISION_POSTGRES_PASSWORD}
+            POSTGRES_DB: ${TERRA_VISION_POSTGRES_DB} # default db
+        ports:
+            - '5432:5432'
+        volumes:
+            - terra-vision-postgres-data-volume:/var/lib/postgresql/data
+            - ./postgresql/initdb:/docker-entrypoint-initdb.d
+        networks:
+            - terra-vision-network
+
+    terra-vision-minio:
+        image: minio/minio:RELEASE.2025-09-07T16-13-09Z
+        container_name: terra-vision-minio
+        restart: unless-stopped
+        ports:
+            - "9000:9000"
+            - "9001:9001"
+        environment:
+            MINIO_ROOT_USER: ${TERRA_VISION_MINIO_ROOT_USER}
+            MINIO_ROOT_PASSWORD: ${TERRA_VISION_MINIO_ROOT_PASSWORD}
+        volumes:
+            - terra-vision-minio-data-volume:/data
+        command: server /data --console-address ":9001"
+        networks:
+            - terra-vision-network
 
 networks:
-  terra-vision-network:
-    driver: bridge
-    name: terra-vision-network
-
+    terra-vision-network:
+        driver: bridge
+        name: terra-vision-network
 
 volumes:
-  terra-vision-ai-mongo-db-volume:
-    name: terra-vision-ai-mongo-db-volume
+    terra-vision-ai-mongo-db-volume:
+        name: terra-vision-ai-mongo-db-volume
 
-  terra-vision-ai-mongo-configdb-volume:
-    name: terra-vision-ai-mongo-configdb-volume
-  
+    terra-vision-ai-mongo-configdb-volume:
+        name: terra-vision-ai-mongo-configdb-volume
+    
+    terra-vision-auth-redis-data-volume:
+        name: terra-vision-auth-redis-data-volume
+    
+    terra-vision-postgres-data-volume:
+        name: terra-vision-postgres-data-volume
+    
+    terra-vision-minio-data-volume:
+        name: terra-vision-minio-data-volume
+
