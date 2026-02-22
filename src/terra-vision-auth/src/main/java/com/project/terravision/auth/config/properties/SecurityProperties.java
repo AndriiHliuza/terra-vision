@@ -10,7 +10,7 @@ import java.util.List;
 
 @Component
 @Getter @Setter
-@ConfigurationProperties(prefix = "app.security")
+@ConfigurationProperties(prefix = "application.security")
 public class SecurityProperties {
     private List<String> allowedOrigins = new ArrayList<>();
     private final Jwt jwt = new Jwt();

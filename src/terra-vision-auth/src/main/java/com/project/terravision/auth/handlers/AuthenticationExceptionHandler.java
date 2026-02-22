@@ -1,6 +1,7 @@
 package com.project.terravision.auth.handlers;
 
 import com.nimbusds.jose.proc.BadJOSEException;
+import com.project.terravision.auth.exceptions.InvalidSessionException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -14,7 +15,7 @@ import java.net.URI;
 
 @Slf4j
 @RestControllerAdvice
-public class PredefinedAuthenticationExceptionHandler {
+public class AuthenticationExceptionHandler {
 
     @ExceptionHandler(BadJOSEException.class)
     public ProblemDetail handleBadJOSEException(BadJOSEException e, HttpServletRequest request) {
@@ -41,6 +42,14 @@ public class PredefinedAuthenticationExceptionHandler {
                 request,
                 "JWT validation failed",
                 e.getMessage());
+    }
+
+    @ExceptionHandler(InvalidSessionException.class)
+    public ProblemDetail handleInvalidSession(InvalidSessionException ex, HttpServletRequest request) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, ex.getMessage());
+        problem.setTitle("Invalid Session");
+        problem.setInstance(URI.create(request.getRequestURI()));
+        return problem;
     }
 
     private ProblemDetail getProblemDetailForTokenExceptions(HttpServletRequest request, String title, String message) {
