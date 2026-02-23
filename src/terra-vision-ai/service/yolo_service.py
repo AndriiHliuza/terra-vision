@@ -11,7 +11,7 @@ from fastapi import HTTPException
 from ultralytics import YOLO
 from config import MGT_MODELS_DIR
 from repository import CV_MODEL_REPOSITORY
-from schemas import CVProcessingStats, CVClassStats, CVImageStats, CVDetectionBox
+from schemas import CVDataProcessingStats, CVClassStats, CVImageStats, CVDetectionBox
 
 from service import image_processing_service as ips
 
@@ -22,7 +22,7 @@ class YOLOService:
         self.__logger: Logger = logging.getLogger(__name__)
         self.__cached_models: dict[str, YOLO] = {}
 
-        self.__batch_stats = CVProcessingStats()
+        self.__batch_stats = CVDataProcessingStats()
 
         self.__cv_model_repository = CV_MODEL_REPOSITORY
         self.__mgt_model_dir = MGT_MODELS_DIR
@@ -91,7 +91,7 @@ class YOLOService:
             model_id: str,
             confidence_threshold: float = 0.25,
             batch_size: int = 16,
-    ) -> tuple[dict[str, bytes], CVProcessingStats]:
+    ) -> tuple[dict[str, bytes], CVDataProcessingStats]:
         """
         Process multiple images in batches with YOLO entity
         Args:
@@ -103,7 +103,7 @@ class YOLOService:
             Tuple of (Dictionary mapping filenames to processed image bytes, ProcessingStats)
         """
         start_time: float = time.time()
-        stats: CVProcessingStats = CVProcessingStats(total_images=len(image_data_list))
+        stats: CVDataProcessingStats = CVDataProcessingStats(total_images=len(image_data_list))
         all_confidences: list[float] = [] # For calculating overall average confidence
 
         yolo_model = await self.get_model(model_id)
@@ -167,7 +167,7 @@ class YOLOService:
             batch_filenames: list[str],
             batch_formats: list[str],
             processed_images: dict[str, bytes],
-            stats: CVProcessingStats,
+            stats: CVDataProcessingStats,
             all_confidences: list[float]
     ):
         for index, result in enumerate(results):
@@ -207,7 +207,7 @@ class YOLOService:
             result,
             filename: str,
             num_detections: int,
-            stats: CVProcessingStats,
+            stats: CVDataProcessingStats,
             all_confidences: list[float],
     ):
         # Collect statistics

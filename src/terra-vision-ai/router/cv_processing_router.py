@@ -2,7 +2,7 @@ import math
 
 from fastapi import APIRouter, Form, UploadFile, File, Query, HTTPException
 from config import MGT_MODELS_DIR, MONGO_CLIENT
-from schemas import CVProcessingJob, CVProcessingJobPreview, PaginatedResponse
+from schemas import CVDataProcessingJob, CVDataProcessingJobPreview, PaginatedResponse
 from service import CV_SERVICE, YOLO_SERVICE, CV_PROCESSING_JOB_SERVICE
 
 
@@ -39,7 +39,7 @@ async def health_check():
         "mongodb_connected": MONGO_CLIENT is not None
     }
 
-@router.get("/cv-processing-jobs", response_model=PaginatedResponse[CVProcessingJobPreview])
+@router.get("/cv-processing-jobs", response_model=PaginatedResponse[CVDataProcessingJobPreview])
 async def get_processing_jobs(
     user_id: str,
     page: int = Query(default=1, ge=1),
@@ -54,7 +54,7 @@ async def get_processing_jobs(
         total_pages=math.ceil(total / page_size)
     )
 
-@router.get("/cv-processing-jobs/{job_id}", response_model=CVProcessingJob)
+@router.get("/cv-processing-jobs/{job_id}", response_model=CVDataProcessingJob)
 async def get_processing_job(job_id: str):
     job = await CV_PROCESSING_JOB_SERVICE.get_processing_job_by_id(job_id)
     if job is None: raise HTTPException(status_code=404, detail="Processing job not found")

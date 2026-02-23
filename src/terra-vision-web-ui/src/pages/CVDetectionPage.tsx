@@ -10,7 +10,7 @@ import {
     type CVModelDescription,
     type CVModelDescriptionResponse,
     type FileItem,
-    type CVProcessingSummaryStats
+    type CVDataProcessingSummaryStats
 } from "../commons/models.ts";
 import {
     blobToFile,
@@ -123,7 +123,7 @@ function CVDetectionPage() {
         )
     }
 
-    async function extractProcessingStats(outerZip: JSZip): Promise<CVProcessingSummaryStats | null> {
+    async function extractProcessingStats(outerZip: JSZip): Promise<CVDataProcessingSummaryStats | null> {
         try {
             const statsFile = outerZip.file("processing_stats.json");
 
@@ -133,7 +133,7 @@ function CVDetectionPage() {
             }
 
             const statsContent = await statsFile.async("string");
-            const stats: CVProcessingSummaryStats = JSON.parse(statsContent);
+            const stats: CVDataProcessingSummaryStats = JSON.parse(statsContent);
 
             console.log("Processing Statistics:");
             console.log(`Total Images: ${stats.overall_stats.total_images}`);
@@ -154,7 +154,7 @@ function CVDetectionPage() {
         }
     }
 
-    async function processResult(outerZip: JSZip, imagesArchiveName: string | undefined, stats: CVProcessingSummaryStats | null) {
+    async function processResult(outerZip: JSZip, imagesArchiveName: string | undefined, stats: CVDataProcessingSummaryStats | null) {
         const extractedArchives: FileItem[] = [];
         const extractedImages: FileItem[] = [];
 

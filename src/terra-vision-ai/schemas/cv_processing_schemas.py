@@ -2,15 +2,15 @@ from datetime import datetime, timezone
 from bson import ObjectId
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from schemas.cv_stats import CVProcessingSummaryStats
+from schemas.cv_stats import CVDataProcessingSummaryStats
 
 
-class CVProcessingJob(BaseModel):
+class CVDataProcessingJob(BaseModel):
     model_config = ConfigDict(populate_by_name=True, arbitrary_types_allowed=True)
 
     id: str = Field(default_factory=lambda: str(ObjectId()), alias="_id")
     user_id: str  # UUID string
-    summary: CVProcessingSummaryStats
+    summary: CVDataProcessingSummaryStats
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     def to_mongo(self) -> dict:
@@ -23,7 +23,7 @@ class CVProcessingJob(BaseModel):
         return v.strip()
 
 
-class CVProcessingJobPreview(BaseModel):
+class CVDataProcessingJobPreview(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
     id: str = Field(alias="_id")

@@ -29,7 +29,7 @@ class CVImageStats(BaseModel):
     is_successfully_processed: bool = False
 
 
-class CVProcessingStats(BaseModel):
+class CVDataProcessingStats(BaseModel):
     total_images: int = 0
     successfully_processed_images: int = 0
     failed_images: int = 0
@@ -58,8 +58,8 @@ class CVProcessingStats(BaseModel):
         )
 
 
-class CVProcessingSummaryStats(BaseModel):
-    overall_stats: CVProcessingStats
+class CVDataProcessingSummaryStats(BaseModel):
+    overall_stats: CVDataProcessingStats
     by_archive_stats: dict[str, dict]
     model_id: str
     confidence_threshold: float

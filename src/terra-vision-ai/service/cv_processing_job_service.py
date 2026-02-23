@@ -1,7 +1,7 @@
 import asyncio
 
 from config import MONGO_CLIENT, MONGO_CV_PROCESSING_SUMMARY_JOBS_COLLECTION_NAME
-from schemas import CVProcessingSummaryStats, CVProcessingJob, CVProcessingJobPreview
+from schemas import CVDataProcessingSummaryStats, CVDataProcessingJob, CVDataProcessingJobPreview
 from repository import CV_PROCESSING_JOB_REPOSITORY
 
 
@@ -10,8 +10,8 @@ class CVProcessingJobService:
         self.__mongo_db = MONGO_CLIENT
         self.__cv_processing_job_repository = CV_PROCESSING_JOB_REPOSITORY
 
-    async def create_and_save_processing_job(self, user_id: str, summary: CVProcessingSummaryStats):
-        doc = CVProcessingJob(user_id=user_id, summary=summary)
+    async def create_and_save_processing_job(self, user_id: str, summary: CVDataProcessingSummaryStats):
+        doc = CVDataProcessingJob(user_id=user_id, summary=summary)
         return await self.__mongo_db[MONGO_CV_PROCESSING_SUMMARY_JOBS_COLLECTION_NAME].insert_one(doc.to_mongo())
 
     async def get_processing_jobs_for_user(
@@ -19,7 +19,7 @@ class CVProcessingJobService:
             user_id: str,
             page: int = 1,
             page_size: int = 10
-    ) -> tuple[list[CVProcessingJobPreview], int]:
+    ) -> tuple[list[CVDataProcessingJobPreview], int]:
         skip = (page - 1) * page_size
         query = {"user_id": user_id}
 
@@ -33,9 +33,9 @@ class CVProcessingJobService:
             .to_list(length=page_size)
         )
 
-        return [CVProcessingJobPreview(**doc) for doc in docs], total
+        return [CVDataProcessingJobPreview(**doc) for doc in docs], total
 
-    async def get_processing_job_by_id(self, job_id: str) -> CVProcessingJob | None:
+    async def get_processing_job_by_id(self, job_id: str) -> CVDataProcessingJob | None:
         return await self.__cv_processing_job_repository.get_processing_job_by_id(job_id)
 
 

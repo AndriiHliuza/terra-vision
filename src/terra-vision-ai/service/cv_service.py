@@ -5,7 +5,7 @@ import zipfile
 
 from fastapi import UploadFile, HTTPException
 from starlette.responses import StreamingResponse
-from schemas import CVProcessingStats, CVProcessingSummaryStats, CVClassStats
+from schemas import CVDataProcessingStats, CVDataProcessingSummaryStats, CVClassStats
 
 from service.yolo_service import YOLO_SERVICE
 from service.cv_processing_job_service import CV_PROCESSING_JOB_SERVICE
@@ -32,7 +32,7 @@ class CVService:
     ):
         # Aggregate stats across all archives
         overall_start = time.time()
-        overall_stats = CVProcessingStats()
+        overall_stats = CVDataProcessingStats()
         per_archive_stats = {}
 
         # Log the start of detection
@@ -73,7 +73,7 @@ class CVService:
                 )
 
             overall_stats.processing_time_seconds = time.time() - overall_start
-            stats_summary = CVProcessingSummaryStats(
+            stats_summary = CVDataProcessingSummaryStats(
                 overall_stats=overall_stats,
                 by_archive_stats=per_archive_stats,
                 model_id=model_id,
@@ -121,7 +121,7 @@ def _log__start_cv_object_detection(
 
 def _log__end_cv_object_detection(
         model_id: str,
-        overall_stats: CVProcessingStats):
+        overall_stats: CVDataProcessingStats):
     # Build detailed log message
     class_info = ", ".join([
         f"{stats.class_name}: {stats.total_detections} detections "
@@ -153,8 +153,8 @@ async def _check_model_exists_in_db_and_file_system(model_id: str):
 def _update_overall_and__per_archive_stats_after_inner_archive_processing(
     archive,
     per_archive_stats,
-    batch_stats: CVProcessingStats,
-    overall_stats: CVProcessingStats,
+    batch_stats: CVDataProcessingStats,
+    overall_stats: CVDataProcessingStats,
 ):
     per_archive_stats[archive.filename] = batch_stats.model_dump() # Store per-archive stats
 

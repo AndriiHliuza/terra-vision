@@ -104,7 +104,7 @@ export interface CVImageStats {
     is_successfully_processed: boolean;
 }
 
-export interface CVProcessingStats {
+export interface CVDataProcessingStats {
     total_images: number;
     successfully_processed_images: number;
     failed_images: number;
@@ -118,9 +118,9 @@ export interface CVProcessingStats {
     percentage_of_images_with_detection: number;
 }
 
-export interface CVProcessingSummaryStats {
-    overall_stats: CVProcessingStats;
-    by_archive_stats: Record<string, CVProcessingStats>;
+export interface CVDataProcessingSummaryStats {
+    overall_stats: CVDataProcessingStats;
+    by_archive_stats: Record<string, CVDataProcessingStats>;
     model_id: string;
     confidence_threshold: number;
     batch_size: number;

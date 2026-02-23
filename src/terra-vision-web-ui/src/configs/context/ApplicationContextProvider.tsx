@@ -1,6 +1,6 @@
 import {type PropsWithChildren, useState} from "react";
 import { ApplicationContext } from "./contexts";
-import type {FileItem, CVProcessingSummaryStats} from "../../commons/models.ts";
+import type {FileItem, CVDataProcessingSummaryStats} from "../../commons/models.ts";
 
 const ApplicationContextProvider = ({ children }: PropsWithChildren) => {
     const [loading, setLoading] = useState(false);
@@ -10,7 +10,7 @@ const ApplicationContextProvider = ({ children }: PropsWithChildren) => {
 
     const [processedImages, setProcessedImages] = useState<FileItem[]>([]);
     const [processedArchives, setProcessedArchives] = useState<FileItem[]>([]);
-    const [stats, setStats] = useState<CVProcessingSummaryStats | null>(null);
+    const [stats, setStats] = useState<CVDataProcessingSummaryStats | null>(null);
 
     return (
         <ApplicationContext.Provider value={{
