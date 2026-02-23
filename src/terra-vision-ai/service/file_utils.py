@@ -6,8 +6,10 @@ from fastapi import UploadFile
 def is_folder(file_name: str) -> bool:
     return file_name.endswith("/")
 
+
 def is_image(file_name: str) -> bool:
     return file_name.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.tiff', '.tif', '.webp'))
+
 
 async def get_images_and_not_images_from_archive(archive: UploadFile):
     archive_bytes = await archive.read()
@@ -25,6 +27,7 @@ async def get_images_and_not_images_from_archive(archive: UploadFile):
                 non_image_files[file_name] = file_data  # Store non-image files to pass through
 
     return image_data_list, non_image_files
+
 
 def save_files_as_zip_to_result_zip(
         files: dict[str, bytes],

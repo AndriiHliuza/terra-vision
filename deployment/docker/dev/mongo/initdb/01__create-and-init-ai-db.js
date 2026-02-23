@@ -1,7 +1,7 @@
 db = db.getSiblingDB('terra-vision-ai-db');
-db.createCollection('models');
+db.createCollection('cv_models_collection');
 
-const modelsData = {
+const cvModelsData = {
     "mgt-yolo11-n": {
         "translations": {
             "en": {
@@ -65,11 +65,11 @@ const modelsData = {
 };
 
 // Insert models into the collection
-for (const modelId in modelsData) {
-    const model = modelsData[modelId];
-    db.models.updateOne(
-        { _id: modelId },   // filter by _id
-        { $set: model },    // set translations
-        { upsert: true }    // insert if doesn't exist
+for (const cvModelId in cvModelsData) {
+    const cvModel = cvModelsData[cvModelId];
+    db.cv_models_collection.updateOne(
+        { _id: cvModelId },   // filter by _id
+        { $set: cvModel },    // set translations
+        { upsert: true }      // insert if doesn't exist
     );
 }

@@ -2,7 +2,7 @@ import {useContext} from "react";
 import {ApplicationContext} from "../configs/context/contexts.ts";
 import NotFound from "./NotFound.tsx";
 
-function CVStatsRawJSONPage() {
+function CVDetectionRawJsonStatsPage() {
 
     const applicationContext = useContext(ApplicationContext);
     if (!applicationContext) throw new Error("ApplicationContext not found");
@@ -22,4 +22,4 @@ function CVStatsRawJSONPage() {
     );
 }
 
-export default CVStatsRawJSONPage;
+export default CVDetectionRawJsonStatsPage;

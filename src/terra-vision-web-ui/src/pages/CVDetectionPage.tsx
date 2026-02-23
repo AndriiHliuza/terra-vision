@@ -10,7 +10,7 @@ import {
     type CVModelDescription,
     type CVModelDescriptionResponse,
     type FileItem,
-    type ProcessingSummary
+    type CVProcessingSummaryStats
 } from "../commons/models.ts";
 import {
     blobToFile,
@@ -32,7 +32,7 @@ import PartialLoadingOverlay from "../components/PartialLoadingOverlay.tsx";
 import {useNavigate} from "react-router-dom";
 import {ApplicationContext} from "../configs/context/contexts.ts";
 
-function ComputerVisionPage() {
+function CVDetectionPage() {
 
     const {t} = useTranslation();
     const navigate = useNavigate();
@@ -56,14 +56,14 @@ function ComputerVisionPage() {
 
     useEffect(() => {
         /* Getting all models */
-        axiosWebClient.get<CVModelDescriptionResponse>(API_URLS.AI_MODELS_URL, {
+        axiosWebClient.get<CVModelDescriptionResponse>(API_URLS.AI_CV_MODELS_URL, {
             params: {lang: i18n.language}
         }).then(response => {
-            setModels(response.data.models)
+            setModels(response.data.cv_models)
 
             /* Checking if stored in localstorage model actually exists */
             const selectedModelId = localStorage.getItem("selectedLandmineDetectionModel") ?? "";
-            const selectedModel = response.data.models.find(model => model.id === selectedModelId)
+            const selectedModel = response.data.cv_models.find(model => model.id === selectedModelId)
             setSelectedModel(selectedModel)
             if (!selectedModel) {
                 localStorage.removeItem("selectedLandmineDetectionModel");
@@ -114,7 +114,7 @@ function ComputerVisionPage() {
         formData.append("model_id", modelId);
         archives.forEach(archive => formData.append("archives", archive));
         return await axios.post(
-            API_URLS.AI_CV_URL,
+            API_URLS.AI_CV_PROCESSING_URL,
             formData,
             {
                 responseType: "blob",
@@ -123,7 +123,7 @@ function ComputerVisionPage() {
         )
     }
 
-    async function extractProcessingStats(outerZip: JSZip): Promise<ProcessingSummary | null> {
+    async function extractProcessingStats(outerZip: JSZip): Promise<CVProcessingSummaryStats | null> {
         try {
             const statsFile = outerZip.file("processing_stats.json");
 
@@ -133,17 +133,17 @@ function ComputerVisionPage() {
             }
 
             const statsContent = await statsFile.async("string");
-            const stats: ProcessingSummary = JSON.parse(statsContent);
+            const stats: CVProcessingSummaryStats = JSON.parse(statsContent);
 
             console.log("Processing Statistics:");
-            console.log(`Total Images: ${stats.overall.total_images}`);
-            console.log(`Successfully Processed: ${stats.overall.successfully_processed_images}`);
-            console.log(`Failed: ${stats.overall.failed_images}`);
-            console.log(`Total Detections: ${stats.overall.total_detections}`);
-            console.log(`Processing Time: ${stats.overall.processing_time_seconds}s`);
+            console.log(`Total Images: ${stats.overall_stats.total_images}`);
+            console.log(`Successfully Processed: ${stats.overall_stats.successfully_processed_images}`);
+            console.log(`Failed: ${stats.overall_stats.failed_images}`);
+            console.log(`Total Detections: ${stats.overall_stats.total_detections}`);
+            console.log(`Processing Time: ${stats.overall_stats.processing_time_seconds}s`);
 
             // Log class breakdown
-            Object.values(stats.overall.per_class_stats).forEach(classStat => {
+            Object.values(stats.overall_stats.per_class_stats).forEach(classStat => {
                 console.log(`Class: '${classStat.class_name}': ${classStat.total_detections} detections in ${classStat.images_containing_class} images`);
             });
 
@@ -154,7 +154,7 @@ function ComputerVisionPage() {
         }
     }
 
-    async function processResult(outerZip: JSZip, imagesArchiveName: string | undefined, stats: ProcessingSummary | null) {
+    async function processResult(outerZip: JSZip, imagesArchiveName: string | undefined, stats: CVProcessingSummaryStats | null) {
         const extractedArchives: FileItem[] = [];
         const extractedImages: FileItem[] = [];
 
@@ -193,15 +193,16 @@ function ComputerVisionPage() {
         PROCESSED_DATA.setImages(prev => [...prev, ...extractedImages]);
 
         if (stats) {
+            console.log(stats)
             PROCESSED_DATA.setStats(stats);
             toast.success(
                 <PopUp
                     title={t("landmine-detection-page.pop-ups.cv-processing-successfully-completed-pop-up.title")}
                     description={t("landmine-detection-page.pop-ups.cv-processing-successfully-completed-pop-up.description", {
-                        successfully_processed_images: stats.overall.successfully_processed_images.toString(),
-                        total_images: stats.overall.total_images.toString(),
-                        total_detections: stats.overall.total_detections.toString(),
-                        processing_time_seconds: stats.overall.processing_time_seconds.toFixed(2)
+                        successfully_processed_images: stats.overall_stats.successfully_processed_images.toString(),
+                        total_images: stats.overall_stats.total_images.toString(),
+                        total_detections: stats.overall_stats.total_detections.toString(),
+                        processing_time_seconds: stats.overall_stats.processing_time_seconds.toFixed(2)
                     })}
                 />
             );
@@ -522,4 +523,4 @@ function ComputerVisionPage() {
     )
 }
 
-export default ComputerVisionPage;
+export default CVDetectionPage;

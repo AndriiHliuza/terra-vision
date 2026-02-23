@@ -50,3 +50,5 @@ ultralytics==8.4.12
 ultralytics-thop==2.0.18
 urllib3==2.6.3
 uvicorn==0.38.0
+
+minio

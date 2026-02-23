@@ -5,17 +5,22 @@ import zipfile
 
 from fastapi import UploadFile, HTTPException
 from starlette.responses import StreamingResponse
-from schemas import ProcessingStats, ProcessingSummary, ClassStats
-from services import utils
-from services.yolo_service import YOLO_SERVICE
-from services import processing_summary_service as proc_sum_service
+from schemas import CVProcessingStats, CVProcessingSummaryStats, CVClassStats
+
+from service.yolo_service import YOLO_SERVICE
+from service.cv_processing_job_service import CV_PROCESSING_JOB_SERVICE
+
+from service import file_utils
+
 
 LOGGER = logging.getLogger(__name__)
 
-class CVModelService:
+
+class CVService:
     def __init__(self):
-        self.logger = LOGGER
-        self.yolo_service = YOLO_SERVICE
+        self.__logger = LOGGER
+        self.__yolo_service = YOLO_SERVICE
+        self.__processing_job_service = CV_PROCESSING_JOB_SERVICE
 
     async def detect_objects(
             self,
@@ -27,23 +32,23 @@ class CVModelService:
     ):
         # Aggregate stats across all archives
         overall_start = time.time()
-        overall_stats = ProcessingStats()
+        overall_stats = CVProcessingStats()
         per_archive_stats = {}
 
         # Log the start of detection
         _log__start_cv_object_detection(model_id, archives, confidence, batch_size)
 
-        # Check if models exists both in database and file system to load it (models)
+        # Check if entity exists both in database and file system to load it (entity)
         await _check_model_exists_in_db_and_file_system(model_id)
 
         result_zip_archive_buffer = io.BytesIO()
         with zipfile.ZipFile(result_zip_archive_buffer, "w", zipfile.ZIP_DEFLATED) as result_zip:
             for archive in archives:
-                image_data_list, non_image_files = await utils.get_images_and_not_images_from_archive(archive)
+                image_data_list, non_image_files = await file_utils.get_images_and_not_images_from_archive(archive)
 
                 # Process all images in batches
-                self.logger.info(f"Processing {len(image_data_list)} images from {archive.filename}")
-                processed_images, batch_stats = await YOLO_SERVICE.process_images_in_batches(
+                self.__logger.info(f"Processing {len(image_data_list)} images from {archive.filename}")
+                processed_images, batch_stats = await self.__yolo_service.process_images_in_batches(
                     image_data_list,
                     model_id,
                     confidence,
@@ -53,7 +58,7 @@ class CVModelService:
                 overall_stats, per_archive_stats = _update_overall_and__per_archive_stats_after_inner_archive_processing(archive, per_archive_stats, batch_stats, overall_stats)
 
                 files_to_save: dict[str, bytes] = {**processed_images, **non_image_files}
-                result_zip = utils.save_files_as_zip_to_result_zip(files_to_save, archive.filename, result_zip)
+                result_zip = file_utils.save_files_as_zip_to_result_zip(files_to_save, archive.filename, result_zip)
 
             # Calculate overall average confidence from per_image_stats
             all_image_confidences = [
@@ -68,15 +73,15 @@ class CVModelService:
                 )
 
             overall_stats.processing_time_seconds = time.time() - overall_start
-            stats_summary = ProcessingSummary(
-                overall=overall_stats,
-                by_archive=per_archive_stats,
+            stats_summary = CVProcessingSummaryStats(
+                overall_stats=overall_stats,
+                by_archive_stats=per_archive_stats,
                 model_id=model_id,
                 confidence_threshold=confidence,
                 batch_size=batch_size
             )
 
-            if user_id: await proc_sum_service.save_processing_summary(user_id, stats_summary)
+            if user_id: await self.__processing_job_service.create_and_save_processing_job(user_id, stats_summary)
 
             # Add stats summary file to the zip
             result_zip.writestr(
@@ -95,8 +100,11 @@ class CVModelService:
             }
         )
 
-CV_MODEL_SERVICE = CVModelService()
 
+CV_SERVICE = CVService()
+
+
+# Helper functions
 def _log__start_cv_object_detection(
         model_id: str,
         archives: list[UploadFile],
@@ -113,7 +121,7 @@ def _log__start_cv_object_detection(
 
 def _log__end_cv_object_detection(
         model_id: str,
-        overall_stats: ProcessingStats):
+        overall_stats: CVProcessingStats):
     # Build detailed log message
     class_info = ", ".join([
         f"{stats.class_name}: {stats.total_detections} detections "
@@ -134,17 +142,19 @@ def _log__end_cv_object_detection(
         "Sending results back to client."
     )
 
+
 async def _check_model_exists_in_db_and_file_system(model_id: str):
     try:
         await YOLO_SERVICE.get_model(model_id)
     except HTTPException as e:
         raise e
 
+
 def _update_overall_and__per_archive_stats_after_inner_archive_processing(
     archive,
     per_archive_stats,
-    batch_stats: ProcessingStats,
-    overall_stats: ProcessingStats,
+    batch_stats: CVProcessingStats,
+    overall_stats: CVProcessingStats,
 ):
     per_archive_stats[archive.filename] = batch_stats.model_dump() # Store per-archive stats
 
@@ -159,7 +169,7 @@ def _update_overall_and__per_archive_stats_after_inner_archive_processing(
     # Merge class statistics
     for class_name, class_stat in batch_stats.per_class_stats.items():
         if class_name not in overall_stats.per_class_stats:
-            overall_stats.per_class_stats[class_name] = ClassStats(class_name=class_name)
+            overall_stats.per_class_stats[class_name] = CVClassStats(class_name=class_name)
 
         overall_stats.per_class_stats[class_name].total_detections += class_stat.total_detections
         overall_stats.per_class_stats[class_name].images_containing_class += class_stat.images_containing_class

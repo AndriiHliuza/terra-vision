@@ -1,20 +1,7 @@
-from typing import Generic, TypeVar
 from pydantic import BaseModel, Field, computed_field
 
-T = TypeVar("T")
 
-class CVModelDescription(BaseModel):
-    id: str = Field(description="Unique identifier for the AI models")
-    name: str = Field(description="Human-readable display name")
-    description: str = Field(description="Detailed description of models capabilities")
-
-
-class CVModelDescriptionResponse(BaseModel):
-    lang: str = Field(description="Language code of the models")
-    models: list[CVModelDescription] = Field(description="List of AI models")
-
-# Statistics schemas
-class ClassStats(BaseModel):
+class CVClassStats(BaseModel):
     class_name: str # Name of the class
     total_detections: int = 0 # Total detections per class
     images_containing_class: int = 0  # How many images contain this class
@@ -24,7 +11,7 @@ class ClassStats(BaseModel):
     confidence_sum: float = Field(default=0.0, exclude=True)
 
 
-class Detection(BaseModel):
+class CVDetectionBox(BaseModel):
     classname: str = ""
     confidence: float = 0.0
     x1: float = 0.0
@@ -33,16 +20,16 @@ class Detection(BaseModel):
     y2: float = 0.0
 
 
-class ImageStats(BaseModel):
+class CVImageStats(BaseModel):
     filename: str = ""
     num_detections: int = 0
     average_confidence: float = 0.0
     max_confidence: float = 0.0
-    detections: list[Detection] = []
+    detections: list[CVDetectionBox] = []
     is_successfully_processed: bool = False
 
 
-class ProcessingStats(BaseModel):
+class CVProcessingStats(BaseModel):
     total_images: int = 0
     successfully_processed_images: int = 0
     failed_images: int = 0
@@ -50,8 +37,8 @@ class ProcessingStats(BaseModel):
     images_with_detections: int = 0
     processing_time_seconds: float = 0.0
     average_confidence: float = 0.0  # Average confidence across all detections
-    per_class_stats: dict[str, ClassStats] = {}  # class_name -> ClassStats
-    per_image_stats: list[ImageStats] = []  # Per-image statistics
+    per_class_stats: dict[str, CVClassStats] = {}  # class_name -> ClassStats
+    per_image_stats: list[CVImageStats] = []  # Per-image statistics
 
     @computed_field
     @property
@@ -71,18 +58,9 @@ class ProcessingStats(BaseModel):
         )
 
 
-class ProcessingSummary(BaseModel):
-    overall: ProcessingStats
-    by_archive: dict[str, dict]
+class CVProcessingSummaryStats(BaseModel):
+    overall_stats: CVProcessingStats
+    by_archive_stats: dict[str, dict]
     model_id: str
     confidence_threshold: float
     batch_size: int
-
-# Pagination response
-
-class PaginatedResponse(BaseModel, Generic[T]):
-    items: list[T]
-    total: int
-    page: int
-    page_size: int
-    total_pages: int

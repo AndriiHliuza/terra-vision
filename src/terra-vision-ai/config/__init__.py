@@ -1,6 +1,8 @@
-from .config import MGT_MODELS_DIR
+from .application_config import MGT_MODELS_DIR
+from .application_config import SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE
+from .application_config import T
 
-from .config import SUPPORTED_LANGUAGES
-from .config import DEFAULT_LANGUAGE
-
-from .database_config import mongo_db
+from .mongo_config import MONGO_CLIENT, \
+    MONGO_CV_MODELS_COLLECTION_NAME, \
+    MONGO_CV_PROCESSING_SUMMARY_JOBS_COLLECTION_NAME
+from .minio_config import MINIO_CLIENT

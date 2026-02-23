@@ -5,9 +5,9 @@ import NotFound from "./NotFound.tsx";
 import {Link} from "react-router-dom";
 import Header from "../components/Header.tsx";
 import {ROUTES} from "../configs/settings.ts";
-import type {ClassStats, ImageStats} from "../commons/models.ts";
+import type {CVClassStats, CVImageStats} from "../commons/models.ts";
 
-function CVStatsPage() {
+function CVDetectionStatsPage() {
     const applicationContext = useContext(ApplicationContext);
     if (!applicationContext) throw new Error("ApplicationContext not found");
 
@@ -23,8 +23,8 @@ function CVStatsPage() {
         !applicationContext.CV_DETECTION.PROCESSED_DATA.stats
     ) return <NotFound/>
 
-    const perClassStats: Record<string, ClassStats> = applicationContext.CV_DETECTION.PROCESSED_DATA.stats.overall.per_class_stats;
-    const perImageStats: ImageStats[] = applicationContext.CV_DETECTION.PROCESSED_DATA.stats.overall.per_image_stats;
+    const perClassStats: Record<string, CVClassStats> = applicationContext.CV_DETECTION.PROCESSED_DATA.stats.overall_stats.per_class_stats;
+    const perImageStats: CVImageStats[] = applicationContext.CV_DETECTION.PROCESSED_DATA.stats.overall_stats.per_image_stats;
 
     return (
         <div className="cv-stats-page">
@@ -36,15 +36,15 @@ function CVStatsPage() {
                     </div>
                     <h2>Overall</h2>
                     <div>Model: {applicationContext.CV_DETECTION.PROCESSED_DATA.stats.model_id}</div>
-                    <div>Total images: {applicationContext.CV_DETECTION.PROCESSED_DATA.stats.overall.total_images}</div>
-                    <div>Successfully processed images: {applicationContext.CV_DETECTION.PROCESSED_DATA.stats.overall.successfully_processed_images}</div>
-                    <div>Number of failed images: {applicationContext.CV_DETECTION.PROCESSED_DATA.stats.overall.failed_images}</div>
-                    <div>Total detection: {applicationContext.CV_DETECTION.PROCESSED_DATA.stats.overall.total_detections}</div>
-                    <div>Number of images with detections: {applicationContext.CV_DETECTION.PROCESSED_DATA.stats.overall.images_with_detections}</div>
-                    <div>Processing time: {applicationContext.CV_DETECTION.PROCESSED_DATA.stats.overall.processing_time_seconds}</div>
-                    <div>Average confidence: {applicationContext.CV_DETECTION.PROCESSED_DATA.stats.overall.average_confidence}</div>
-                    <div>Average detections per image: {applicationContext.CV_DETECTION.PROCESSED_DATA.stats.overall.average_detections_per_image}</div>
-                    <div>Percentage of images with detection: {applicationContext.CV_DETECTION.PROCESSED_DATA.stats.overall.percentage_of_images_with_detection}</div>
+                    <div>Total images: {applicationContext.CV_DETECTION.PROCESSED_DATA.stats.overall_stats.total_images}</div>
+                    <div>Successfully processed images: {applicationContext.CV_DETECTION.PROCESSED_DATA.stats.overall_stats.successfully_processed_images}</div>
+                    <div>Number of failed images: {applicationContext.CV_DETECTION.PROCESSED_DATA.stats.overall_stats.failed_images}</div>
+                    <div>Total detection: {applicationContext.CV_DETECTION.PROCESSED_DATA.stats.overall_stats.total_detections}</div>
+                    <div>Number of images with detections: {applicationContext.CV_DETECTION.PROCESSED_DATA.stats.overall_stats.images_with_detections}</div>
+                    <div>Processing time: {applicationContext.CV_DETECTION.PROCESSED_DATA.stats.overall_stats.processing_time_seconds}</div>
+                    <div>Average confidence: {applicationContext.CV_DETECTION.PROCESSED_DATA.stats.overall_stats.average_confidence}</div>
+                    <div>Average detections per image: {applicationContext.CV_DETECTION.PROCESSED_DATA.stats.overall_stats.average_detections_per_image}</div>
+                    <div>Percentage of images with detection: {applicationContext.CV_DETECTION.PROCESSED_DATA.stats.overall_stats.percentage_of_images_with_detection}</div>
                     <h2>Per class stats</h2>
                     {Object.entries(perClassStats).map(([className, stats]) => (
                         <div key={className} style={{ border: "1px solid #ccc", padding: "10px", marginBottom: "10px" }}>
@@ -85,4 +85,4 @@ function CVStatsPage() {
     )
 }
 
-export default CVStatsPage;
+export default CVDetectionStatsPage;

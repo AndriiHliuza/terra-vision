@@ -73,11 +73,11 @@ export type CVModelDescription = {
 }
 export type CVModelDescriptionResponse = {
     lang: string;
-    models: CVModelDescription[];
+    cv_models: CVModelDescription[];
 }
 
 /* CV object detection statistics DTOs */
-export interface ClassStats {
+export interface CVClassStats {
     class_name: string;
     total_detections: number;
     images_containing_class: number;
@@ -86,7 +86,7 @@ export interface ClassStats {
     max_confidence: number;
 }
 
-export interface Detection {
+export interface CVDetectionBox {
     classname: string;
     confidence: number;
     x1: number;
@@ -95,16 +95,16 @@ export interface Detection {
     y2: number;
 }
 
-export interface ImageStats {
+export interface CVImageStats {
     filename: string;
     num_detections: number;
     average_confidence: number;
     max_confidence: number;
-    detections: Detection[];
+    detections: CVDetectionBox[];
     is_successfully_processed: boolean;
 }
 
-export interface ProcessingStats {
+export interface CVProcessingStats {
     total_images: number;
     successfully_processed_images: number;
     failed_images: number;
@@ -112,15 +112,15 @@ export interface ProcessingStats {
     images_with_detections: number;
     processing_time_seconds: number;
     average_confidence: number;
-    per_class_stats: Record<string, ClassStats>;
-    per_image_stats: ImageStats[];
+    per_class_stats: Record<string, CVClassStats>;
+    per_image_stats: CVImageStats[];
     average_detections_per_image: number;
     percentage_of_images_with_detection: number;
 }
 
-export interface ProcessingSummary {
-    overall: ProcessingStats;
-    by_archive: Record<string, ProcessingStats>;
+export interface CVProcessingSummaryStats {
+    overall_stats: CVProcessingStats;
+    by_archive_stats: Record<string, CVProcessingStats>;
     model_id: string;
     confidence_threshold: number;
     batch_size: number;

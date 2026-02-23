@@ -1,17 +1,19 @@
 import io
 import logging
 import time
-from logging import Logger
-from pathlib import Path
 import numpy as np
 import torch
+
+from logging import Logger
+from pathlib import Path
 from PIL import Image
 from fastapi import HTTPException
 from ultralytics import YOLO
 from config import MGT_MODELS_DIR
-from repository import cv_repository as cv_repo
-from schemas import ProcessingStats, ClassStats, ImageStats, Detection
-from services import image_processing_service as img_ps
+from repository import CV_MODEL_REPOSITORY
+from schemas import CVProcessingStats, CVClassStats, CVImageStats, CVDetectionBox
+
+from service import image_processing_service as ips
 
 class YOLOService:
     def __init__(self):
@@ -20,7 +22,10 @@ class YOLOService:
         self.__logger: Logger = logging.getLogger(__name__)
         self.__cached_models: dict[str, YOLO] = {}
 
-        self.__batch_stats = ProcessingStats()
+        self.__batch_stats = CVProcessingStats()
+
+        self.__cv_model_repository = CV_MODEL_REPOSITORY
+        self.__mgt_model_dir = MGT_MODELS_DIR
 
     def get_pytorch_device(self) -> str:
         return self.__pytorch_device
@@ -32,51 +37,50 @@ class YOLOService:
         return self.__cached_models
 
     async def get_model(self, model_id: str) -> YOLO:
-        available_models = await YOLOService.get_available_models()
+        available_models = await self.get_available_models()
         if model_id not in available_models:
             raise HTTPException(
                 status_code=400,
-                detail=f"Invalid models ID. Available models: {list(available_models.keys())}"
+                detail=f"Invalid entity ID. Available entity: {list(available_models.keys())}"
             )
         return await self.__load_model_or_cache(model_id)
 
-    @staticmethod
-    async def get_available_models() -> dict[str, str]:
+    async def get_available_models(self) -> dict[str, str]:
         """
-        Fetch available models from MongoDB
+        Fetch available entity from MongoDB
         Returns:
-            Dictionary mapping models IDs to their .pt file paths
-            Example: {"mgt-yolo-11-n": "path/to/models/mgt-yolo11-n.pt"}
+            Dictionary mapping entity IDs to their .pt file paths
+            Example: {"mgt-yolo-11-n": "path/to/entity/mgt-yolo11-n.pt"}
         """
-        models = await cv_repo.get_models()
+        models = await self.__cv_model_repository.get_cv_models()
         available_models: dict[str, str] = {}
         for model in models:
             model_id = model.get("_id")
             if model_id:
-                model_path = MGT_MODELS_DIR / f"{model_id}.pt"
+                model_path = self.__mgt_model_dir / f"{model_id}.pt"
                 available_models[model_id] = str(model_path)
         return available_models
 
 
     async def __load_model_or_cache(self, model_id: str) -> YOLO:
-        available_models = await YOLOService.get_available_models()
+        available_models = await self.get_available_models()
 
-        if model_id in self.__cached_models: # Check if models is already cached
-            self.__logger.info(f"Using cached models: {model_id}")
+        if model_id in self.__cached_models: # Check if entity is already cached
+            self.__logger.info(f"Using cached entity: {model_id}")
             return self.__cached_models[model_id]
 
-        # Load new models if models is not in cache
+        # Load new entity if entity is not in cache
         model_path = available_models[model_id]
 
         if not Path(model_path).exists():
-            exception_details = f"Model file not found: {model_path}. Please ensure the .pt file exists in {MGT_MODELS_DIR}"
+            exception_details = f"Model file not found: {model_path}. Please ensure the .pt file exists in {self.__mgt_model_dir}"
             raise HTTPException(status_code=404, detail=exception_details)
 
-        self.__logger.info(f"Loading models: {model_id} from {model_path}")
+        self.__logger.info(f"Loading entity: {model_id} from {model_path}")
         model = YOLO(model_path)
         model.to(self.__pytorch_device)
 
-        # Cache the models
+        # Cache the entity
         self.__cached_models[model_id] = model
 
         return model
@@ -87,19 +91,19 @@ class YOLOService:
             model_id: str,
             confidence_threshold: float = 0.25,
             batch_size: int = 16,
-    ) -> tuple[dict[str, bytes], ProcessingStats]:
+    ) -> tuple[dict[str, bytes], CVProcessingStats]:
         """
-        Process multiple images in batches with YOLO models
+        Process multiple images in batches with YOLO entity
         Args:
             image_data_list: List of tuples (filename, image_bytes)
-            model_id: Which models to use
+            model_id: Which entity to use
             confidence_threshold: Minimum confidence for detections
             batch_size: Number of images to process at once
         Returns:
             Tuple of (Dictionary mapping filenames to processed image bytes, ProcessingStats)
         """
         start_time: float = time.time()
-        stats: ProcessingStats = ProcessingStats(total_images=len(image_data_list))
+        stats: CVProcessingStats = CVProcessingStats(total_images=len(image_data_list))
         all_confidences: list[float] = [] # For calculating overall average confidence
 
         yolo_model = await self.get_model(model_id)
@@ -115,7 +119,7 @@ class YOLOService:
             for filename, image_bytes in batch:
                 try:
                     # Convert bytes to PIL Image
-                    image_array, original_format, original_size = img_ps.preprocess_thermal_image(image_bytes)
+                    image_array, original_format, original_size = ips.preprocess_thermal_image(image_bytes)
 
                     batch_images.append(image_array)
                     batch_filenames.append(filename)
@@ -124,7 +128,7 @@ class YOLOService:
                     self.__logger.error(f"Error loading image {filename}: {e}")
                     processed_images[filename] = image_bytes  # Keep original on error
                     stats.failed_images += 1
-                    stats.per_image_stats.append(ImageStats(filename = filename)) # Adding failed image stats
+                    stats.per_image_stats.append(CVImageStats(filename = filename)) # Adding failed image stats
 
             if not batch_images: continue
 
@@ -163,7 +167,7 @@ class YOLOService:
             batch_filenames: list[str],
             batch_formats: list[str],
             processed_images: dict[str, bytes],
-            stats: ProcessingStats,
+            stats: CVProcessingStats,
             all_confidences: list[float]
     ):
         for index, result in enumerate(results):
@@ -184,7 +188,7 @@ class YOLOService:
                 self.__logger.info(f"✗ Error processing result for {filename}: {e}")
                 processed_images[filename] = batch[index][1]  # Keep original on error
                 stats.failed_images += 1
-                stats.per_image_stats.append(ImageStats(filename = filename)) # Add failed image stats
+                stats.per_image_stats.append(CVImageStats(filename = filename)) # Add failed image stats
 
 
     @staticmethod
@@ -203,7 +207,7 @@ class YOLOService:
             result,
             filename: str,
             num_detections: int,
-            stats: ProcessingStats,
+            stats: CVProcessingStats,
             all_confidences: list[float],
     ):
         # Collect statistics
@@ -232,7 +236,7 @@ class YOLOService:
                 class_name = result.names[cls_id]
 
                 # Create detection object
-                detection = Detection(
+                detection = CVDetectionBox(
                     classname=class_name,
                     confidence=round(conf, 3),
                     x1=round(x1, 2),
@@ -248,7 +252,7 @@ class YOLOService:
         image_max_conf = max(image_confidences) if image_confidences else 0.0
 
         # Add per-image stats
-        stats.per_image_stats.append(ImageStats(
+        stats.per_image_stats.append(CVImageStats(
             filename=filename,
             num_detections=num_detections,
             average_confidence=round(image_avg_conf, 3),
@@ -268,7 +272,7 @@ class YOLOService:
 
                 # Initialize class stats if not exists
                 if class_name not in stats.per_class_stats:
-                    stats.per_class_stats[class_name] = ClassStats(class_name=class_name)
+                    stats.per_class_stats[class_name] = CVClassStats(class_name=class_name)
 
                 # Get confidence for this detection
                 conf = float(result.boxes.conf[idx_box])
@@ -290,5 +294,6 @@ class YOLOService:
                 stats.per_class_stats[class_name].images_containing_class += 1
 
         self.__logger.info(f"✓ {filename}: {num_detections} detections (avg conf: {image_avg_conf:.3f})")
+
 
 YOLO_SERVICE = YOLOService()

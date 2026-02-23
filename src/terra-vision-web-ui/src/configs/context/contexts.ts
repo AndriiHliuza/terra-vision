@@ -1,5 +1,5 @@
 import {createContext, type Dispatch, type SetStateAction} from "react";
-import type {FileItem, ProcessingSummary, User} from "../../commons/models.ts";
+import type {FileItem, CVProcessingSummaryStats, User} from "../../commons/models.ts";
 
 export type ApplicationContextData = {
     USER: User | null;
@@ -16,10 +16,10 @@ export type ApplicationContextData = {
         PROCESSED_DATA: {
             images: FileItem[];
             archives: FileItem[];
-            stats: ProcessingSummary | null;
+            stats: CVProcessingSummaryStats | null;
             setImages: Dispatch<SetStateAction<FileItem[]>>;
             setArchives: Dispatch<SetStateAction<FileItem[]>>;
-            setStats: Dispatch<SetStateAction<ProcessingSummary | null>>;
+            setStats: Dispatch<SetStateAction<CVProcessingSummaryStats | null>>;
             clear: () => void;
         }
     }

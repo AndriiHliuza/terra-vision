@@ -4,6 +4,7 @@ import numpy as np
 from PIL import Image
 from PIL.ImageFile import ImageFile
 
+
 def preprocess_thermal_image(image_bytes: bytes) -> tuple[np.ndarray, str, tuple]:
     """
     Preprocess thermal (grayscale) image for YOLO inference
@@ -38,4 +39,3 @@ def _handle_grayscale_formats(image_bytes_array):
         ''' RGBA - convert to RGB. Returns image_bytes_array '''
         image_bytes_array = cv2.cvtColor(image_bytes_array, cv2.COLOR_RGBA2RGB)
     return image_bytes_array
-

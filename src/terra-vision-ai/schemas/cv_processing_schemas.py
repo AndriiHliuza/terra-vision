@@ -1,18 +1,16 @@
 from datetime import datetime, timezone
 from bson import ObjectId
-from pydantic import BaseModel, Field, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from schemas import ProcessingSummary
+from schemas.cv_stats import CVProcessingSummaryStats
 
-class ProcessingSummaryJobDocument(BaseModel):
-    model_config = ConfigDict(
-        populate_by_name=True,
-        arbitrary_types_allowed=True
-    )
+
+class CVProcessingJob(BaseModel):
+    model_config = ConfigDict(populate_by_name=True, arbitrary_types_allowed=True)
 
     id: str = Field(default_factory=lambda: str(ObjectId()), alias="_id")
     user_id: str  # UUID string
-    summary: ProcessingSummary
+    summary: CVProcessingSummaryStats
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     def to_mongo(self) -> dict:
@@ -24,7 +22,8 @@ class ProcessingSummaryJobDocument(BaseModel):
     def strip_user_id(cls, v: str) -> str:
         return v.strip()
 
-class ProcessingSummaryJobPreviewDocument(BaseModel):
+
+class CVProcessingJobPreview(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
     id: str = Field(alias="_id")
