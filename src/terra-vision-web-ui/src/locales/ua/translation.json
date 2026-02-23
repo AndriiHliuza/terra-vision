@@ -61,6 +61,18 @@
       "model-not-selected-pop-up": {
         "title": "Оберіть модель",
         "description": "Для обробки даних потрібно обрати модель"
+      },
+      "data-processing-failed-popup": {
+        "title": "Помилка обробки даних",
+        "description": "Будь-ласка спробуйте знову"
+      },
+      "processed-data-loading-failed-popup": {
+        "title": "Помилка завантаження оброблених даних",
+        "description": "Будь-ласка спробуйте знову"
+      },
+      "data-successfully-processed-popup": {
+        "title": "Обробка завершена",
+        "description": "Дані успішно оброблено"
       }
     },
     "processed-files-section": {

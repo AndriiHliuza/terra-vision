@@ -19,10 +19,6 @@ export const ROUTES = {
     },
     COMPUTER_VISION_DETECTION_ROUTES: {
         ROOT: "cv-detection",
-        STATS_ROUTE: {
-            ROOT: "stats",
-            RAW_JSON: "raw"
-        }
     },
     SIGN_IN: "sign-in",
     ACCOUNT_ROUTES: {
@@ -36,6 +32,7 @@ export const ROUTES = {
     NOT_FOUND: "*",
 }
 
+/* Mouse trail settings */
 export const ROUTES_WITHOUT_MOUSE_TRAIL = [
     ...buildUrlForAllLanguages(ROUTES.MAP_ROUTES.ROOT, URL_TYPE.ABSOLUTE),
     ...buildUrlForAllLanguages(ROUTES.COMPUTER_VISION_DETECTION_ROUTES.ROOT, URL_TYPE.ABSOLUTE),
@@ -45,11 +42,14 @@ export const ROUTES_WITHOUT_MOUSE_TRAIL = [
 
 /* API URLS */
 export const API_DOMAIN = "http://localhost:8080"
-export const AI_CV_YOLO_URL = API_DOMAIN + "/api/ai/cv/yolo"
 export const API_URLS = {
-    AI_CV_YOLO_MODELS_DETAILS_URL: AI_CV_YOLO_URL + "/models/details",
-    AI_CV_YOLO_DETECTIONS_URL: AI_CV_YOLO_URL + "/detections",
-    AI_CV_YOLO_DETECTIONS_RESULTS_URL: AI_CV_YOLO_URL + "/detections/results",
+    AI_API_URLS: {
+        CV_YOLO_URLS: {
+            MODELS_DETAILS_URL: API_DOMAIN + "/api/ai/cv/yolo/models/details",
+            DETECTIONS_URL: API_DOMAIN + "/api/ai/cv/yolo/detections",
+            DETECTIONS_RESULTS_URL: API_DOMAIN + "/api/ai/cv/yolo/detections/results",
+        }
+    },
 }
 
 /* Map section */

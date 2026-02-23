@@ -61,6 +61,18 @@
       "model-not-selected-pop-up": {
         "title": "Select model",
         "description": "To process data, please choose a model"
+      },
+      "data-processing-failed-popup": {
+        "title": "Data processing failed",
+        "description": "Please try again"
+      },
+      "processed-data-loading-failed-popup": {
+        "title": "Data fetching failed",
+        "description": "Please try again"
+      },
+      "data-successfully-processed-popup": {
+        "title": "Processing Complete",
+        "description": "Data was successfully processed"
       }
     },
     "processed-files-section": {

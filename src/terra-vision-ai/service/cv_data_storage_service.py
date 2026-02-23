@@ -2,7 +2,6 @@ import io
 import zipfile
 
 from fastapi import HTTPException
-
 from config import MINIO_BUCKET_NAME, MINIO_CLIENT
 from service.minio_service import MINIO_SERVICE
 
@@ -47,12 +46,12 @@ class CVDataStorageService:
         └── archive_two.zip
             └── img3.jpg
         """
-        grouped = self.__list_objects_grouped_by_archive(user_id, cv_processing_job_timestamp, cv_data_type, bucket)
-        if not grouped: raise HTTPException(status_code=404, detail=f"No {cv_data_type} images found for this request.")
+        grouped_by_archive = self.__list_objects_grouped_by_archive(user_id, cv_processing_job_timestamp, cv_data_type, bucket)
+        if not grouped_by_archive: raise HTTPException(status_code=404, detail=f"No {cv_data_type} images found for this request.")
 
         outer_buffer = io.BytesIO()
         with zipfile.ZipFile(outer_buffer, "w", zipfile.ZIP_DEFLATED) as outer_zip:
-            for archive_name, object_names in grouped.items():
+            for archive_name, object_names in grouped_by_archive.items():
                 inner_buffer = io.BytesIO()
                 with zipfile.ZipFile(inner_buffer, "w", zipfile.ZIP_DEFLATED) as inner_zip:
                     for object_name in object_names:
@@ -74,23 +73,22 @@ class CVDataStorageService:
             bucket: str = MINIO_BUCKET_NAME,
     ) -> dict[str, list[str]]:
         """
-        Returns all MinIO objects under {user_id}/{request_dt}/{stage}/
+        Returns all MinIO objects under {user_id}/{cv_processing_job_timestamp}/{cv_data_type}/
         grouped by archive folder:
             { "archive_one": ["user.../archive_one/img1.jpg", ...] }
         """
         prefix = f"{user_id}/{cv_processing_job_timestamp}/{cv_data_type}/"
         objects = self.__minio_client.list_objects(bucket, prefix=prefix, recursive=True)
 
-        grouped: dict[str, list[str]] = {}
+        grouped_by_archive: dict[str, list[str]] = {}
         for obj in objects:
             relative = obj.object_name[len(prefix):]
             parts = relative.split("/", 1)
-            if len(parts) < 2:
-                continue
+            if len(parts) < 2: continue
             archive_name, _ = parts
-            grouped.setdefault(archive_name, []).append(obj.object_name)
+            grouped_by_archive.setdefault(archive_name, []).append(obj.object_name)
 
-        return grouped
+        return grouped_by_archive
 
 
 CV_DATA_STORAGE_SERVICE = CVDataStorageService()

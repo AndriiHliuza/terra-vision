@@ -1,6 +1,6 @@
 import "../styles/pages/ComputerVisionPage.css";
 import Header from "../components/Header.tsx";
-import {useCallback, useContext, useEffect, useRef, useState} from "react";
+import {useCallback, useEffect, useRef, useState} from "react";
 import {type FileRejection, useDropzone} from "react-dropzone";
 import {useTranslation} from "react-i18next";
 import {toast} from "react-toastify";
@@ -20,7 +20,7 @@ import {
     truncateFileName,
     useScreenWidth
 } from "../commons/utils.ts";
-import {API_URLS, ROUTES, TRUNCATE_FILE_NAME_RULES} from "../configs/settings.ts";
+import {API_URLS, TRUNCATE_FILE_NAME_RULES} from "../configs/settings.ts";
 import ARCHIVE_IMG from "../assets/archive-icon.png";
 import {Dropdown} from "../components/Dropdown.tsx";
 import {axiosWebClient} from "../configs/axiosWebClient.ts";
@@ -29,15 +29,11 @@ import axios from "axios";
 import JSZip from "jszip";
 import PartialLoadingOverlay from "../components/PartialLoadingOverlay.tsx";
 import {useNavigate} from "react-router-dom";
-import {ApplicationContext} from "../configs/context/contexts.ts";
 
 function CVDetectionPage() {
 
     const {t} = useTranslation();
     const navigate = useNavigate();
-    const applicationContext = useContext(ApplicationContext);
-    if (!applicationContext) throw new Error("ApplicationContext not found");
-    const {UPLOADED_DATA, PROCESSED_DATA} = applicationContext.CV_DETECTION
     const screenWidth = useScreenWidth();
 
     /* getTruncateFileNameLengthsByWidth runs on every render/rerender (when screenWidth changes) */
@@ -51,11 +47,17 @@ function CVDetectionPage() {
     const [models, setModels] = useState<CVModelDescription[]>([]);
     const [selectedModel, setSelectedModel] = useState<CVModelDescription | null>();
 
+    const [uploadedImages, setUploadedImages] = useState<FileItem[]>([]);
+    const [uploadedArchives, setUploadedArchives] = useState<FileItem[]>([]);
+
+    const [processedImages, setProcessedImages] = useState<FileItem[]>([]);
+    const [processedArchives, setProcessedArchives] = useState<FileItem[]>([]);
+
     const outputSectionRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         /* Getting all models */
-        axiosWebClient.get<CVModelDescriptionResponse>(API_URLS.AI_CV_YOLO_MODELS_DETAILS_URL, {
+        axiosWebClient.get<CVModelDescriptionResponse>(API_URLS.AI_API_URLS.CV_YOLO_URLS.MODELS_DETAILS_URL, {
             params: {lang: i18n.language}
         }).then(response => {
             setModels(response.data.cv_models)
@@ -77,43 +79,42 @@ function CVDetectionPage() {
         if (outputSectionRef.current) {
             outputSectionRef.current.scrollIntoView({behavior: "smooth"});
         }
-    }, [PROCESSED_DATA.images, PROCESSED_DATA.archives]);
+    }, [processedImages, processedArchives]);
 
     const removeUploadedImage = (id: string) => {
-        UPLOADED_DATA.setImages(prev => prev.filter(image => image.id !== id));
+        setUploadedImages(prev => prev.filter(image => image.id !== id));
     };
 
     const removeUploadedArchive = (id: string) => {
-        UPLOADED_DATA.setArchives(prev => prev.filter(archive => archive.id !== id));
+        setUploadedArchives(prev => prev.filter(archive => archive.id !== id));
     };
 
     const clearUploadedFiles = () => {
-        UPLOADED_DATA.clear();
+        setUploadedImages([])
+        setUploadedArchives([])
     }
 
     const removeProcessedImage = (id: string) => {
-        PROCESSED_DATA.setImages(prev => prev.filter(image => image.id !== id));
+        setProcessedImages(prev => prev.filter(image => image.id !== id));
     };
 
     const removeProcessedArchive = (id: string) => {
-        PROCESSED_DATA.setArchives(prev => prev.filter(archive => archive.id !== id));
+        setProcessedArchives(prev => prev.filter(archive => archive.id !== id));
     };
 
 
     const clearProcessedFiles = () => {
-        PROCESSED_DATA.clear();
+        setProcessedImages([])
+        setProcessedArchives([])
     }
 
     async function sendArchives(modelId: string, archives: File[]) {
         const formData = new FormData();
-
-        const randomUserId = crypto.randomUUID()
-        console.log("random user id: " + randomUserId);
-        formData.append("user_id", randomUserId);
+        formData.append("user_id", "my-random-user-id");
         formData.append("model_id", modelId);
         archives.forEach(archive => formData.append("archives", archive));
         return await axios.post(
-            API_URLS.AI_CV_YOLO_DETECTIONS_URL,
+            API_URLS.AI_API_URLS.CV_YOLO_URLS.DETECTIONS_URL,
             formData,
             {
                 headers: {"Content-Type": "multipart/form-data"}
@@ -122,7 +123,7 @@ function CVDetectionPage() {
     }
 
     async function getProcessedArchive(userId: string, jobId: string) {
-        return await axios.get(`${API_URLS.AI_CV_YOLO_DETECTIONS_RESULTS_URL}/${userId}/processed`, {
+        return await axios.get(`${API_URLS.AI_API_URLS.CV_YOLO_URLS.DETECTIONS_RESULTS_URL}/${userId}/processed`, {
             params: {cv_processing_job_timestamp: jobId},
             responseType: "blob",
         });
@@ -160,8 +161,14 @@ function CVDetectionPage() {
                 }
             }
         }
-        PROCESSED_DATA.setArchives(prev => [...prev, ...extractedArchives]);
-        PROCESSED_DATA.setImages(prev => [...prev, ...extractedImages]);
+        setProcessedArchives(prev => [...prev, ...extractedArchives]);
+        setProcessedImages(prev => [...prev, ...extractedImages]);
+        toast.success(
+            <PopUp
+                title={t("landmine-detection-page.pop-ups.data-successfully-processed-popup.title")}
+                description={t("landmine-detection-page.pop-ups.data-successfully-processed-popup.description")}
+            />
+        );
     }
 
     async function sendArchivesAndProcessResult(modelId: string, archives: File[], imagesArchiveName: string | undefined) {
@@ -170,14 +177,24 @@ function CVDetectionPage() {
             const userId = response?.data?.user_id;
             const jobTimestamp = response?.data?.cv_processing_job_timestamp;
             if (!userId || !jobTimestamp) {
-                console.error("Missing user_id or cv_processing_job_timestamp in response");
+                toast.error(
+                    <PopUp
+                        title={t("landmine-detection-page.pop-ups.data-processing-failed-popup.title")}
+                        description={t("landmine-detection-page.pop-ups.data-processing-failed-popup.description")}
+                    />
+                );
                 return;
             }
 
             const processedArchiveResponse = await getProcessedArchive(userId, jobTimestamp);
             const blob: Blob = processedArchiveResponse?.data;
             if (!blob) {
-                console.error("No data in processed archive response");
+                toast.error(
+                    <PopUp
+                        title={t("landmine-detection-page.pop-ups.processed-data-loading-failed-popup.title")}
+                        description={t("landmine-detection-page.pop-ups.processed-data-loading-failed-popup.description")}
+                    />
+                );
                 return;
             }
 
@@ -193,8 +210,8 @@ function CVDetectionPage() {
         "imagesArchive": FileItem | null
     }> {
         let imagesArchive: FileItem | null = null;
-        if (UPLOADED_DATA.images.length > 0) {
-            const zipBlob: Blob = await createArchiveFromFileItems(UPLOADED_DATA.images);
+        if (uploadedImages.length > 0) {
+            const zipBlob: Blob = await createArchiveFromFileItems(uploadedImages);
             const zipArchiveName = `images-${Date.now()}-${crypto.randomUUID().toString()}-.zip`;
             const zipArchive: File = blobToZip(zipBlob, zipArchiveName);
             imagesArchive = {
@@ -205,7 +222,7 @@ function CVDetectionPage() {
 
         return {
             "allArchives": [
-                ...UPLOADED_DATA.archives,
+                ...uploadedArchives,
                 ...(imagesArchive ? [imagesArchive] : [])]
                 .map(archive => archive.file),
             "imagesArchive": imagesArchive
@@ -254,9 +271,9 @@ function CVDetectionPage() {
             }
         })
 
-        UPLOADED_DATA.setImages(prev => [...prev, ...imageFiles])
-        UPLOADED_DATA.setArchives(prev => [...prev, ...archiveFiles])
-    }, [UPLOADED_DATA])
+        setUploadedImages(prev => [...prev, ...imageFiles])
+        setUploadedArchives(prev => [...prev, ...archiveFiles])
+    }, [])
 
     const onFileDropRejected = useCallback((fileRejections: FileRejection[]) => {
         fileRejections.forEach((fileRejection) => {
@@ -330,7 +347,7 @@ function CVDetectionPage() {
                     </div>
 
                     <section className="images-section">
-                        {UPLOADED_DATA.images.map(image => {
+                        {uploadedImages.map(image => {
                             const imagePreview = URL.createObjectURL(image.file);
                             return (
                                 <div
@@ -350,7 +367,7 @@ function CVDetectionPage() {
                     </section>
 
                     <section className="archives-section">
-                        {UPLOADED_DATA.archives.map(archive => {
+                        {uploadedArchives.map(archive => {
                             return (
                                 <div
                                     key={archive.id}
@@ -366,8 +383,8 @@ function CVDetectionPage() {
                     </section>
 
                     {
-                        UPLOADED_DATA.images.length > 0 ||
-                        UPLOADED_DATA.archives.length > 0
+                        uploadedImages.length > 0 ||
+                        uploadedArchives.length > 0
                             ? (
                                 <div className="controls-wrapper">
                                     <div
@@ -402,7 +419,7 @@ function CVDetectionPage() {
 
                 </section>
                 {
-                    PROCESSED_DATA.images.length > 0 || PROCESSED_DATA.archives.length > 0
+                    processedImages.length > 0 || processedArchives.length > 0
                         ? (
                             <section
                                 ref={outputSectionRef}
@@ -410,7 +427,7 @@ function CVDetectionPage() {
                             >
                                 <h1>{t("landmine-detection-page.processed-files-section.title")}</h1>
                                 <section className="images-section">
-                                    {PROCESSED_DATA.images.map(image => {
+                                    {processedImages.map(image => {
                                         const imagePreview = URL.createObjectURL(image.file);
                                         return (
                                             <div
@@ -437,7 +454,7 @@ function CVDetectionPage() {
                                 </section>
 
                                 <section className="archives-section">
-                                    {PROCESSED_DATA.archives.map(archive => {
+                                    {processedArchives.map(archive => {
                                         const archiveUrl = URL.createObjectURL(archive.file);
                                         return (
                                             <div
@@ -459,8 +476,8 @@ function CVDetectionPage() {
                                 </section>
 
                                 {
-                                    PROCESSED_DATA.images.length > 0 ||
-                                    PROCESSED_DATA.archives.length > 0
+                                    processedImages.length > 0 ||
+                                    processedArchives.length > 0
                                         ? (
                                             <div className="controls-wrapper">
                                                 <div
@@ -469,15 +486,12 @@ function CVDetectionPage() {
                                                 >
                                                     {t("landmine-detection-page.clear-all-images-btn-text")}
                                                 </div>
-                                                {PROCESSED_DATA.stats
-                                                    ? <div
-                                                        id="view-stats-btn"
-                                                        onClick={() => navigate(ROUTES.COMPUTER_VISION_DETECTION_ROUTES.STATS_ROUTE.ROOT)}
-                                                    >
-                                                        {t("landmine-detection-page.view-stats-btn-text")}
-                                                    </div>
-                                                    : null
-                                                }
+                                                <div
+                                                    id="view-stats-btn"
+                                                    onClick={() => navigate("/hello-world")}
+                                                >
+                                                    {t("landmine-detection-page.view-stats-btn-text")}
+                                                </div>
                                             </div>
                                         )
                                         : null

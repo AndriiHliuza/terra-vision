@@ -10,8 +10,6 @@ import MapEditor from "../pages/MapEditor.tsx";
 import Localization from "./Localization.tsx";
 import i18n from "./i18n.ts";
 import {SimpleChartPage} from "../components/SimpleChartPage.tsx";
-import CVDetectionStatsPage from "../pages/CVDetectionStatsPage.tsx";
-import CVDetectionRawJsonStatsPage from "../pages/CVDetectionRawJsonStatsPage.tsx";
 
 function Routing() {
     return (
@@ -23,10 +21,6 @@ function Routing() {
                 <Route index element={<Home/>}/>
                 <Route path={ROUTES.COMPUTER_VISION_DETECTION_ROUTES.ROOT}>
                     <Route index element={<CVDetectionPage/>}/>
-                    <Route path={ROUTES.COMPUTER_VISION_DETECTION_ROUTES.STATS_ROUTE.ROOT}>
-                        <Route index element={<CVDetectionStatsPage />}/>
-                        <Route path={ROUTES.COMPUTER_VISION_DETECTION_ROUTES.STATS_ROUTE.RAW_JSON} element={<CVDetectionRawJsonStatsPage />} />
-                    </Route>
                 </Route>
                 <Route path={ROUTES.MAP_ROUTES.ROOT}>
                     <Route index element={<Map/>}/>

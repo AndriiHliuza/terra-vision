@@ -61,29 +61,30 @@ class CVService:
             overall_stats, per_archive_stats = _update_overall_and__per_archive_stats_after_inner_archive_processing(
                 archive, per_archive_stats, batch_stats, overall_stats)
 
-            # ── Save original images to MinIO ────────────────────────────────
-            for filename, image_bytes in image_data_list:
-                path = self.__cv_data_storage_service.save_file(
-                    user_id=user_id,
-                    cv_processing_job_timestamp=cv_processing_job_timestamp,
-                    cv_data_type="original",
-                    archive_name_no_ext=archive_name_no_ext,
-                    filename=filename,
-                    image_bytes=image_bytes,
-                )
-                self.__logger.info(f"Saved original image: {path} to MinIO")
+            if user_id:
+                # ── Save original images to MinIO ────────────────────────────────
+                for filename, image_bytes in image_data_list:
+                    path = self.__cv_data_storage_service.save_file(
+                        user_id=user_id,
+                        cv_processing_job_timestamp=cv_processing_job_timestamp,
+                        cv_data_type="original",
+                        archive_name_no_ext=archive_name_no_ext,
+                        filename=filename,
+                        image_bytes=image_bytes,
+                    )
+                    self.__logger.info(f"Saved original image: {path} to MinIO")
 
-            # ── Save processed images to MinIO ────────────────────────────────
-            for filename, image_bytes in processed_images.items():
-                path = self.__cv_data_storage_service.save_file(
-                    user_id=user_id,
-                    cv_processing_job_timestamp=cv_processing_job_timestamp,
-                    cv_data_type="processed",
-                    archive_name_no_ext=archive_name_no_ext,
-                    filename=filename,
-                    image_bytes=image_bytes,
-                )
-                self.__logger.info(f"Saved processed image: {path} to MinIO")
+                # ── Save processed images to MinIO ────────────────────────────────
+                for filename, image_bytes in processed_images.items():
+                    path = self.__cv_data_storage_service.save_file(
+                        user_id=user_id,
+                        cv_processing_job_timestamp=cv_processing_job_timestamp,
+                        cv_data_type="processed",
+                        archive_name_no_ext=archive_name_no_ext,
+                        filename=filename,
+                        image_bytes=image_bytes,
+                    )
+                    self.__logger.info(f"Saved processed image: {path} to MinIO")
 
         # Calculate overall average confidence from per_image_stats
         all_image_confidences = [
