@@ -15,7 +15,7 @@ class CVModelService:
     async def check_cv_model_exists_by_id(self, model_id: str) -> Optional[dict]:
         return await self.__cv_model_repository.check_cv_model_exists_by_id(model_id)
 
-    async def get_cv_model_details_in_specified_language(
+    async def get_cv_all_models_details_in_specified_language(
             self,
             lang: str = DEFAULT_LANGUAGE) -> CVModelDescriptionResponse:
         localized_cv_models: List[CVModelDescription] = []

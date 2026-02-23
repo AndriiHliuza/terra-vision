@@ -61,10 +61,6 @@
       "model-not-selected-pop-up": {
         "title": "Select model",
         "description": "To process data, please choose a model"
-      },
-      "cv-processing-successfully-completed-pop-up": {
-        "title": "Processing Complete",
-        "description": "Processed {{successfully_processed_images}}/{{total_images}} images with {{total_detections}} detections in {{processing_time_seconds}}s."
       }
     },
     "processed-files-section": {

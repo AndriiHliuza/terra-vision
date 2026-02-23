@@ -61,10 +61,6 @@
       "model-not-selected-pop-up": {
         "title": "Оберіть модель",
         "description": "Для обробки даних потрібно обрати модель"
-      },
-      "cv-processing-successfully-completed-pop-up": {
-        "title": "Обробка завершена",
-        "description": "Оброблено {{successfully_processed_images}}/{{total_images}} зображень з {{total_detections}} виявленими об'єктами за {{processing_time_seconds}}с."
       }
     },
     "processed-files-section": {

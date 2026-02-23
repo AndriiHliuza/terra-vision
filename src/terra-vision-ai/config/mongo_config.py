@@ -14,6 +14,6 @@ MOTOR_CLIENT = AsyncIOMotorClient(MONGO_URL)
 MONGO_CLIENT = MOTOR_CLIENT[MONGO_DB]
 
 MONGO_CV_MODELS_COLLECTION_NAME = "cv_models_collection"
-MONGO_CV_PROCESSING_SUMMARY_JOBS_COLLECTION_NAME = "cv_processing_jobs_collection"
+MONGO_CV_PROCESSING_JOBS_COLLECTION_NAME = "cv_processing_jobs_collection"
 
 

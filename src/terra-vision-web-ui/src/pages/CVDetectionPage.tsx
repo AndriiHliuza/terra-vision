@@ -9,8 +9,7 @@ import downloadIcon from "../assets/download-icon.png";
 import {
     type CVModelDescription,
     type CVModelDescriptionResponse,
-    type FileItem,
-    type CVDataProcessingSummaryStats
+    type FileItem
 } from "../commons/models.ts";
 import {
     blobToFile,
@@ -38,7 +37,7 @@ function CVDetectionPage() {
     const navigate = useNavigate();
     const applicationContext = useContext(ApplicationContext);
     if (!applicationContext) throw new Error("ApplicationContext not found");
-    const { UPLOADED_DATA, PROCESSED_DATA } = applicationContext.CV_DETECTION
+    const {UPLOADED_DATA, PROCESSED_DATA} = applicationContext.CV_DETECTION
     const screenWidth = useScreenWidth();
 
     /* getTruncateFileNameLengthsByWidth runs on every render/rerender (when screenWidth changes) */
@@ -51,12 +50,12 @@ function CVDetectionPage() {
 
     const [models, setModels] = useState<CVModelDescription[]>([]);
     const [selectedModel, setSelectedModel] = useState<CVModelDescription | null>();
-    
+
     const outputSectionRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         /* Getting all models */
-        axiosWebClient.get<CVModelDescriptionResponse>(API_URLS.AI_CV_MODELS_URL, {
+        axiosWebClient.get<CVModelDescriptionResponse>(API_URLS.AI_CV_YOLO_MODELS_DETAILS_URL, {
             params: {lang: i18n.language}
         }).then(response => {
             setModels(response.data.cv_models)
@@ -114,55 +113,27 @@ function CVDetectionPage() {
         formData.append("model_id", modelId);
         archives.forEach(archive => formData.append("archives", archive));
         return await axios.post(
-            API_URLS.AI_CV_PROCESSING_URL,
+            API_URLS.AI_CV_YOLO_DETECTIONS_URL,
             formData,
             {
-                responseType: "blob",
                 headers: {"Content-Type": "multipart/form-data"}
             }
         )
     }
 
-    async function extractProcessingStats(outerZip: JSZip): Promise<CVDataProcessingSummaryStats | null> {
-        try {
-            const statsFile = outerZip.file("processing_stats.json");
-
-            if (!statsFile) {
-                console.warn("processing_stats.json not found in archive");
-                return null;
-            }
-
-            const statsContent = await statsFile.async("string");
-            const stats: CVDataProcessingSummaryStats = JSON.parse(statsContent);
-
-            console.log("Processing Statistics:");
-            console.log(`Total Images: ${stats.overall_stats.total_images}`);
-            console.log(`Successfully Processed: ${stats.overall_stats.successfully_processed_images}`);
-            console.log(`Failed: ${stats.overall_stats.failed_images}`);
-            console.log(`Total Detections: ${stats.overall_stats.total_detections}`);
-            console.log(`Processing Time: ${stats.overall_stats.processing_time_seconds}s`);
-
-            // Log class breakdown
-            Object.values(stats.overall_stats.per_class_stats).forEach(classStat => {
-                console.log(`Class: '${classStat.class_name}': ${classStat.total_detections} detections in ${classStat.images_containing_class} images`);
-            });
-
-            return stats;
-        } catch (error) {
-            console.error("Error extracting processing stats:", error);
-            return null;
-        }
+    async function getProcessedArchive(userId: string, jobId: string) {
+        return await axios.get(`${API_URLS.AI_CV_YOLO_DETECTIONS_RESULTS_URL}/${userId}/processed`, {
+            params: {cv_processing_job_timestamp: jobId},
+            responseType: "blob",
+        });
     }
 
-    async function processResult(outerZip: JSZip, imagesArchiveName: string | undefined, stats: CVDataProcessingSummaryStats | null) {
+    async function processResult(outerZip: JSZip, imagesArchiveName: string | undefined) {
         const extractedArchives: FileItem[] = [];
         const extractedImages: FileItem[] = [];
 
         for (const [archiveName, zipEntry] of Object.entries(outerZip.files)) {
             if (zipEntry.dir) continue;
-
-            // Skip the stats file - we already extracted it
-            if (archiveName === "processing_stats.json") continue;
 
             const innerArchiveBlob = await zipEntry.async('blob');
             const innerArchiveFile: File = blobToFile(innerArchiveBlob, archiveName);
@@ -191,30 +162,30 @@ function CVDetectionPage() {
         }
         PROCESSED_DATA.setArchives(prev => [...prev, ...extractedArchives]);
         PROCESSED_DATA.setImages(prev => [...prev, ...extractedImages]);
-
-        if (stats) {
-            console.log(stats)
-            PROCESSED_DATA.setStats(stats);
-            toast.success(
-                <PopUp
-                    title={t("landmine-detection-page.pop-ups.cv-processing-successfully-completed-pop-up.title")}
-                    description={t("landmine-detection-page.pop-ups.cv-processing-successfully-completed-pop-up.description", {
-                        successfully_processed_images: stats.overall_stats.successfully_processed_images.toString(),
-                        total_images: stats.overall_stats.total_images.toString(),
-                        total_detections: stats.overall_stats.total_detections.toString(),
-                        processing_time_seconds: stats.overall_stats.processing_time_seconds.toFixed(2)
-                    })}
-                />
-            );
-        }
     }
 
     async function sendArchivesAndProcessResult(modelId: string, archives: File[], imagesArchiveName: string | undefined) {
-        const response = await sendArchives(modelId, archives);
-        const outerArchiveBlob: Blob = response.data;
-        const outerZip = await JSZip.loadAsync(outerArchiveBlob);
-        const stats = await extractProcessingStats(outerZip); // Extract stats first
-        await processResult(outerZip, imagesArchiveName, stats);
+        try {
+            const response = await sendArchives(modelId, archives);
+            const userId = response?.data?.user_id;
+            const jobTimestamp = response?.data?.cv_processing_job_timestamp;
+            if (!userId || !jobTimestamp) {
+                console.error("Missing user_id or cv_processing_job_timestamp in response");
+                return;
+            }
+
+            const processedArchiveResponse = await getProcessedArchive(userId, jobTimestamp);
+            const blob: Blob = processedArchiveResponse?.data;
+            if (!blob) {
+                console.error("No data in processed archive response");
+                return;
+            }
+
+            const outerZip = await JSZip.loadAsync(blob);
+            await processResult(outerZip, imagesArchiveName);
+        } catch (error) {
+            console.error("Error sending archives and processing result:", error);
+        }
     }
 
     async function getArchives(): Promise<{

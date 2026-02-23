@@ -2,20 +2,21 @@ import io
 import logging
 
 from minio import S3Error
+from config import MINIO_CLIENT, MINIO_BUCKET_NAME
 
-from config import MINIO_CLIENT
-from config.minio_config import MINIO_BUCKET_NAME
 
 LOGGER = logging.getLogger(__name__)
 
+
 def _build_path(
         user_id: str,
-        datetime: str,
-        stage: str,  # "original" | "processed"
+        cv_processing_job_timestamp: str,
+        cv_data_type: str,  # "original" | "processed"
         archive_name: str,
         filename: str,
 ) -> str:
-    return f"{user_id}/{datetime}/{stage}/{archive_name}/{filename}"
+    return f"{user_id}/{cv_processing_job_timestamp}/{cv_data_type}/{archive_name}/{filename}"
+
 
 class MinioService:
     def __init__(self, bucket_name: str) -> None:
@@ -23,6 +24,9 @@ class MinioService:
         self.__client = MINIO_CLIENT
         self.__ensure_bucket_exists(bucket_name)
         self.__bucket_name = bucket_name
+
+    def get_bucket_name(self) -> str:
+        return self.__bucket_name
 
     def __ensure_bucket_exists(self, bucket_name):
         if not self.__client.bucket_exists(bucket_name):
@@ -32,14 +36,14 @@ class MinioService:
     def save_file(
             self,
             user_id: str,
-            datetime: str,
-            stage: str,
+            cv_processing_job_timestamp: str,
+            cv_data_type: str,
             archive_name: str,
             filename: str,
             data: bytes,
             content_type: str = "application/octet-stream",
     ) -> str:
-        object_name = _build_path(user_id, datetime, stage, archive_name, filename)
+        object_name = _build_path(user_id, cv_processing_job_timestamp, cv_data_type, archive_name, filename)
         try:
             self.__client.put_object(
                 bucket_name=self.__bucket_name,
@@ -53,5 +57,6 @@ class MinioService:
             self.__logger.error(f"Failed to save {object_name} to MinIO: {e}")
             raise
         return object_name
+
 
 MINIO_SERVICE = MinioService(MINIO_BUCKET_NAME)

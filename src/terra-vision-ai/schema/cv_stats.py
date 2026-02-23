@@ -64,3 +64,22 @@ class CVDataProcessingSummaryStats(BaseModel):
     model_id: str
     confidence_threshold: float
     batch_size: int
+
+
+class CVDataProcessingStatsPreview(BaseModel):
+    total_images: int = 0
+    successfully_processed_images: int = 0
+    failed_images: int = 0
+    total_detections: int = 0
+    images_with_detections: int = 0
+    processing_time_seconds: float = 0.0
+    average_confidence: float = 0.0  # Average confidence across all detections
+    average_detections_per_image: float
+    percentage_of_images_with_detection: float
+
+
+class CVDataProcessingSummaryStatsPreview(BaseModel):
+    overall_stats: CVDataProcessingStatsPreview
+    model_id: str
+    confidence_threshold: float
+    batch_size: int

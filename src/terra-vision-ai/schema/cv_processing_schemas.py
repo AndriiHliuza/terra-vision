@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from bson import ObjectId
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from schema.cv_stats import CVDataProcessingSummaryStats
+from schema.cv_stats import CVDataProcessingSummaryStats, CVDataProcessingSummaryStatsPreview
 
 
 class CVDataProcessingJob(BaseModel):
@@ -28,4 +28,5 @@ class CVDataProcessingJobPreview(BaseModel):
 
     id: str = Field(alias="_id")
     user_id: str
+    summary: CVDataProcessingSummaryStatsPreview
     created_at: datetime
