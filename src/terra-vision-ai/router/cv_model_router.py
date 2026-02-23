@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Query
 from config import DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES
-from schemas.cv_models import CVModelDescriptionResponse
+from schema.cv_models import CVModelDescriptionResponse
 from service import CV_MODEL_SERVICE
 
 

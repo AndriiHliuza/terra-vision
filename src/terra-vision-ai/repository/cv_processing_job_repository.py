@@ -1,5 +1,5 @@
 from config import MONGO_CLIENT
-from schemas import CVDataProcessingJob
+from schema import CVDataProcessingJob
 
 
 class CVProcessingJobRepository:

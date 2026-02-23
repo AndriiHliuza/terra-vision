@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from bson import ObjectId
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from schemas.cv_stats import CVDataProcessingSummaryStats
+from schema.cv_stats import CVDataProcessingSummaryStats
 
 
 class CVDataProcessingJob(BaseModel):

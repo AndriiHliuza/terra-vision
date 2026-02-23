@@ -1,7 +1,7 @@
 import asyncio
 
 from config import MONGO_CLIENT, MONGO_CV_PROCESSING_SUMMARY_JOBS_COLLECTION_NAME
-from schemas import CVDataProcessingSummaryStats, CVDataProcessingJob, CVDataProcessingJobPreview
+from schema import CVDataProcessingSummaryStats, CVDataProcessingJob, CVDataProcessingJobPreview
 from repository import CV_PROCESSING_JOB_REPOSITORY
 
 

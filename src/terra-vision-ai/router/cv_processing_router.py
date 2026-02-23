@@ -2,7 +2,7 @@ import math
 
 from fastapi import APIRouter, Form, UploadFile, File, Query, HTTPException
 from config import MGT_MODELS_DIR, MONGO_CLIENT
-from schemas import CVDataProcessingJob, CVDataProcessingJobPreview, PaginatedResponse
+from schema import CVDataProcessingJob, CVDataProcessingJobPreview, PaginatedResponse
 from service import CV_SERVICE, YOLO_SERVICE, CV_PROCESSING_JOB_SERVICE
 
 

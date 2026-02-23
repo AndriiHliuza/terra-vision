@@ -1,7 +1,7 @@
 from typing import List, Optional
 from config import DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES
 from repository import CV_MODEL_REPOSITORY
-from schemas import CVModelDescription, CVModelDescriptionResponse
+from schema import CVModelDescription, CVModelDescriptionResponse
 from config import MONGO_CLIENT, MONGO_CV_MODELS_COLLECTION_NAME
 
 

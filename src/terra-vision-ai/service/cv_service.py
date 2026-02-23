@@ -5,7 +5,7 @@ import zipfile
 
 from fastapi import UploadFile, HTTPException
 from starlette.responses import StreamingResponse
-from schemas import CVDataProcessingStats, CVDataProcessingSummaryStats, CVClassStats
+from schema import CVDataProcessingStats, CVDataProcessingSummaryStats, CVClassStats
 
 from service.yolo_service import YOLO_SERVICE
 from service.cv_processing_job_service import CV_PROCESSING_JOB_SERVICE

@@ -11,7 +11,7 @@ from fastapi import HTTPException
 from ultralytics import YOLO
 from config import MGT_MODELS_DIR
 from repository import CV_MODEL_REPOSITORY
-from schemas import CVDataProcessingStats, CVClassStats, CVImageStats, CVDetectionBox
+from schema import CVDataProcessingStats, CVClassStats, CVImageStats, CVDetectionBox
 
 from service import image_processing_service as ips
 
