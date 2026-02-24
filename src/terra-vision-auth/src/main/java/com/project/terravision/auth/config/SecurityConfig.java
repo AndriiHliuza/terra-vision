@@ -37,7 +37,6 @@ public class SecurityConfig {
             "/api/auth/public"
     };
 
-
     @Bean
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http,

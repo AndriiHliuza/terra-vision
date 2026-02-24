@@ -2,18 +2,21 @@ package com.project.terravision.auth.controller;
 
 import com.project.terravision.auth.dto.UserCreationRequest;
 import com.project.terravision.auth.dto.UserCreationResponse;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.project.terravision.auth.service.UserService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
+@RequiredArgsConstructor
 public class UserController {
 
+    private final UserService userService;
+
     @PostMapping("/sign-up")
-    public UserCreationResponse register(UserCreationRequest userCreationRequest) {
-        return null; //todo Registration logic should be here
+    public UserCreationResponse createUser(@Valid @RequestBody UserCreationRequest userCreationRequest) {
+        return userService.createUser(userCreationRequest);
     }
 
     @GetMapping("/protected")
@@ -25,6 +28,4 @@ public class UserController {
     public String publicMethod() {
         return "Public: success";
     }
-
-
 }

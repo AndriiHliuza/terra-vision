@@ -41,13 +41,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         );
         SecurityContextHolder.getContext().setAuthentication(authentication); // Putting User in Security Context
 
+        String username = securityContextProviderService.getUsername();
+
+        // Get user from database and take its userId
         UUID userId = UUID.randomUUID(); // Get user id from database
         Map<String, Object> accessTokenClaims = getClaimsForAccessTokenUponAuthentication(userId);
-        Map<String, Object> refreshTokenClaims = new HashMap<>();
-        refreshTokenClaims.put("userId", userId);
+        Map<String, Object> refreshTokenClaims = getClaimsForRefreshTokenUponAuthentication(userId);
 
         String jti = UUID.randomUUID().toString();
-        String username = securityContextProviderService.getUsername();
         String accessToken = jwtService.generateToken(jti, username, accessTokenClaims, TokenType.ACCESS);
         String refreshToken = jwtService.generateToken(jti, username, refreshTokenClaims, TokenType.REFRESH);
 
@@ -105,6 +106,21 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
+    public Map<String, Object> me(Jwt jwt) {
+        String userId = jwt.getClaim("userId").toString();
+        String username = jwt.getSubject();
+        String email = "email";
+        List<String> roles = jwt.getClaimAsStringList("roles");
+
+        return Map.of(
+                "userId", userId,
+                "username", username,
+                "email", email,
+                "roles", roles
+        );
+    }
+
+    @Override
     public void logout(String accessToken) {
         Jwt jwt = jwtDecoder.decode(accessToken);
         String userId = jwt.getClaims().get("userId").toString();
@@ -123,6 +139,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         accessTokenClaims.put("roles",  roles);
         accessTokenClaims.put("permissions",  permissions);
         return accessTokenClaims;
+    }
+
+    private Map<String, Object> getClaimsForRefreshTokenUponAuthentication(UUID userId) {
+        Map<String, Object> refreshTokenClaims = new HashMap<>();
+        refreshTokenClaims.put("userId", userId);
+        return refreshTokenClaims;
     }
 
     private Map<String, Object> getClaimsForNewAccessTokenWhileRefreshing(UUID userId) {

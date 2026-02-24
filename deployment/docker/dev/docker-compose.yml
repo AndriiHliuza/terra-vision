@@ -14,12 +14,6 @@ services:
             - ./mongo/initdb:/docker-entrypoint-initdb.d:ro
         networks:
             - terra-vision-network
-        healthcheck:
-            test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
-            interval: 10s
-            timeout: 5s
-            retries: 5
-            start_period: 10s
 
     terra-vision__redis:
         image: redis:8.2.4
@@ -33,7 +27,7 @@ services:
             - terra-vision-network
     
     terra-vision__postgres:
-        image: postgres:14.2
+        image: postgres:18.2
         container_name: terra-vision__postgres
         restart: always
         environment:
@@ -43,7 +37,7 @@ services:
         ports:
             - '5432:5432'
         volumes:
-            - terra-vision__postgres__data-volume:/var/lib/postgresql/data
+            - terra-vision__postgres__volume:/var/lib/postgresql
             - ./postgresql/initdb:/docker-entrypoint-initdb.d:ro
         networks:
             - terra-vision-network
@@ -79,8 +73,8 @@ volumes:
     terra-vision__redis__data-volume:
         name: terra-vision__redis__data-volume
     
-    terra-vision__postgres__data-volume:
-        name: terra-vision__postgres__data-volume
+    terra-vision__postgres__volume:
+        name: terra-vision__postgres__volume
     
     terra-vision__minio__data-volume:
         name: terra-vision__minio__data-volume

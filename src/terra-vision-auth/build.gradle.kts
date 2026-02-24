@@ -8,6 +8,10 @@ group = "com.project.terra-vision"
 version = "0.0.1-SNAPSHOT"
 description = "Authentication microservice for Terra Vision"
 
+val postgresVersion: String by project
+val flywayVersion: String by project
+val springBootAopVersion: String by project
+
 java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(25)
@@ -25,23 +29,40 @@ repositories {
 }
 
 dependencies {
+	// --- Web ---
 	implementation("org.springframework.boot:spring-boot-starter-webmvc")
 
+	// -- Security ---
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.security:spring-security-oauth2-jose")
 	implementation("org.springframework.boot:spring-boot-starter-security-oauth2-resource-server")
 
+	// --- Spring Data ---
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-data-redis")
-	implementation("org.postgresql:postgresql:42.7.10")
 
+	// --- Database ---
+	implementation("org.postgresql:postgresql:$postgresVersion")
+
+	// --- Flyway ---
+	implementation("org.springframework.boot:spring-boot-starter-flyway")
+	implementation("org.flywaydb:flyway-core:$flywayVersion")
+	runtimeOnly("org.flywaydb:flyway-database-postgresql:$flywayVersion")
+
+	// --- Validation ---
+	implementation("org.springframework.boot:spring-boot-starter-validation")
+
+	// --- AOP
+	implementation("org.springframework.boot:spring-boot-starter-aop:$springBootAopVersion")
+
+	// --- Lombok ---
 	compileOnly("org.projectlombok:lombok")
 	annotationProcessor("org.projectlombok:lombok")
 
+	// --- Tests ---
 	testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
 	testImplementation("org.springframework.boot:spring-boot-starter-security-test")
 	testImplementation("org.springframework.boot:spring-boot-starter-security-oauth2-resource-server-test")
-
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 

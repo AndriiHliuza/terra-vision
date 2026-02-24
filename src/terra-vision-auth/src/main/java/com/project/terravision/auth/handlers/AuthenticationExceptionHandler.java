@@ -18,30 +18,30 @@ import java.net.URI;
 public class AuthenticationExceptionHandler {
 
     @ExceptionHandler(BadJOSEException.class)
-    public ProblemDetail handleBadJOSEException(BadJOSEException e, HttpServletRequest request) {
-        log.error(e.getMessage(), e);
+    public ProblemDetail handleBadJOSEException(BadJOSEException ex, HttpServletRequest request) {
+        log.error(ex.getMessage());
         return getProblemDetailForTokenExceptions(
                 request,
                 "Invalid jwt",
-                e.getMessage());
+                ex.getMessage());
     }
 
     @ExceptionHandler(JwtException.class)
-    public ProblemDetail handleJwtException(JwtException e, HttpServletRequest request) {
-        log.error(e.getMessage(), e);
+    public ProblemDetail handleJwtException(JwtException ex, HttpServletRequest request) {
+        log.error(ex.getMessage());
         return getProblemDetailForTokenExceptions(
                 request,
                 "Invalid jwt",
-                e.getMessage());
+                ex.getMessage());
     }
 
     @ExceptionHandler(JwtValidationException.class)
-    public ProblemDetail handleJwtValidation(JwtValidationException e, HttpServletRequest request) {
-        log.error(e.getMessage(), e);
+    public ProblemDetail handleJwtValidation(JwtValidationException ex, HttpServletRequest request) {
+        log.error(ex.getMessage());
         return getProblemDetailForTokenExceptions(
                 request,
                 "JWT validation failed",
-                e.getMessage());
+                ex.getMessage());
     }
 
     @ExceptionHandler(InvalidSessionException.class)

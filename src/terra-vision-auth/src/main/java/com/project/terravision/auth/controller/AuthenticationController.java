@@ -1,13 +1,15 @@
 package com.project.terravision.auth.controller;
 
-import com.project.terravision.auth.config.SecurityConfig;
 import com.project.terravision.auth.dto.AuthenticationRequest;
 import com.project.terravision.auth.dto.AuthenticationResponse;
 import com.project.terravision.auth.service.AuthenticationService;
+import com.project.terravision.auth.service.HttpHeaderUtils;
 import com.project.terravision.auth.service.RSAKeyService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.NoSuchAlgorithmException;
@@ -32,6 +34,16 @@ public class AuthenticationController {
         return authenticationService.refreshToken(refreshToken);
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<?> me(@AuthenticationPrincipal Jwt jwt) {
+        return ResponseEntity.ok(Map.of(
+                "userId", "ShouldTakeUserIdFromDB",
+                "username", jwt.getSubject(),
+                "email", "ShouldTakeEmailFromDB",
+                "roles", jwt.getClaimAsStringList("roles")
+        ));
+    }
+
     @GetMapping("/.well-known/jwks.json") // JSON Web Key Set
     public Map<String, Object> getJwks() {
         return authenticationService.getJwks();
@@ -44,15 +56,8 @@ public class AuthenticationController {
 
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(@RequestHeader("Authorization") String authorizationHeader) {
-        String accessToken = extractToken(authorizationHeader);
+        String accessToken = HttpHeaderUtils.extractToken(authorizationHeader);
         authenticationService.logout(accessToken);
         return ResponseEntity.noContent().build();
-    }
-
-    private String extractToken(String authHeader) {
-        if (authHeader == null || !authHeader.startsWith(SecurityConfig.BEARER_PREFIX)) {
-            throw new IllegalArgumentException("Invalid Authorization header");
-        }
-        return authHeader.substring(SecurityConfig.BEARER_PREFIX.length());
     }
 }
