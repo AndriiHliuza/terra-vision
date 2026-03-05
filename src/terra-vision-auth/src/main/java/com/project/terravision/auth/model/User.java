@@ -1,11 +1,14 @@
 package com.project.terravision.auth.model;
 
+import com.project.terravision.auth.model.enums.AccountState;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -36,23 +39,37 @@ public class User {
 
     private String firstname;
     private String lastname;
+
+    @Column(length = 512)
     private String imageId;
 
-    @Builder.Default
-    @Column(nullable = false)
-    private boolean enabled = true;
+    // --- Account state
 
     @Builder.Default
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(nullable = false)
-    private boolean confirmed = false;
+    private AccountState accountState = AccountState.PENDING_VERIFICATION;
+
+    // --- Audit & Metadata Information ---
+
+    private Instant verifiedAt;
+    private Instant blockedAt;
+
+    @ManyToOne
+    @JoinColumn(name = "blocked_by")
+    private User blockedBy;
+
+    private String blockReason;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
 
     @UpdateTimestamp
+    @Column(nullable = false)
     private Instant updatedAt;
 
+    // --- User's role
     @ManyToOne
     private Role role;
 
@@ -62,7 +79,7 @@ public class User {
         this.password = password;
         this.firstname = firstname;
         this.lastname = lastname;
+        this.accountState = AccountState.PENDING_VERIFICATION;
         this.role = role;
-        this.enabled = true; // Without this Lombok's @Builder overrides the value that was set in the field: 'private boolean enabled = true;'
     }
 }

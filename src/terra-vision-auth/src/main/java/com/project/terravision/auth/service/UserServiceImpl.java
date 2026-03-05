@@ -5,7 +5,7 @@ import com.project.terravision.auth.dto.UserCreationResponse;
 import com.project.terravision.auth.exceptions.UserAlreadyExists;
 import com.project.terravision.auth.model.Role;
 import com.project.terravision.auth.model.User;
-import com.project.terravision.auth.model.enums.DefaultUserRoles;
+import com.project.terravision.auth.model.enums.DefaultRoles;
 import com.project.terravision.auth.repository.RoleRepository;
 import com.project.terravision.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ public class UserServiceImpl implements UserService {
             throw new UserAlreadyExists(userCreationRequest.getEmail());
         }
 
-        Role defaultRole = roleRepository.findByName(DefaultUserRoles.USER.name())
+        Role defaultRole = roleRepository.findByName(DefaultRoles.USER.name())
                 .orElseThrow(() -> new IllegalStateException("Default role not found in database"));
 
         String encodedPassword = passwordEncoder.encode(userCreationRequest.getPassword());

@@ -6,8 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.jwt.*;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Map;
 
 @Service
@@ -19,18 +19,26 @@ public class JwtServiceImpl implements JwtService {
 
     @Override
     public String generateToken(String jti, String subject, Map<String, Object> claims, TokenType tokenType) {
-        Instant now = Instant.now();
+        Instant issuedAt = Instant.now();
+
+        String issuer = securityProperties.getJwt().getIssuer();
+        Duration accessTokenExpiry = securityProperties.getJwt().getAccessToken().getExpiration();
+        Duration refreshTokenExpiry = securityProperties.getJwt().getRefreshToken().getExpiration();
+
         claims.put("type",  tokenType);
+
         JwtClaimsSet.Builder claimsSetBuilder = JwtClaimsSet.builder()
-                .issuer(securityProperties.getJwt().getIssuer())
-                .issuedAt(now)
+                .issuer(issuer)
+                .issuedAt(issuedAt)
                 .id(jti)
                 .subject(subject) // username
                 .claims(claimsMap -> claimsMap.putAll(claims));
+
         switch (tokenType) {
-            case ACCESS -> claimsSetBuilder.expiresAt(now.plus(15, ChronoUnit.MINUTES));
-            case REFRESH -> claimsSetBuilder.expiresAt(now.plus(7, ChronoUnit.DAYS));
+            case ACCESS -> claimsSetBuilder.expiresAt(issuedAt.plus(accessTokenExpiry));
+            case REFRESH -> claimsSetBuilder.expiresAt(issuedAt.plus(refreshTokenExpiry));
         };
+
         JwtClaimsSet claimsSet = claimsSetBuilder.build();
         return jwtEncoder.encode(JwtEncoderParameters.from(claimsSet)).getTokenValue();
     }

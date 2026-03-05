@@ -1,0 +1,59 @@
+package com.project.terravision.auth.service;
+
+import com.project.terravision.auth.model.Permission;
+import com.project.terravision.auth.model.Role;
+import com.project.terravision.auth.model.RolePermission;
+import com.project.terravision.auth.model.User;
+import com.project.terravision.auth.model.enums.AccountState;
+import com.project.terravision.auth.repository.RolePermissionRepository;
+import com.project.terravision.auth.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Component;
+
+import java.util.Collection;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+@Component
+@RequiredArgsConstructor
+public class UserDetailsServiceImpl implements UserDetailsService {
+
+    private final UserRepository userRepository;
+    private final RolePermissionRepository rolePermissionRepository;
+
+    @Override
+    public @NonNull UserDetails loadUserByUsername(@NonNull String username) throws UsernameNotFoundException {
+        User user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException(username));
+
+        boolean isDeactivated = user.getAccountState() == AccountState.DEACTIVATED;
+        boolean isBlocked = user.getAccountState() == AccountState.BLOCKED;
+        Collection<? extends GrantedAuthority> authorities = getAuthorities(user);
+        return org.springframework.security.core.userdetails.User.builder()
+                .username(user.getUsername())
+                .password(user.getPassword())
+                .disabled(isDeactivated)
+                .accountLocked(isBlocked)
+                .authorities(authorities)
+                .build();
+    }
+
+    private Collection<? extends GrantedAuthority> getAuthorities(User user) {
+        Role role = user.getRole();
+        Set<SimpleGrantedAuthority> authorities = rolePermissionRepository.findAllByRoleId(role.getId())
+                .stream()
+                .map(RolePermission::getPermission)
+                .map(Permission::getName)
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toSet());
+        authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getName()));
+        return authorities;
+    }
+
+}

@@ -16,10 +16,7 @@ public class UserLoggingAspect {
             returning = "result"
     )
     public void logAfterUserCreation(UserCreationResponse result) {
-        log.info("User created successfully. Username: {}, Email: {}",
-                result.getUsername(),
-                result.getEmail()
-        );
+        log.info("User created successfully. Username: {}", result.getUsername());
     }
 
 }

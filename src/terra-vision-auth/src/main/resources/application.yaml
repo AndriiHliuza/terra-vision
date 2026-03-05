@@ -19,6 +19,9 @@ spring:
     user: ${TERRA_VISION__POSTGRES__USER:postgres}
     password: ${TERRA_VISION__POSTGRES__PASSWORD:postgres}
 
+logging:
+  level:
+    com.project.terravision.auth: debug
 
 server:
   port: 8082
@@ -28,6 +31,11 @@ application:
     allowed-origins:
       - http://localhost:5173
     jwt:
-      issuer: http://localhost:8080
+      issuer: http://localhost:8082
+      access-token:
+        expiration: 15m
+      refresh-token:
+        expiration: 7d
     key-pair:
-      size: 2048
+      size: standard
+      key-expiration: 10d

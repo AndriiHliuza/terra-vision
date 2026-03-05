@@ -1,22 +1,35 @@
 package com.project.terravision.gateway.config;
 
+import com.project.terravision.gateway.config.properties.SecurityProperties;
+import com.project.terravision.gateway.utils.SecurityUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverter;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.security.web.server.csrf.CookieServerCsrfTokenRepository;
+import org.springframework.security.web.server.csrf.CsrfToken;
+import org.springframework.security.web.server.csrf.ServerCsrfTokenRequestAttributeHandler;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.reactive.CorsConfigurationSource;
+import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
+import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.WebFilter;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Configuration
 public class SecurityConfig {
-
-    public static final String BEARER_PREFIX = "Bearer ";
 
     public static final String[] PERMIT_ALL_PATHS = {
             "/api/auth/login",
@@ -32,10 +45,12 @@ public class SecurityConfig {
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
         return http
                 .cors(Customizer.withDefaults())
-                .csrf(ServerHttpSecurity.CsrfSpec::disable)
-                .headers(headerSpec -> headerSpec
-                        .contentSecurityPolicy(contentSecurityPolicySpec -> contentSecurityPolicySpec
-                                .policyDirectives(policyDirectives)))
+                .csrf(csrfSpec -> csrfSpec
+                        .csrfTokenRepository(CookieServerCsrfTokenRepository.withHttpOnlyFalse())
+                        .csrfTokenRequestHandler(new ServerCsrfTokenRequestAttributeHandler())
+                        .requireCsrfProtectionMatcher(this::requireCsrfProtection)
+                )
+                .addFilterAfter(csrfTokenCookieFilter(), SecurityWebFiltersOrder.REACTOR_CONTEXT)
                 .authorizeExchange(exchange -> exchange
                         .pathMatchers(PERMIT_ALL_PATHS).permitAll()
                         .anyExchange().authenticated()
@@ -48,62 +63,79 @@ public class SecurityConfig {
                 .build();
     }
 
+    // ------ CORS ------
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource(SecurityProperties securityProperties) {
+        CorsConfiguration config = new CorsConfiguration();
+
+        config.setAllowedOrigins(securityProperties.getAllowedOrigins());
+        config.setAllowedMethods(List.of("*"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
+    }
+
+    // ------ JWT related configurations ------
+
     @Bean
     public ReactiveJwtAuthenticationConverter jwtAuthenticationConverter() {
         ReactiveJwtAuthenticationConverter converter = new ReactiveJwtAuthenticationConverter();
         converter.setJwtGrantedAuthoritiesConverter(jwt -> {
             List<GrantedAuthority> authorities = new ArrayList<>();
 
-            // ----- Roles -----
+            // Extract roles - add ROLE_ prefix
             List<String> roles = jwt.getClaimAsStringList("roles");
-            List<String> permissions = jwt.getClaimAsStringList("permissions");
-            if (roles != null) roles.stream()
-                    .filter(this::isRole)
-                    .map(SimpleGrantedAuthority::new)
-                    .forEach(authorities::add);
+            if (roles != null) {
+                roles.stream()
+                        .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+                        .forEach(authorities::add);
+            }
 
-            if (permissions != null) permissions.stream()
-                    .filter(this::isPermission)
-                    .map(SimpleGrantedAuthority::new)
-                    .forEach(authorities::add);
+            // Extract permissions - no prefix needed
+            List<String> permissions = jwt.getClaim("permissions");
+            if (permissions != null) {
+                permissions.stream()
+                        .map(SimpleGrantedAuthority::new)
+                        .forEach(authorities::add);
+            }
             return Flux.fromIterable(authorities);
         });
         return converter;
     }
 
-    private boolean isRole(String role) {
-        return role.startsWith("ROLE_");
+    public WebFilter csrfTokenCookieFilter() {
+        return (exchange, chain) -> {
+            // Spring Security stores the CSRF token as a lazy Mono<CsrfToken> in the exchange attributes.
+            // It is lazy — nothing happens until someone subscribes to it.
+            Mono<CsrfToken> csrfTokenMono = exchange.getAttribute(CsrfToken.class.getName());
+            log.debug("CsrfTokenCookieFilter — path: {}, csrfTokenMono is null: {}", exchange.getRequest().getPath().value(), csrfTokenMono == null);
+            // If the token is present, subscribe to it by calling flatMap.
+            // Subscription triggers CookieServerCsrfTokenRepository to write
+            // the XSRF-TOKEN cookie to the response as a side effect.
+            // Then continue with the rest of the filter chain.
+            if (csrfTokenMono != null) {
+                return csrfTokenMono.flatMap(token -> {
+                    log.debug("CsrfToken value: {}", token.getToken());
+                    return chain.filter(exchange);
+                });
+            }
+
+            // No CSRF token in the exchange — just continue with the filter chain.
+            log.debug("CsrfTokenMono is null — skipping cookie writing");
+            return chain.filter(exchange);
+        };
     }
 
-    private boolean isPermission(String permission) {
-        return permission.startsWith("READ_") || permission.startsWith("WRITE_");
-    }
 
-    /*
-     * default-src 'self'
-     * Fallback rule for any resource type not explicitly defined.
-     * If browser needs to load something and there is no specific rule for it, it falls back to this.
-     *
-     * script-src 'self'
-     * Only execute JavaScript files from own domain.
-     *
-     * connect-src 'self' http://localhost:8080
-     * Only allow network requests (fetch, axios) to own domain AND gateway.
-     *
-     * style-src 'self'
-     * Only load CSS stylesheets from own domain.
-     *
-     * font-src 'self'
-     * Only load fonts from your own domain.
-     *
-     * frame-ancestors 'none'
-     * Your app cannot be embedded inside an iframe on any website including your own.
-     * */
-    private final String policyDirectives = "default-src 'self'; " +
-            "script-src 'self'; " +
-            "connect-src 'self' http://localhost:8080; " +
-            "style-src 'self'; 'unsafe-inline'; " +
-            "img-src 'self'" +
-            "font-src 'self'; " +
-            "frame-ancestors 'none'";
+    private Mono<ServerWebExchangeMatcher.MatchResult> requireCsrfProtection(ServerWebExchange  exchange) {
+        String path = exchange.getRequest().getPath().value();
+        boolean isPublic = SecurityUtils.isPathPublic(path);
+        return isPublic
+                ? ServerWebExchangeMatcher.MatchResult.notMatch() // skip CSRF token check
+                : ServerWebExchangeMatcher.MatchResult.match(); // apply CSRF token check
+    }
 }

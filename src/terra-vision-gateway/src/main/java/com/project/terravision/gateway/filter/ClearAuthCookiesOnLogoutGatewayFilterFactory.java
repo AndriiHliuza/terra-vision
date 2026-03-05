@@ -1,5 +1,6 @@
 package com.project.terravision.gateway.filter;
 
+import com.project.terravision.gateway.config.WebAttributes;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
@@ -14,9 +15,9 @@ import java.time.Duration;
 
 @Slf4j
 @Component
-public class ClearAuthCookiesGatewayFilterFactory extends AbstractGatewayFilterFactory<ClearAuthCookiesGatewayFilterFactory.Config> {
+public class ClearAuthCookiesOnLogoutGatewayFilterFactory extends AbstractGatewayFilterFactory<ClearAuthCookiesOnLogoutGatewayFilterFactory.Config> {
 
-    public ClearAuthCookiesGatewayFilterFactory() {
+    public ClearAuthCookiesOnLogoutGatewayFilterFactory() {
         super(Config.class);
     }
 
@@ -27,21 +28,23 @@ public class ClearAuthCookiesGatewayFilterFactory extends AbstractGatewayFilterF
                 .filter(exchange)
                 .then(Mono.fromRunnable(() -> {
                     HttpStatus status = (HttpStatus) exchange.getResponse().getStatusCode();
+
                     // Only clear cookies if logout was successful
                     if (status != null && status.is2xxSuccessful()) {
+                        boolean isSecure = config.isSecure() || exchange.getRequest().getURI().getScheme().equalsIgnoreCase("https");
                         ResponseCookie clearAccess = ResponseCookie
-                                .from(config.getAccessTokenCookieName(), "")
+                                .from(WebAttributes.ACCESS_TOKEN_COOKIE, "")
                                 .httpOnly(true)
-                                .secure(config.isSecure())
+                                .secure(isSecure)
                                 .sameSite(config.getSameSite())
-                                .path("/")
+                                .path(config.getAccessPath())
                                 .maxAge(Duration.ZERO)  // expire immediately
                                 .build();
 
                         ResponseCookie clearRefresh = ResponseCookie
-                                .from(config.getRefreshTokenCookieName(), "")
+                                .from(WebAttributes.REFRESH_TOKEN_COOKIE, "")
                                 .httpOnly(true)
-                                .secure(config.isSecure())
+                                .secure(isSecure)
                                 .sameSite(config.getSameSite())
                                 .path(config.getRefreshPath())
                                 .maxAge(Duration.ZERO)  // expire immediately
@@ -50,17 +53,17 @@ public class ClearAuthCookiesGatewayFilterFactory extends AbstractGatewayFilterF
                         exchange.getResponse().addCookie(clearAccess);
                         exchange.getResponse().addCookie(clearRefresh);
 
-                        log.info("Cleared auth cookies on logout");
+                        log.info("Cleared access and refresh cookies on logout");
                     }
                 }));
     }
 
     @Data
     public static class Config {
-        private String accessTokenCookieName = "accessToken";
-        private String refreshTokenCookieName = "refreshToken";
+        private String domain = "localhost";
+        private String accessPath = "/";
         private String refreshPath = "/api/auth/refresh";
-        private String sameSite = "Strict";
+        private String sameSite = "Lax";
         private boolean secure = false;
     }
 

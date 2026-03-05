@@ -6,6 +6,7 @@ import com.project.terravision.auth.dto.AuthenticationResponse;
 import com.project.terravision.auth.dto.SessionDetails;
 import com.project.terravision.auth.exceptions.InvalidSessionException;
 import com.project.terravision.auth.model.enums.TokenType;
+import com.project.terravision.auth.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -31,6 +32,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final JwtDecoder jwtDecoder;
     private final SecurityContextProviderService securityContextProviderService;
     private final SessionService sessionService;
+    private final UserRepository userRepository;
 
     public AuthenticationResponse authenticate(AuthenticationRequest request, HttpServletRequest httpServletRequest) {
         Authentication authentication = authenticationManager.authenticate(
@@ -41,7 +43,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         );
         SecurityContextHolder.getContext().setAuthentication(authentication); // Putting User in Security Context
 
-        String username = securityContextProviderService.getUsername();
+        String username = securityContextProviderService.getAuthentication().getName();
 
         // Get user from database and take its userId
         UUID userId = UUID.randomUUID(); // Get user id from database
@@ -95,14 +97,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return AuthenticationResponse.builder()
                 .username(username)
                 .userId(userId)
-                .refreshToken(newAccessToken)
-                .accessToken(refreshToken)
+                .refreshToken(refreshToken)
+                .accessToken(newAccessToken)
                 .build();
     }
 
     @Override
     public Map<String, Object> getJwks() {
-        return new JWKSet(rsaKeyService.getActiveKey().toPublicJWK()).toJSONObject();
+        return new JWKSet(rsaKeyService.getAllKeys()).toJSONObject();
     }
 
     @Override

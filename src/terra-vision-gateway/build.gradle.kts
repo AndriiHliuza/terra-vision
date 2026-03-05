@@ -8,6 +8,8 @@ group = "com.project"
 version = "0.0.1-SNAPSHOT"
 description = "Gateway project for Spring WebFlux"
 
+val commonsLang3Version: String by project
+
 java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(25)
@@ -33,6 +35,9 @@ dependencies {
 	// --- Lombok ---
 	compileOnly("org.projectlombok:lombok")
 	annotationProcessor("org.projectlombok:lombok")
+
+	// --- Commons Lang 3 (String Utils) ---
+	implementation("org.apache.commons:commons-lang3:$commonsLang3Version")
 
 	// --- Tests ---
 	testImplementation("org.springframework.boot:spring-boot-starter-security-oauth2-resource-server-test")

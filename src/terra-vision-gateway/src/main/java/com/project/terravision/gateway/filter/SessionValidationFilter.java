@@ -1,15 +1,15 @@
 package com.project.terravision.gateway.filter;
 
 import com.project.terravision.gateway.config.SecurityConfig;
-import com.project.terravision.gateway.service.SecurityUtils;
+import com.project.terravision.gateway.config.WebAttributes;
+import com.project.terravision.gateway.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.core.Ordered;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.stereotype.Component;
@@ -32,13 +32,14 @@ public class SessionValidationFilter implements WebFilter, Ordered {
         String path = exchange.getRequest().getPath().toString();
 
         if (SecurityUtils.isPathPublic(path)) return chain.filter(exchange);
-        String authorizationHeader = exchange.getRequest().getHeaders().getFirst("Authorization");
-        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+
+        String authorizationHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+        if (authorizationHeader == null || !authorizationHeader.startsWith(WebAttributes.BEARER_PREFIX)) {
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();
         }
 
-        String token = authorizationHeader.substring(SecurityConfig.BEARER_PREFIX.length());
+        String token = authorizationHeader.substring(WebAttributes.BEARER_PREFIX.length());
 
         return jwtDecoder.decode(token)  // returns Mono<Jwt>
                 .flatMap(jwt -> {
@@ -52,6 +53,7 @@ public class SessionValidationFilter implements WebFilter, Ordered {
                         return exchange.getResponse().setComplete();
                     }
 
+                    log.info("Session validated for userId: {}", userId);
                     return chain.filter(exchange);
                 })
                 .onErrorResume(JwtException.class, e -> {

@@ -9,16 +9,37 @@ import org.springframework.core.Ordered;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.WebFilter;
+import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
+/*
+* WebFilter always runs before GlobalFilter
+* */
 @Component
-public class GlobalRequestLoggingFilter implements GlobalFilter, Ordered {
+public class GlobalRequestLoggingFilter implements WebFilter, Ordered {
 
     private static final Logger logger = LoggerFactory.getLogger(GlobalRequestLoggingFilter.class);
 
+//    @Override
+//    @NullMarked
+//    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+//        String method = exchange.getRequest().getMethod().toString();
+//        String path = exchange.getRequest().getURI().getPath();
+//
+//        String query = exchange.getRequest().getURI().getQuery();
+//
+//        logger.info(">>> (Incoming Request) [{}] Path: {}", method, path + (query != null ? "?" + query : ""));
+//
+//        return chain.filter(exchange).then(Mono.fromRunnable(() -> {
+//            HttpStatusCode statusCode = exchange.getResponse().getStatusCode();
+//            if (statusCode != null) logger.info("<<< (Outgoing Response) [{}] Path: {} | Status: {}", method, path, statusCode.value());
+//        }));
+//    }
+
     @Override
     @NullMarked
-    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+    public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         String method = exchange.getRequest().getMethod().toString();
         String path = exchange.getRequest().getURI().getPath();
 
@@ -36,4 +57,5 @@ public class GlobalRequestLoggingFilter implements GlobalFilter, Ordered {
     public int getOrder() {
         return Ordered.HIGHEST_PRECEDENCE;
     }
+
 }

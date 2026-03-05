@@ -6,12 +6,15 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.JwtValidationException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.net.URI;
+import java.util.Map;
 
 @Slf4j
 @RestControllerAdvice
@@ -42,6 +45,15 @@ public class AuthenticationExceptionHandler {
                 request,
                 "JWT validation failed",
                 ex.getMessage());
+    }
+
+    @ExceptionHandler(DisabledException.class)
+    public ResponseEntity<Map<String, String>> handleDisabledException(DisabledException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of(
+                "status", "ACCOUNT_DISABLED",
+                "message", "Your account is currently deactivated.",
+                "action", "To re-enable your account, please click on the 'Restore Account' link sent to your email or contact support."
+        ));
     }
 
     @ExceptionHandler(InvalidSessionException.class)

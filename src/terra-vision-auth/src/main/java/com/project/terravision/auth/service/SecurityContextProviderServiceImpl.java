@@ -5,6 +5,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,12 +27,12 @@ public class SecurityContextProviderServiceImpl implements SecurityContextProvid
         return (User) getAuthentication().getPrincipal();
     }
 
-    public String getUsername() {
-        return getUserDetails().getUsername();
+    public Jwt getJwt() {
+        return (Jwt) getAuthentication().getPrincipal();
     }
 
     public List<String> getAuthorities() {
-        return getUser().getAuthorities().stream()
+        return getAuthentication().getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .toList();
     }

@@ -12,47 +12,47 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import java.util.ArrayList;
 import java.util.List;
 
-@Configuration
+//@Configuration
 public class JwtConfig {
 
-    @Bean
-    public JwtEncoder jwtEncoder(JWKSource<SecurityContext> jwkSource) {
-        return new NimbusJwtEncoder(jwkSource);
-    }
-
-    /*
-     * Decodes jwt from String to Jwt and checks signature and verifies expiration
-     * */
-    @Bean
-    public JwtDecoder jwtDecoder(JWKSource<SecurityContext> jwkSource) {
-        return NimbusJwtDecoder.withJwkSource(jwkSource).build();
-    }
-
-    @Bean
-    public JwtAuthenticationConverter jwtAuthenticationConverter() {
-        JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
-        converter.setJwtGrantedAuthoritiesConverter(jwt -> {
-            List<GrantedAuthority> authorities = new ArrayList<>();
-
-            // Extract roles - add ROLE_ prefix
-            List<String> roles = jwt.getClaim("roles");
-            if (roles != null) {
-                roles.stream()
-                        .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
-                        .forEach(authorities::add);
-            }
-
-            // Extract permissions - no prefix needed
-            List<String> permissions = jwt.getClaim("permissions");
-            if (permissions != null) {
-                permissions.stream()
-                        .map(SimpleGrantedAuthority::new)
-                        .forEach(authorities::add);
-            }
-
-            return authorities;
-        });
-
-        return converter;
-    }
+//    @Bean
+//    public JwtEncoder jwtEncoder(JWKSource<SecurityContext> jwkSource) {
+//        return new NimbusJwtEncoder(jwkSource);
+//    }
+//
+//    /*
+//     * Decodes jwt from String to Jwt and checks signature and verifies expiration
+//     * */
+//    @Bean
+//    public JwtDecoder jwtDecoder(JWKSource<SecurityContext> jwkSource) {
+//        return NimbusJwtDecoder.withJwkSource(jwkSource).build();
+//    }
+//
+//    @Bean
+//    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+//        JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
+//        converter.setJwtGrantedAuthoritiesConverter(jwt -> {
+//            List<GrantedAuthority> authorities = new ArrayList<>();
+//
+//            // Extract roles - add ROLE_ prefix
+//            List<String> roles = jwt.getClaim("roles");
+//            if (roles != null) {
+//                roles.stream()
+//                        .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+//                        .forEach(authorities::add);
+//            }
+//
+//            // Extract permissions - no prefix needed
+//            List<String> permissions = jwt.getClaim("permissions");
+//            if (permissions != null) {
+//                permissions.stream()
+//                        .map(SimpleGrantedAuthority::new)
+//                        .forEach(authorities::add);
+//            }
+//
+//            return authorities;
+//        });
+//
+//        return converter;
+//    }
 }

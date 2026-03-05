@@ -1,3 +1,14 @@
+# YAML anchor — not a Spring Boot property, used for reuse only
+anchors:
+  gateway-filters:
+    common-cookie-config: &commonCookieConfig
+      domain: localhost
+      accessPath: /
+      refreshPath: /api/auth/refresh
+      sameSite: Lax
+      secure: false
+
+
 spring:
   application:
     name: terra-vision-gateway
@@ -13,76 +24,62 @@ spring:
       server:
         webflux:
           routes:
+
+            # ------ Auth microservice: Login ------
             - id: auth-service-login
               uri: http://localhost:8082
               predicates:
                 - Path=/api/auth/login
               filters:
-                - name: AuthResponseToCookie
+                - name: AuthenticationResponseToTokenCookies
                   args:
-                    accessTokenCookieName: accessToken
-                    refreshTokenCookieName: refreshToken
-                    refreshPath: /api/auth/refresh
-                    sameSite: Strict
-                    secure: false
-                    accessTokenMaxAgeMinutes: 15
-                    refreshTokenMaxAgeDays: 7
+                    <<: *commonCookieConfig # Injects the common config here
+
+              # ------ Auth microservice: Refresh ------
             - id: auth-service-refresh
               uri: http://localhost:8082
               predicates:
                 - Path=/api/auth/refresh
               filters:
-                - name: RefreshTokenCookieToRequestBodyConversion
+                - name: RefreshTokenCookieToRequestBodyTransformation
+                - name: AuthenticationResponseToTokenCookies
                   args:
-                    refreshTokenCookieName: refreshToken
-                - name: AuthResponseToCookie
-                  args:
-                    accessTokenCookieName: accessToken
-                    refreshTokenCookieName: refreshToken
-                    refreshPath: /api/auth/refresh
-                    sameSite: Strict
-                    secure: false
-                    accessTokenMaxAgeMinutes: 15
-                    refreshTokenMaxAgeDays: 7
+                    <<: *commonCookieConfig # Injects the common config here
+
+            # ------ Auth microservice: Logout ------
             - id: auth-service-logout
               uri: http://localhost:8082
               predicates:
                 - Path=/api/auth/logout
               filters:
-                - name: ClearAuthCookies
+                - name: ClearAuthCookiesOnLogout
                   args:
-                    accessTokenCookieName: accessToken
-                    refreshTokenCookieName: refreshToken
-                    refreshPath: /api/auth/refresh
-                    sameSite: Strict
-                    secure: false
+                    <<: *commonCookieConfig # Injects the common config here
+
+            # ------ Auth microservice routes ------
             - id: auth-service
               uri: http://localhost:8082
               predicates:
                 - Path=/api/auth/**
 
+            # ------ AI microservice routes ------
             - id: ai-service
               uri: http://localhost:8000
               predicates:
                 - Path=/api/ai/**
-          globalcors:
-            add-to-simple-url-handler-mapping: true
-            cors-configurations:
-              '[/**]':
-                allowed-origins:
-                  - "http://localhost:5173"
-                allowed-methods: "*"
-                allowed-headers: "*"
-                allow-credentials: true
 
   security:
     oauth2:
       resourceserver:
         jwt:
           jwk-set-uri: http://localhost:8082/api/auth/.well-known/jwks.json
+          issuer-uri: http://localhost:8082 # must match what auth service puts in token as 'issuer' claim
+
+logging:
+  level:
+    com.project.terravision.gateway: debug
 
 application:
-  gateway:
-    filters:
-      access-token-to-authorization-header-filter:
-        accessTokenCookieName: accessToken
+  security:
+    allowed-origins:
+      - http://localhost:5173

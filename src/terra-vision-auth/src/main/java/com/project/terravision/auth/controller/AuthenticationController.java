@@ -3,8 +3,8 @@ package com.project.terravision.auth.controller;
 import com.project.terravision.auth.dto.AuthenticationRequest;
 import com.project.terravision.auth.dto.AuthenticationResponse;
 import com.project.terravision.auth.service.AuthenticationService;
-import com.project.terravision.auth.service.HttpHeaderUtils;
 import com.project.terravision.auth.service.RSAKeyService;
+import com.project.terravision.auth.utils.WebUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -36,12 +36,7 @@ public class AuthenticationController {
 
     @GetMapping("/me")
     public ResponseEntity<?> me(@AuthenticationPrincipal Jwt jwt) {
-        return ResponseEntity.ok(Map.of(
-                "userId", "ShouldTakeUserIdFromDB",
-                "username", jwt.getSubject(),
-                "email", "ShouldTakeEmailFromDB",
-                "roles", jwt.getClaimAsStringList("roles")
-        ));
+        return ResponseEntity.ok(authenticationService.me(jwt));
     }
 
     @GetMapping("/.well-known/jwks.json") // JSON Web Key Set
@@ -56,7 +51,7 @@ public class AuthenticationController {
 
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(@RequestHeader("Authorization") String authorizationHeader) {
-        String accessToken = HttpHeaderUtils.extractToken(authorizationHeader);
+        String accessToken = WebUtils.extractBearerTokenFromAuthorizationHeader(authorizationHeader);
         authenticationService.logout(accessToken);
         return ResponseEntity.noContent().build();
     }

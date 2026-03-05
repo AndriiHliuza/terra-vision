@@ -1,7 +1,7 @@
 package com.project.terravision.gateway.filter;
 
-import com.project.terravision.gateway.service.CookieService;
-import lombok.Data;
+import com.project.terravision.gateway.config.WebAttributes;
+import com.project.terravision.gateway.utils.WebUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
@@ -16,26 +16,25 @@ import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpRequestDecorator;
 import org.springframework.stereotype.Component;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 @Slf4j
 @Component
-public class RefreshTokenCookieToRequestBodyConversionGatewayFilterFactory extends AbstractGatewayFilterFactory<RefreshTokenCookieToRequestBodyConversionGatewayFilterFactory.Config> {
+public class RefreshTokenCookieToRequestBodyTransformationGatewayFilterFactory extends AbstractGatewayFilterFactory<Object> {
 
-    private final CookieService cookieService;
-
-    public RefreshTokenCookieToRequestBodyConversionGatewayFilterFactory(CookieService cookieService) {
-        super(Config.class); // must match the generic type
-        this.cookieService = cookieService;
+    public RefreshTokenCookieToRequestBodyTransformationGatewayFilterFactory() {
+        super(Object.class); // must match the generic type
     }
 
     @NullMarked
     @Override
-    public GatewayFilter apply(RefreshTokenCookieToRequestBodyConversionGatewayFilterFactory.Config config) {
+    public GatewayFilter apply(Object config) {
         return (exchange, chain) -> {
             ServerHttpRequest request = exchange.getRequest();
             long contentLength = request.getHeaders().getContentLength();
@@ -65,23 +64,23 @@ public class RefreshTokenCookieToRequestBodyConversionGatewayFilterFactory exten
                                     .build();
 
                             if (bodyString.contains("\"refreshToken\"")) {
-                                log.info("Refresh token already in body, skipping cookie to body conversion");
+                                log.debug("Refresh token already in body, skipping cookie to body conversion");
                                 return chain.filter(rewrappedExchange);
                             }
 
                             // Body exists but no refreshToken — check if cookie has refreshToken
-                            return extractFromCookieAndMutate(exchange, chain, config);
+                            return extractRefreshTokenFromCookieAndMutate(exchange, chain);
                         });
             }
 
-            // No body — check if cookie has refreshToken
-            return extractFromCookieAndMutate(exchange, chain, config);
+            // Request does not have body — check if cookie has refreshToken
+            return extractRefreshTokenFromCookieAndMutate(exchange, chain);
         };
     }
 
-    private Mono<Void> extractFromCookieAndMutate(ServerWebExchange exchange, GatewayFilterChain chain, Config config) {
+    private Mono<Void> extractRefreshTokenFromCookieAndMutate(ServerWebExchange exchange, GatewayFilterChain chain) {
         HttpCookie refreshTokenCookie = exchange.getRequest().getCookies()
-                .getFirst(config.getRefreshTokenCookieName());
+                .getFirst(WebAttributes.REFRESH_TOKEN_COOKIE);
 
         if (refreshTokenCookie == null) {
             log.warn("No refresh token in cookie");
@@ -90,7 +89,7 @@ public class RefreshTokenCookieToRequestBodyConversionGatewayFilterFactory exten
         }
 
         byte[] bodyBytes = convertCookieValueToBytes(refreshTokenCookie);
-        ServerHttpRequest mutatedRequest = buildMutatedRequest(exchange, bodyBytes, config);
+        ServerHttpRequest mutatedRequest = buildMutatedRequest(exchange, bodyBytes);
         ServerWebExchange mutatedExchange = buildMutatedExchange(exchange, mutatedRequest, bodyBytes);
 
         log.info("Refresh token was moved from cookie to request body");
@@ -108,21 +107,29 @@ public class RefreshTokenCookieToRequestBodyConversionGatewayFilterFactory exten
 
     private ServerHttpRequest buildMutatedRequest(
             ServerWebExchange exchange,
-            byte[] bodyBytes,
-            RefreshTokenCookieToRequestBodyConversionGatewayFilterFactory.Config config
+            byte[] bodyBytes
     ) {
+        MultiValueMap<String, HttpCookie> filteredCookies = WebUtils.filterCookies(
+                exchange.getRequest().getCookies(),
+                List.of(WebAttributes.ACCESS_TOKEN_COOKIE, WebAttributes.REFRESH_TOKEN_COOKIE)
+        );
+
         return exchange.getRequest().mutate()
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(bodyBytes.length))
-                .headers(header -> {
-                    String mutatedRequestCookies = cookieService.removeCookieWithNameAndGetMutatedCookieString(
-                            exchange,
-                            config.getRefreshTokenCookieName()
-                    );
-                    if (mutatedRequestCookies.isBlank()) header.remove(HttpHeaders.COOKIE);
-                    else header.set(HttpHeaders.COOKIE, mutatedRequestCookies);
-                })
+                .headers(headers -> mutateCookieHeader(headers, filteredCookies))
                 .build();
+    }
+
+    private void mutateCookieHeader(HttpHeaders headers, MultiValueMap<String, HttpCookie> cookies) {
+        String cookiesString = WebUtils.convertCookiesToString(cookies);
+        if (cookiesString.isBlank()) {
+            headers.remove(HttpHeaders.COOKIE);
+            log.debug("No cookies remained'. Removing 'Cookie' header from the mutated request");
+        } else {
+            headers.set(HttpHeaders.COOKIE, cookiesString);
+            log.debug("Setting remained cookies to 'Cookie' header of the mutated request");
+        }
     }
 
     private ServerWebExchange buildMutatedExchange(ServerWebExchange exchange, ServerHttpRequest mutatedRequest, byte[] bodyBytes) {
@@ -140,8 +147,4 @@ public class RefreshTokenCookieToRequestBodyConversionGatewayFilterFactory exten
                 .build();
     }
 
-    @Data
-    public static class Config {
-        private String refreshTokenCookieName = "refreshToken"; // default value
-    }
 }
