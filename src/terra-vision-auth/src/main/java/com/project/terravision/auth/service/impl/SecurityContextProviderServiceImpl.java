@@ -1,5 +1,6 @@
-package com.project.terravision.auth.service;
+package com.project.terravision.auth.service.impl;
 
+import com.project.terravision.auth.service.SecurityContextProviderService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -40,7 +41,7 @@ public class SecurityContextProviderServiceImpl implements SecurityContextProvid
     public List<String> getRoles() {
         return getAuthorities().stream()
                 .filter(Objects::nonNull)
-                .filter(role -> role.startsWith("ROLE_"))
+                .filter(this::isRole)
                 .toList();
     }
 
@@ -59,7 +60,11 @@ public class SecurityContextProviderServiceImpl implements SecurityContextProvid
                 .toList();
     }
 
-    private boolean isPermission(String permission) {
-        return permission.startsWith("READ_") || permission.startsWith("WRITE_");
+    private boolean isRole(String authority) {
+        return authority.startsWith("ROLE_");
+    }
+
+    private boolean isPermission(String authority) {
+        return authority.matches("\\w+:\\w+");
     }
 }

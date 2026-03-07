@@ -3,7 +3,7 @@ anchors:
   gateway-filters:
     common-cookie-config: &commonCookieConfig
       domain: localhost
-      accessPath: /
+      rootPath: /
       refreshPath: /api/auth/refresh
       sameSite: Lax
       secure: false
@@ -73,7 +73,7 @@ spring:
       resourceserver:
         jwt:
           jwk-set-uri: http://localhost:8082/api/auth/.well-known/jwks.json
-          issuer-uri: http://localhost:8082 # must match what auth service puts in token as 'issuer' claim
+          issuer-uri: terra-vision.com # must match what auth service puts in token as 'issuer' claim. For example http://localhost:8080 or http://localhost:8082 or terra-vision.com
 
 logging:
   level:

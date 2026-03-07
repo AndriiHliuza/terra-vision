@@ -57,7 +57,7 @@ public class SessionValidationFilter implements WebFilter, Ordered {
                     return chain.filter(exchange);
                 })
                 .onErrorResume(JwtException.class, e -> {
-                    log.warn("Invalid JWT: {}", e.getMessage());
+                    log.error("Invalid JWT: {}", e.getMessage());
                     exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
                     return exchange.getResponse().setComplete();
                 });

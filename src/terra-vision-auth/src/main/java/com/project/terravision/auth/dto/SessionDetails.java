@@ -13,8 +13,6 @@ public class SessionDetails {
     private String ip;
     private String browser;
     private String os;
-    private String device;
-    private String location;
     private long createdAt;
     private long lastUsedAt;
 }

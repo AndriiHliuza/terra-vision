@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 public class UserLoggingAspect {
 
     @AfterReturning(
-            pointcut = "execution(* com.project.terravision.auth.service.UserService.createUser(..))",
+            pointcut = "execution(* com.project.terravision.auth.service.RegistrationService.createUserAccount(..))",
             returning = "result"
     )
     public void logAfterUserCreation(UserCreationResponse result) {

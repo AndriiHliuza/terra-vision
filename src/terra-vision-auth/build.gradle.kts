@@ -11,6 +11,7 @@ description = "Authentication microservice for Terra Vision"
 val postgresVersion: String by project
 val flywayVersion: String by project
 val springBootAopVersion: String by project
+val mapstructVersion: String by project
 
 java {
 	toolchain {
@@ -55,14 +56,33 @@ dependencies {
 	// --- AOP
 	implementation("org.springframework.boot:spring-boot-starter-aop:$springBootAopVersion")
 
+	// --- Mail ---
+	implementation("org.springframework.boot:spring-boot-starter-mail")
+
+	// --- Thymeleaf ---
+	implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
+
+	// --- Mapstruct ---
+	implementation("org.mapstruct:mapstruct:$mapstructVersion")
+	annotationProcessor("org.mapstruct:mapstruct-processor:$mapstructVersion")
+
 	// --- Lombok ---
 	compileOnly("org.projectlombok:lombok")
 	annotationProcessor("org.projectlombok:lombok")
+	annotationProcessor("org.projectlombok:lombok-mapstruct-binding:0.2.0")
 
-	// --- Tests ---
+
+
+	/* <<<<<<<<< Tests >>>>>>>>> */
+
+	// --- Web ---
 	testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
+
+	// --- Security ---
 	testImplementation("org.springframework.boot:spring-boot-starter-security-test")
 	testImplementation("org.springframework.boot:spring-boot-starter-security-oauth2-resource-server-test")
+
+	// --- JUnit Launcher ---
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 

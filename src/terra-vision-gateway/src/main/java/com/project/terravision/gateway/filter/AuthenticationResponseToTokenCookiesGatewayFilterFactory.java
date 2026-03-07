@@ -81,6 +81,7 @@ public class AuthenticationResponseToTokenCookiesGatewayFilterFactory extends Ab
                             SanitizedAuthenticationResponse sanitized = SanitizedAuthenticationResponse.builder()
                                     .userId(authenticationResponse.getUserId())
                                     .username(authenticationResponse.getUsername())
+                                    .email(authenticationResponse.getEmail())
                                     .build();
 
                             log.info("Moved access and refresh tokens from authentication response body to cookies");
@@ -111,7 +112,7 @@ public class AuthenticationResponseToTokenCookiesGatewayFilterFactory extends Ab
                 .httpOnly(true)
                 .secure(isSecure)
                 .sameSite(config.getSameSite())
-                .path(config.getAccessPath())
+                .path(config.getRootPath())
                 .maxAge(accessDuration) // directly from JWT
                 .build());
 
@@ -149,7 +150,7 @@ public class AuthenticationResponseToTokenCookiesGatewayFilterFactory extends Ab
     @Data
     public static class Config {
         private String domain = "localhost";
-        private String accessPath = "/";
+        private String rootPath = "/";
         private String refreshPath = "/api/auth/refresh"; // default value
         private String sameSite = "Lax"; // default value
         private boolean secure = false; // default value

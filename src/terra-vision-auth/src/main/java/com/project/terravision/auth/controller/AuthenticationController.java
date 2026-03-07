@@ -2,6 +2,7 @@ package com.project.terravision.auth.controller;
 
 import com.project.terravision.auth.dto.AuthenticationRequest;
 import com.project.terravision.auth.dto.AuthenticationResponse;
+import com.project.terravision.auth.dto.UserDto;
 import com.project.terravision.auth.service.AuthenticationService;
 import com.project.terravision.auth.service.RSAKeyService;
 import com.project.terravision.auth.utils.WebUtils;
@@ -35,8 +36,8 @@ public class AuthenticationController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<?> me(@AuthenticationPrincipal Jwt jwt) {
-        return ResponseEntity.ok(authenticationService.me(jwt));
+    public UserDto me(@AuthenticationPrincipal Jwt jwt) {
+        return authenticationService.me(jwt);
     }
 
     @GetMapping("/.well-known/jwks.json") // JSON Web Key Set

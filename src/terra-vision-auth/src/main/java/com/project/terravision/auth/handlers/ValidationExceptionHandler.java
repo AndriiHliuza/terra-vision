@@ -14,6 +14,8 @@ import java.util.Map;
 @RestControllerAdvice
 public class ValidationExceptionHandler {
 
+    /* ------ Java (System) Exceptions Handling ------ */
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<?> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
@@ -22,7 +24,7 @@ public class ValidationExceptionHandler {
                         error.getField(),
                         error.getDefaultMessage()
                 ));
-        log.error(errors.toString());
+        log.error("Validation exceptions: {}", errors);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
 }

@@ -45,10 +45,9 @@ public class User {
 
     // --- Account state
 
-    @Builder.Default
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(nullable = false)
-    private AccountState accountState = AccountState.PENDING_VERIFICATION;
+    private AccountState accountState;
 
     // --- Audit & Metadata Information ---
 
@@ -73,13 +72,13 @@ public class User {
     @ManyToOne
     private Role role;
 
-    public User(String username, String email, String password, String firstname, String lastname, Role role) {
+    public User(String username, String email, String password, String firstname, String lastname, AccountState accountState, Role role) {
         this.username = username;
         this.email = email;
         this.password = password;
         this.firstname = firstname;
         this.lastname = lastname;
-        this.accountState = AccountState.PENDING_VERIFICATION;
+        this.accountState = accountState;
         this.role = role;
     }
 }

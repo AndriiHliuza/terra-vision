@@ -43,10 +43,13 @@ public class SecurityConfig {
     public static final String[] PERMIT_ALL_PATHS = {
             "/api/auth/login",
             "/api/auth/refresh",
+
             "/api/auth/.well-known/jwks.json", // JSON Web Key Set
             "/api/auth/rotate-key",
-            "/api/auth/sign-up",
-            "/api/auth/logout",
+
+            "/api/auth/registration",
+            "/api/auth/registration/confirmation/email/resend",
+            "/api/auth/registration/confirm",
 
             "/api/auth/public"
     };

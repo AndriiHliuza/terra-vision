@@ -3,6 +3,7 @@ package com.project.terravision.gateway.filter;
 import com.project.terravision.gateway.config.WebAttributes;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
@@ -32,17 +33,17 @@ public class ClearAuthCookiesOnLogoutGatewayFilterFactory extends AbstractGatewa
                     // Only clear cookies if logout was successful
                     if (status != null && status.is2xxSuccessful()) {
                         boolean isSecure = config.isSecure() || exchange.getRequest().getURI().getScheme().equalsIgnoreCase("https");
-                        ResponseCookie clearAccess = ResponseCookie
-                                .from(WebAttributes.ACCESS_TOKEN_COOKIE, "")
+                        ResponseCookie clearAccessCookie = ResponseCookie
+                                .from(WebAttributes.ACCESS_TOKEN_COOKIE, StringUtils.EMPTY)
                                 .httpOnly(true)
                                 .secure(isSecure)
                                 .sameSite(config.getSameSite())
-                                .path(config.getAccessPath())
+                                .path(config.getRootPath())
                                 .maxAge(Duration.ZERO)  // expire immediately
                                 .build();
 
-                        ResponseCookie clearRefresh = ResponseCookie
-                                .from(WebAttributes.REFRESH_TOKEN_COOKIE, "")
+                        ResponseCookie clearRefreshCookie = ResponseCookie
+                                .from(WebAttributes.REFRESH_TOKEN_COOKIE, StringUtils.EMPTY)
                                 .httpOnly(true)
                                 .secure(isSecure)
                                 .sameSite(config.getSameSite())
@@ -50,8 +51,18 @@ public class ClearAuthCookiesOnLogoutGatewayFilterFactory extends AbstractGatewa
                                 .maxAge(Duration.ZERO)  // expire immediately
                                 .build();
 
-                        exchange.getResponse().addCookie(clearAccess);
-                        exchange.getResponse().addCookie(clearRefresh);
+                        ResponseCookie clearCsrfCookie = ResponseCookie
+                                .from(WebAttributes.XSRF_TOKEN_COOKIE, StringUtils.EMPTY)
+                                .httpOnly(false)
+                                .secure(isSecure)
+                                .sameSite(config.getSameSite())
+                                .path(config.getRootPath())
+                                .maxAge(Duration.ZERO) // expire immediately
+                                .build();
+
+                        exchange.getResponse().addCookie(clearAccessCookie);
+                        exchange.getResponse().addCookie(clearRefreshCookie);
+                        exchange.getResponse().addCookie(clearCsrfCookie);
 
                         log.info("Cleared access and refresh cookies on logout");
                     }
@@ -61,7 +72,7 @@ public class ClearAuthCookiesOnLogoutGatewayFilterFactory extends AbstractGatewa
     @Data
     public static class Config {
         private String domain = "localhost";
-        private String accessPath = "/";
+        private String rootPath = "/";
         private String refreshPath = "/api/auth/refresh";
         private String sameSite = "Lax";
         private boolean secure = false;

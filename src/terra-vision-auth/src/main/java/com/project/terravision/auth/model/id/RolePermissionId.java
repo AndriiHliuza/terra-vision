@@ -1,6 +1,5 @@
 package com.project.terravision.auth.model.id;
 
-
 import jakarta.persistence.Embeddable;
 
 import java.io.Serializable;

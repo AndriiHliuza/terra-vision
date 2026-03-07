@@ -32,13 +32,13 @@ CREATE TABLE users (
             account_state = 'BLOCKED'
                 AND blocked_at IS NOT NULL
                 AND blocked_by IS NOT NULL
-            )
+        )
             OR
         (
             account_state <> 'BLOCKED'
                 AND blocked_at IS NULL
                 AND blocked_by IS NULL
                 AND block_reason IS NULL
-            )
         )
+    )
 );

@@ -1,7 +1,8 @@
-package com.project.terravision.auth.service;
+package com.project.terravision.auth.service.impl;
 
 import com.project.terravision.auth.model.enums.TokenType;
 import com.project.terravision.auth.config.properties.SecurityProperties;
+import com.project.terravision.auth.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.jwt.*;
 import org.springframework.stereotype.Service;
