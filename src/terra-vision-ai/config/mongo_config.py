@@ -1,10 +1,9 @@
-import os
-
 from motor.motor_asyncio import AsyncIOMotorClient
+from config.vault_config import VAULT_SECRETS
 
 
-MONGO_USER = os.getenv("TERRA_VISION__MONGO__ROOT_USERNAME")
-MONGO_PASSWORD= os.getenv("TERRA_VISION__MONGO__ROOT_PASSWORD")
+MONGO_USER = VAULT_SECRETS.get("TERRA_VISION__MONGO__ROOT_USERNAME")
+MONGO_PASSWORD= VAULT_SECRETS.get("TERRA_VISION__MONGO__ROOT_PASSWORD")
 MONGO_HOST = "localhost"
 MONGO_PORT="27017"
 MONGO_DB="terra-vision-ai-db"

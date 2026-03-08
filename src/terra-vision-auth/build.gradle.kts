@@ -13,6 +13,8 @@ val flywayVersion: String by project
 val springBootAopVersion: String by project
 val mapstructVersion: String by project
 
+val springCloudVersion: String by project
+
 java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(25)
@@ -66,12 +68,16 @@ dependencies {
 	implementation("org.mapstruct:mapstruct:$mapstructVersion")
 	annotationProcessor("org.mapstruct:mapstruct-processor:$mapstructVersion")
 
+	// --- HashiCorp Vault ---
+	implementation("org.springframework.cloud:spring-cloud-starter-vault-config")
+
 	// --- Lombok ---
 	compileOnly("org.projectlombok:lombok")
 	annotationProcessor("org.projectlombok:lombok")
 	annotationProcessor("org.projectlombok:lombok-mapstruct-binding:0.2.0")
 
-
+	// To have spring.cloud properties in application.yaml
+	implementation(platform("org.springframework.cloud:spring-cloud-dependencies:$springCloudVersion"))
 
 	/* <<<<<<<<< Tests >>>>>>>>> */
 

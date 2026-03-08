@@ -9,7 +9,7 @@ TERRA_VISION_DEPLOYMENT_DIR = TERRA_VISION_GLOBAL_ROOT_DIR / "deployment"
 MGT_MODELS_DIR = TERRA_VISION_DEPLOYMENT_DIR / "yolo-models" / "mgt-yolo-11-models"
 
 # Environment variables settings
-DEPLOYMENT_ENV_FILE = TERRA_VISION_DEPLOYMENT_DIR / "docker" / "dev" / ".env"
+DEPLOYMENT_ENV_FILE = TERRA_VISION_DEPLOYMENT_DIR / "docker" / "local" / ".env"
 load_dotenv(dotenv_path=DEPLOYMENT_ENV_FILE)
 
 # Languages settings

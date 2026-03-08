@@ -32,6 +32,9 @@ dependencies {
 	// -- Spring Data ---
 	implementation("org.springframework.boot:spring-boot-starter-data-redis")
 
+	// --- HashiCorp Vault ---
+	implementation("org.springframework.cloud:spring-cloud-starter-vault-config")
+
 	// --- Lombok ---
 	compileOnly("org.projectlombok:lombok")
 	annotationProcessor("org.projectlombok:lombok")
