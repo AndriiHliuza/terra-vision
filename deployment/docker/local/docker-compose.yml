@@ -120,6 +120,21 @@ services:
 
     # <<<<<<<<<<<< DEV TOOLS services >>>>>>>>>>>>
 
+    terra-vision__dev-tools__pgadmin:
+        image: dpage/pgadmin4:9.13.0
+        container_name: terra-vision__dev-tools__pgadmin
+        restart: unless-stopped
+        environment:
+            PGADMIN_DEFAULT_EMAIL: ${TERRA_VISION__PGADMIN__DEFAULT_EMAIL}
+            PGADMIN_DEFAULT_PASSWORD: ${TERRA_VISION__PGADMIN__DEFAULT_PASSWORD}
+        ports:
+            - "5050:80"
+        volumes:
+            - terra-vision__dev-tools__pgadmin__pgadmin-volume:/var/lib/pgadmin
+        networks:
+            - terra-vision-network
+
+
     # ------------ Mongo Express ------------
     terra-vision__dev-tools__mongo-express:
         image: mongo-express:1.0.2
@@ -216,6 +231,10 @@ volumes:
 
 
     # <<<<<<<<<<<< DEV TOOLS volumes >>>>>>>>>>>>
+
+    # ------------ Redis Insight ------------
+    terra-vision__dev-tools__pgadmin__pgadmin-volume:
+        name: terra-vision__dev-tools__pgadmin__pgadmin-volume
 
     # ------------ Redis Insight ------------
     terra-vision__dev-tools__redis-insight__data-volume:

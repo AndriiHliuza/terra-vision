@@ -1,6 +1,7 @@
 package com.project.terravision.gateway.config;
 
 import com.project.terravision.gateway.config.properties.SecurityProperties;
+import com.project.terravision.gateway.filter.CsrfTokenCookieFilter;
 import com.project.terravision.gateway.utils.SecurityUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -13,16 +14,11 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverter;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.csrf.CookieServerCsrfTokenRepository;
-import org.springframework.security.web.server.csrf.CsrfToken;
 import org.springframework.security.web.server.csrf.ServerCsrfTokenRequestAttributeHandler;
-import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsConfigurationSource;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
-import org.springframework.web.server.ServerWebExchange;
-import org.springframework.web.server.WebFilter;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,16 +43,27 @@ public class SecurityConfig {
             "/api/ai/**",
     };
 
+    public static final String[] CSRF_TOKEN_GENERATION_PATHS = {
+            "/api/auth/login",
+            "/api/auth/me"
+    };
+
     @Bean
-    public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+    public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http, CsrfTokenCookieFilter csrfTokenCookieFilter) {
         return http
                 .cors(Customizer.withDefaults())
                 .csrf(csrfSpec -> csrfSpec
+                        /*
+                        * CookieServerCsrfTokenRepository.withHttpOnlyFalse() creates a CSRF session cookie.
+                        * A Session Cookie lives in the browser's active memory (RAM):
+                        * as long as at least one window or tab of the browser is still open with the website's tab,
+                        * the browser's session remains active, and the cookie stays in RAM.
+                        * */
                         .csrfTokenRepository(CookieServerCsrfTokenRepository.withHttpOnlyFalse())
                         .csrfTokenRequestHandler(new ServerCsrfTokenRequestAttributeHandler())
-                        .requireCsrfProtectionMatcher(this::requireCsrfProtection)
+                        .requireCsrfProtectionMatcher(SecurityUtils::requireCsrfProtection)
                 )
-                .addFilterAfter(csrfTokenCookieFilter(), SecurityWebFiltersOrder.REACTOR_CONTEXT)
+                .addFilterAfter(csrfTokenCookieFilter, SecurityWebFiltersOrder.REACTOR_CONTEXT)
                 .authorizeExchange(exchange -> exchange
                         .pathMatchers(PERMIT_ALL_PATHS).permitAll()
                         .anyExchange().authenticated()
@@ -111,37 +118,5 @@ public class SecurityConfig {
             return Flux.fromIterable(authorities);
         });
         return converter;
-    }
-
-    public WebFilter csrfTokenCookieFilter() {
-        return (exchange, chain) -> {
-            // Spring Security stores the CSRF token as a lazy Mono<CsrfToken> in the exchange attributes.
-            // It is lazy — nothing happens until someone subscribes to it.
-            Mono<CsrfToken> csrfTokenMono = exchange.getAttribute(CsrfToken.class.getName());
-            log.debug("CsrfTokenCookieFilter — path: {}, csrfTokenMono is null: {}", exchange.getRequest().getPath().value(), csrfTokenMono == null);
-            // If the token is present, subscribe to it by calling flatMap.
-            // Subscription triggers CookieServerCsrfTokenRepository to write
-            // the XSRF-TOKEN cookie to the response as a side effect.
-            // Then continue with the rest of the filter chain.
-            if (csrfTokenMono != null) {
-                return csrfTokenMono.flatMap(token -> {
-                    log.debug("CsrfToken value: {}", token.getToken());
-                    return chain.filter(exchange);
-                });
-            }
-
-            // No CSRF token in the exchange — just continue with the filter chain.
-            log.debug("CsrfTokenMono is null — skipping cookie writing");
-            return chain.filter(exchange);
-        };
-    }
-
-
-    private Mono<ServerWebExchangeMatcher.MatchResult> requireCsrfProtection(ServerWebExchange  exchange) {
-        String path = exchange.getRequest().getPath().value();
-        boolean isPublic = SecurityUtils.isPathPublic(path);
-        return isPublic
-                ? ServerWebExchangeMatcher.MatchResult.notMatch() // skip CSRF token check
-                : ServerWebExchangeMatcher.MatchResult.match(); // apply CSRF token check
     }
 }

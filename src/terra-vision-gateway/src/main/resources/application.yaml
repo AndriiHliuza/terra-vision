@@ -19,6 +19,9 @@ spring:
       port: 6379
       password: ${TERRA_VISION__REDIS__PASSWORD}
 
+  config:
+    import: "vault://"
+
   cloud:
     vault:
       uri: http://localhost:8200
