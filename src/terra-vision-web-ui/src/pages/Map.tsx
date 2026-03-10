@@ -7,7 +7,7 @@ import {
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import Header from "../components/Header.tsx";
-import {useContext, useEffect, useState} from "react";
+import {useEffect, useState} from "react";
 import type {MarkerData} from "../commons/models.ts";
 import {stubMarkers} from "../commons/stub.ts";
 import {MAP_LAYERS} from "../configs/settings.ts";
@@ -16,7 +16,7 @@ import MapLayers from "../components/MapLayers.tsx";
 import clsx from "clsx";
 import mapLayersOpenBtnImg from "../assets/layers.png";
 import mapLayersCloseBtnImg from "../assets/close.png";
-import {ApplicationContext, type ApplicationContextData} from "../configs/context/contexts.ts";
+import {useAppContext} from "../configs/context/contexts.ts";
 import {Outlet} from "react-router-dom";
 import MapPositionDetailsPopup from "../components/MapPositionDetailsPopup.tsx";
 
@@ -32,7 +32,7 @@ function Map() {
         localStorage.setItem("preferredMapLayer", selectedLayer);
     }, [selectedLayer]);
 
-    const {setLoading} = useContext(ApplicationContext) as ApplicationContextData;
+    const {setLoading} = useAppContext();
     const [markers, setMarkers] = useState<MarkerData[]>([]);
 
     const [isLayersMenuOpen, setLayersMenuOpen] = useState(false);

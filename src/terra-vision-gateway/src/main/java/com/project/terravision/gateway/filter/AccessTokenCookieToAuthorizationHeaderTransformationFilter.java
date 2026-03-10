@@ -33,7 +33,7 @@ public class AccessTokenCookieToAuthorizationHeaderTransformationFilter implemen
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getPath().toString();
 
-        if (SecurityUtils.isPathPublic(path)) {
+        if (SecurityUtils.isPathPublic(path, request.getMethod())) {
             log.debug("Public path [{}] — skipping 'accessToken' cookie to Authorization header transformation", path);
             return chain.filter(exchange);
         }
@@ -57,7 +57,11 @@ public class AccessTokenCookieToAuthorizationHeaderTransformationFilter implemen
 
     @Override
     public int getOrder() {
-        return Ordered.HIGHEST_PRECEDENCE + 100; // Lower value means higher priority. The one with higher priority runs first
+        /*
+         * The lower value the higher priority. The one with higher priority runs first.
+         * Ordered.HIGHEST_PRECEDENCE = Integer.MIN_VALUE
+         * */
+        return Ordered.HIGHEST_PRECEDENCE + 200;
     }
 
     private ServerHttpRequest buildMutatedRequest(ServerWebExchange exchange, String accessToken) {

@@ -10,13 +10,23 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class TestController {
 
-    @GetMapping("/protected")
-    public String protectedMethod() {
-        return "Protected: success";
-    }
-
     @GetMapping("/public")
     public String publicMethod() {
-        return "Public: success";
+        return "[terra-vision-auth] (PUBLIC)";
+    }
+
+    @GetMapping("/user/protected")
+    public String protectedUserMethod() {
+        return "[terra-vision-auth] (PROTECTED) - (Role: USER)";
+    }
+
+    @GetMapping("/admin/protected")
+    public String protectedAdminMethod() {
+        return "[terra-vision-auth] (PROTECTED) - (Role: ADMIN)";
+    }
+
+    @GetMapping("/super-admin/protected")
+    public String protectedSuperAdminMethod() {
+        return "[terra-vision-auth] (PROTECTED) - (Role: SUPER_ADMIN)";
     }
 }

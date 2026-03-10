@@ -20,7 +20,8 @@ export const ROUTES = {
     COMPUTER_VISION_DETECTION_ROUTES: {
         ROOT: "cv-detection",
     },
-    SIGN_IN: "sign-in",
+    LOGIN: "login",
+    REGISTER: "register",
     ACCOUNT_ROUTES: {
         ROOT: "account"
     },
@@ -29,6 +30,7 @@ export const ROUTES = {
         DASHBOARD: "dashboard",
         MAP_EDITOR: "map-editor"
     },
+    FORBIDDEN: "forbidden",
     NOT_FOUND: "*",
 }
 
@@ -43,6 +45,8 @@ export const ROUTES_WITHOUT_MOUSE_TRAIL = [
 /* API URLS */
 export const API_DOMAIN = "http://localhost:8080"
 export const API_URLS = {
+    ME: API_DOMAIN + "/api/auth/me",
+    LOGOUT: API_DOMAIN + "/api/auth/logout",
     AI_API_URLS: {
         CV_YOLO_URLS: {
             MODELS_DETAILS_URL: API_DOMAIN + "/api/ai/cv/yolo/models/details",

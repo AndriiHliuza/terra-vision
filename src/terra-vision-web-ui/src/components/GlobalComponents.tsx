@@ -2,12 +2,11 @@ import BackToTopBtn from "./BackToTopBtn.tsx";
 import MouseTrail from "./MouseTrail.tsx";
 import {ToastContainer} from "react-toastify";
 import LoadingOverlay from "./LoadingOverlay.tsx";
-import {useContext} from "react";
-import {ApplicationContext, type ApplicationContextData} from "../configs/context/contexts.ts";
+import {useAppContext} from "../configs/context/contexts.ts";
 
 const GlobalComponents = () => {
 
-    const { loading } = useContext(ApplicationContext) as ApplicationContextData;
+    const { loading } = useAppContext();
 
     return (
         <>

@@ -1,9 +1,9 @@
 package com.project.terravision.auth.mapper;
 
 import com.project.terravision.auth.config.MappingConfig;
+import com.project.terravision.auth.dto.MeResponse;
 import com.project.terravision.auth.dto.UserCreationRequest;
 import com.project.terravision.auth.dto.UserCreationResponse;
-import com.project.terravision.auth.dto.UserDto;
 import com.project.terravision.auth.model.Permission;
 import com.project.terravision.auth.model.Role;
 import com.project.terravision.auth.model.User;
@@ -17,6 +17,7 @@ import java.util.Map;
 
 @Mapper(
         config = MappingConfig.class,
+        uses = { RoleMapper.class },
         imports = { AccountState.class, TokenType.class, Map.class }
 )
 public interface UserMapper {
@@ -48,14 +49,13 @@ public interface UserMapper {
 
     UserCreationResponse toUserCreationResponse(User user);
 
-    @Mapping(target = "role", source = "role.name")
     @Mapping(target = "permissions", ignore = true)
-    UserDto toUserDto(User user, @Context AuthoritiesService authoritiesService);
+    MeResponse toMeResponse(User user, @Context AuthoritiesService authoritiesService);
 
     @AfterMapping
-    default void mapPermissions(@MappingTarget UserDto dto, User user, @Context AuthoritiesService authoritiesService) {
+    default void mapPermissions(@MappingTarget MeResponse meResponse, User user, @Context AuthoritiesService authoritiesService) {
         if (user.getRole() != null) {
-            dto.setPermissions(authoritiesService.getUserPermissions(user)
+            meResponse.setPermissions(authoritiesService.getUserPermissions(user)
                     .stream()
                     .map(Permission::getName)
                     .toList());

@@ -29,6 +29,6 @@ public class Role {
     @Column(nullable = false)
     private int powerLevel;
 
-    @Column(nullable = false)
-    private boolean isSystemRole;
+    @Column(name = "is_system_role" ,nullable = false)
+    private boolean systemRole;
 }

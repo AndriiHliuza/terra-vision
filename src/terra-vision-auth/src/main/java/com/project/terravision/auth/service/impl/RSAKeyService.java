@@ -1,4 +1,4 @@
-package com.project.terravision.auth.service;
+package com.project.terravision.auth.service.impl;
 
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.RSAKey;

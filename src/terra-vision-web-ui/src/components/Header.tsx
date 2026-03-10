@@ -10,6 +10,7 @@ import unitedKingdomFlag from "../assets/united-kingdom-flag.png"
 import doubleDownArrowImg from "../assets/double-down-arrow.png";
 import i18n from "../configs/i18n.ts";
 import {useScreenWidth} from "../commons/utils.ts";
+import {useAppContext} from "../configs/context/contexts.ts";
 
 function Header({scrollOffset = 1000}: { scrollOffset?: number }) {
 
@@ -18,7 +19,7 @@ function Header({scrollOffset = 1000}: { scrollOffset?: number }) {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const [userAuthenticated, setUserAuthenticated] = useState(true); // This is just a stub
+    const { isAuthenticated } = useAppContext();
     const [userImageExists, setUserImageExists] = useState(true); // This is just a stub
 
     const [headerHidden, setHeaderHidden] = useState(false);
@@ -161,10 +162,10 @@ function Header({scrollOffset = 1000}: { scrollOffset?: number }) {
                 </nav>
                 <div className={clsx("auth-controls", {"hide-header": headerHidden})}>
                     <NavLink
-                        to={userAuthenticated ? `/${lang}/${ROUTES.ACCOUNT_ROUTES.ROOT}` : `/${lang}/${ROUTES.SIGN_IN}`}
+                        to={isAuthenticated ? `/${lang}/${ROUTES.ACCOUNT_ROUTES.ROOT}` : `/${lang}/${ROUTES.LOGIN}`}
                         className="auth-link">
                         {
-                            userAuthenticated
+                            isAuthenticated
                                 ? screenWidth > 768
                                     ? userImageExists
                                         ? <img src="/globe.svg" alt="Terra Logo"/>

@@ -1,12 +1,15 @@
 package com.project.terravision.gateway.config;
 
 import com.project.terravision.gateway.config.properties.SecurityProperties;
+import com.project.terravision.gateway.model.SystemRoleLevel;
 import com.project.terravision.gateway.filter.CsrfTokenCookieFilter;
 import com.project.terravision.gateway.utils.SecurityUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.GrantedAuthority;
@@ -16,42 +19,27 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.csrf.CookieServerCsrfTokenRepository;
 import org.springframework.security.web.server.csrf.ServerCsrfTokenRequestAttributeHandler;
 import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.reactive.CorsConfigurationSource;
+import org.springframework.web.cors.reactive.CorsWebFilter;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 import reactor.core.publisher.Flux;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+import static com.project.terravision.gateway.manager.AuthorizationManager.hasAtLeastPowerLevel;
 
 @Slf4j
 @Configuration
 public class SecurityConfig {
 
-    public static final String[] PERMIT_ALL_PATHS = {
-            "/api/auth/login",
-            "/api/auth/refresh",
-
-            "/api/auth/.well-known/jwks.json", // JSON Web Key Set
-            "/api/auth/rotate-key",
-
-            "/api/auth/registration",
-            "/api/auth/registration/confirmation/email/resend",
-            "/api/auth/registration/confirm",
-
-            "/api/auth/public",
-
-            "/api/ai/**",
-    };
-
-    public static final String[] CSRF_TOKEN_GENERATION_PATHS = {
-            "/api/auth/login",
-            "/api/auth/me"
-    };
-
-    @Bean
+    @Bean // Default order is @Order(100)
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http, CsrfTokenCookieFilter csrfTokenCookieFilter) {
         return http
-                .cors(Customizer.withDefaults())
+                /*
+                * Disabling cors. Instead, using corsWebFilter to manage cors
+                * */
+                .cors(ServerHttpSecurity.CorsSpec::disable)
                 .csrf(csrfSpec -> csrfSpec
                         /*
                         * CookieServerCsrfTokenRepository.withHttpOnlyFalse() creates a CSRF session cookie.
@@ -65,7 +53,34 @@ public class SecurityConfig {
                 )
                 .addFilterAfter(csrfTokenCookieFilter, SecurityWebFiltersOrder.REACTOR_CONTEXT)
                 .authorizeExchange(exchange -> exchange
-                        .pathMatchers(PERMIT_ALL_PATHS).permitAll()
+
+                        // <<<<<<<<<<<< Public paths >>>>>>>>>>>>
+                        .pathMatchers(SecurityPaths.PERMIT_ALL_PATHS).permitAll()
+                        .pathMatchers(HttpMethod.GET, SecurityPaths.PERMIT_ALL_GET_PATHS).permitAll()
+                        .pathMatchers(HttpMethod.POST, SecurityPaths.PERMIT_ALL_POST_PATHS).permitAll()
+
+                        // <<<<<<<<<<<< Any authenticated user (power level >= 10) >>>>>>>>>>>>
+                        .pathMatchers(
+                                HttpMethod.GET,
+                                "/api/auth/me",
+                                "/api/auth/user/protected"
+                        ).access(hasAtLeastPowerLevel(SystemRoleLevel.USER))
+                        .pathMatchers(
+                                HttpMethod.POST,
+                                "/api/auth/logout"
+                        ).access(hasAtLeastPowerLevel(SystemRoleLevel.USER))
+
+                        // <<<<<<<<<<<< Admin and above (power level >= 10000) >>>>>>>>>>>>
+                        .pathMatchers(
+                                HttpMethod.GET,
+                                "/api/auth/admin/protected"
+                        ).access(hasAtLeastPowerLevel(SystemRoleLevel.ADMIN))
+
+                        // <<<<<<<<<<<< Super Admin and above (power level >= 100000) >>>>>>>>>>>>
+                        .pathMatchers(
+                                HttpMethod.GET,
+                                "/api/auth/super-admin/protected"
+                        ).access(hasAtLeastPowerLevel(SystemRoleLevel.SUPER_ADMIN))
                         .anyExchange().authenticated()
                 )
                 .oauth2ResourceServer(oAuth2ResourceServerSpec -> oAuth2ResourceServerSpec
@@ -79,9 +94,13 @@ public class SecurityConfig {
     // ------ CORS ------
 
     @Bean
-    public CorsConfigurationSource corsConfigurationSource(SecurityProperties securityProperties) {
+    /*
+     * The lower value the higher priority. The one with higher priority runs first.
+     * Ordered.HIGHEST_PRECEDENCE = Integer.MIN_VALUE
+     * */
+    @Order(Ordered.HIGHEST_PRECEDENCE) // Runs before security filter chain
+    public CorsWebFilter corsWebFilter(SecurityProperties securityProperties) {
         CorsConfiguration config = new CorsConfiguration();
-
         config.setAllowedOrigins(securityProperties.getAllowedOrigins());
         config.setAllowedMethods(List.of("*"));
         config.setAllowedHeaders(List.of("*"));
@@ -89,7 +108,9 @@ public class SecurityConfig {
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
-        return source;
+        log.info("In cors filter");
+
+        return new CorsWebFilter(source);
     }
 
     // ------ JWT related configurations ------
@@ -100,12 +121,13 @@ public class SecurityConfig {
         converter.setJwtGrantedAuthoritiesConverter(jwt -> {
             List<GrantedAuthority> authorities = new ArrayList<>();
 
-            // Extract roles - add ROLE_ prefix
-            List<String> roles = jwt.getClaimAsStringList("roles");
-            if (roles != null) {
-                roles.stream()
-                        .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
-                        .forEach(authorities::add);
+            // Extract role - add ROLE_ prefix
+            Map<String, Object> roleClaim = jwt.getClaim("role");
+            if (roleClaim != null) {
+                String roleName = (String) roleClaim.get("name");
+                if (roleName != null && !roleName.isBlank()) {
+                    authorities.add(new SimpleGrantedAuthority("ROLE_" + roleName));
+                }
             }
 
             // Extract permissions - no prefix needed

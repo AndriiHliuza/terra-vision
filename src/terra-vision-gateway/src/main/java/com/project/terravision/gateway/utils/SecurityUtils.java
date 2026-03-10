@@ -1,6 +1,7 @@
 package com.project.terravision.gateway.utils;
 
-import com.project.terravision.gateway.config.SecurityConfig;
+import com.project.terravision.gateway.config.SecurityPaths;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.server.ServerWebExchange;
@@ -10,21 +11,32 @@ import java.util.Arrays;
 
 public abstract class SecurityUtils {
     private static final AntPathMatcher pathMatcher = new AntPathMatcher();
-    public static boolean isPathPublic(String path) {
-        return Arrays.stream(SecurityConfig.PERMIT_ALL_PATHS)
+
+    public static boolean isPathPublic(String path, HttpMethod method) {
+
+        boolean isPAthPublicForAnyHttpMethod = Arrays.stream(SecurityPaths.PERMIT_ALL_PATHS)
+                .anyMatch(excludedPath -> pathMatcher.match(excludedPath, path));
+        if (isPAthPublicForAnyHttpMethod) return true;
+
+        String[] patterns = SecurityPaths.PERMIT_ALL_PATHS_BY_METHOD.get(method);
+        if (patterns == null) return false;
+        return Arrays.stream(patterns)
                 .anyMatch(excludedPath -> pathMatcher.match(excludedPath, path));
     }
 
 
     // ------ CSRF ------
     public static boolean requiresCsrfTokenGeneration(String path) {
-        return Arrays.stream(SecurityConfig.CSRF_TOKEN_GENERATION_PATHS)
+        return Arrays.stream(SecurityPaths.CSRF_TOKEN_GENERATION_PATHS)
                 .anyMatch(tokenGenerationPath -> pathMatcher.match(tokenGenerationPath, path));
     }
 
     public static Mono<ServerWebExchangeMatcher.MatchResult> requireCsrfProtection(ServerWebExchange exchange) {
+        HttpMethod method = exchange.getRequest().getMethod();
+        if (HttpMethod.OPTIONS.equals(method)) return ServerWebExchangeMatcher.MatchResult.notMatch(); // skip CSRF token check
+
         String path = exchange.getRequest().getPath().value();
-        boolean isPublic = SecurityUtils.isPathPublic(path);
+        boolean isPublic = SecurityUtils.isPathPublic(path, method);
         boolean requiresCsrfTokenGeneration = requiresCsrfTokenGeneration(path);
         return isPublic || requiresCsrfTokenGeneration
                 ? ServerWebExchangeMatcher.MatchResult.notMatch() // skip CSRF token check

@@ -1,6 +1,5 @@
 package com.project.terravision.gateway.filter;
 
-import com.project.terravision.gateway.config.SecurityConfig;
 import com.project.terravision.gateway.config.WebAttributes;
 import com.project.terravision.gateway.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +9,7 @@ import org.springframework.core.Ordered;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.stereotype.Component;
@@ -29,9 +29,10 @@ public class SessionValidationFilter implements WebFilter, Ordered {
     @NullMarked
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-        String path = exchange.getRequest().getPath().toString();
+        ServerHttpRequest request = exchange.getRequest();
+        String path = request.getPath().toString();
 
-        if (SecurityUtils.isPathPublic(path)) return chain.filter(exchange);
+        if (SecurityUtils.isPathPublic(path, request.getMethod())) return chain.filter(exchange);
 
         String authorizationHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
         if (authorizationHeader == null || !authorizationHeader.startsWith(WebAttributes.BEARER_PREFIX)) {
@@ -65,6 +66,10 @@ public class SessionValidationFilter implements WebFilter, Ordered {
 
     @Override
     public int getOrder() {
-        return Ordered.HIGHEST_PRECEDENCE + 200;
+        /*
+         * The lower value the higher priority. The one with higher priority runs first.
+         * Ordered.HIGHEST_PRECEDENCE = Integer.MIN_VALUE
+         * */
+        return Ordered.HIGHEST_PRECEDENCE + 300;
     }
 }

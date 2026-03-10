@@ -64,6 +64,9 @@ dependencies {
 	// --- Thymeleaf ---
 	implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
 
+	// --- Configuration Processor ---
+//	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+
 	// --- Mapstruct ---
 	implementation("org.mapstruct:mapstruct:$mapstructVersion")
 	annotationProcessor("org.mapstruct:mapstruct-processor:$mapstructVersion")
@@ -76,7 +79,7 @@ dependencies {
 	annotationProcessor("org.projectlombok:lombok")
 	annotationProcessor("org.projectlombok:lombok-mapstruct-binding:0.2.0")
 
-	// To have spring.cloud properties in application.yaml
+	// To have spring.cloud dependencies in build.gradle.kts without specifying version of the dependency
 	implementation(platform("org.springframework.cloud:spring-cloud-dependencies:$springCloudVersion"))
 
 	/* <<<<<<<<< Tests >>>>>>>>> */

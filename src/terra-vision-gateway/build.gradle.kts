@@ -35,6 +35,9 @@ dependencies {
 	// --- HashiCorp Vault ---
 	implementation("org.springframework.cloud:spring-cloud-starter-vault-config")
 
+	// --- Configuration Processor ---
+//	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+
 	// --- Lombok ---
 	compileOnly("org.projectlombok:lombok")
 	annotationProcessor("org.projectlombok:lombok")
@@ -48,6 +51,7 @@ dependencies {
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
+// To have spring.cloud dependencies in build.gradle.kts without specifying version of the dependency
 dependencyManagement {
 	imports {
 		mavenBom("org.springframework.cloud:spring-cloud-dependencies:${property("springCloudVersion")}")

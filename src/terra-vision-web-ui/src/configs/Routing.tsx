@@ -10,6 +10,8 @@ import MapEditor from "../pages/MapEditor.tsx";
 import Localization from "./Localization.tsx";
 import i18n from "./i18n.ts";
 import {SimpleChartPage} from "../components/SimpleChartPage.tsx";
+import ProtectedRoute from "../layouts/ProtectedRoute.tsx";
+import {SystemRoleLevels} from "../commons/models.ts";
 
 function Routing() {
     return (
@@ -26,10 +28,12 @@ function Routing() {
                     <Route index element={<Map/>}/>
                     <Route path={ROUTES.MAP_ROUTES.MARKER} element={<div>Marker Page</div>} />
                 </Route>
-                <Route path={ROUTES.ADMIN_ROUTES.ROOT} element={<AdminLayout/>}>
-                    <Route index element={<Navigate to={ROUTES.ADMIN_ROUTES.DASHBOARD} replace/>}/>
-                    <Route path={ROUTES.ADMIN_ROUTES.DASHBOARD} element={<AdminDashboard/>}/>
-                    <Route path={ROUTES.ADMIN_ROUTES.MAP_EDITOR} element={<MapEditor/>}/>
+                <Route element={<ProtectedRoute minPowerLevel={SystemRoleLevels.ADMIN}/>}>
+                    <Route path={ROUTES.ADMIN_ROUTES.ROOT} element={<AdminLayout/>}>
+                        <Route index element={<Navigate to={ROUTES.ADMIN_ROUTES.DASHBOARD} replace/>}/>
+                        <Route path={ROUTES.ADMIN_ROUTES.DASHBOARD} element={<AdminDashboard/>}/>
+                        <Route path={ROUTES.ADMIN_ROUTES.MAP_EDITOR} element={<MapEditor/>}/>
+                    </Route>
                 </Route>
                 <Route path="charts" element={<SimpleChartPage/>}/>
                 <Route path={ROUTES.NOT_FOUND} element={<NotFound/>}/>

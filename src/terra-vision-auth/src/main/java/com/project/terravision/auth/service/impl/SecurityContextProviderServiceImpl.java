@@ -20,24 +20,29 @@ public class SecurityContextProviderServiceImpl implements SecurityContextProvid
         return SecurityContextHolder.getContext().getAuthentication();
     }
 
+    @Override
     public UserDetails getUserDetails() {
         return (UserDetails) getAuthentication().getPrincipal();
     }
 
+    @Override
     public User getUser() {
         return (User) getAuthentication().getPrincipal();
     }
 
+    @Override
     public Jwt getJwt() {
         return (Jwt) getAuthentication().getPrincipal();
     }
 
+    @Override
     public List<String> getAuthorities() {
         return getAuthentication().getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .toList();
     }
 
+    @Override
     public List<String> getRoles() {
         return getAuthorities().stream()
                 .filter(Objects::nonNull)
@@ -46,10 +51,20 @@ public class SecurityContextProviderServiceImpl implements SecurityContextProvid
     }
 
     @Override
+    public String getRole() {
+        return getRoles().getFirst(); // Each use can only have one role
+    }
+
+    @Override
     public List<String> getRolesNoPrefix() {
         return getRoles().stream()
                 .map(role -> role.replace("ROLE_", ""))
                 .toList();
+    }
+
+    @Override
+    public String getRoleNoPrefix() {
+        return getRolesNoPrefix().getFirst(); // Each use can only have one role
     }
 
     @Override

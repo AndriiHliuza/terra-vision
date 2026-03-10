@@ -13,7 +13,7 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDto {
+public class MeResponse {
 
     private UUID id;
     private String username;
@@ -27,6 +27,6 @@ public class UserDto {
     private Instant createdAt;
     private Instant updatedAt;
 
-    private String role;
+    private RoleClaim role;
     private List<String> permissions;
 }

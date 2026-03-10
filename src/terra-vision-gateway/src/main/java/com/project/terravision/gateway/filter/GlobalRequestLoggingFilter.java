@@ -21,22 +21,6 @@ public class GlobalRequestLoggingFilter implements WebFilter, Ordered {
 
     private static final Logger logger = LoggerFactory.getLogger(GlobalRequestLoggingFilter.class);
 
-//    @Override
-//    @NullMarked
-//    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-//        String method = exchange.getRequest().getMethod().toString();
-//        String path = exchange.getRequest().getURI().getPath();
-//
-//        String query = exchange.getRequest().getURI().getQuery();
-//
-//        logger.info(">>> (Incoming Request) [{}] Path: {}", method, path + (query != null ? "?" + query : ""));
-//
-//        return chain.filter(exchange).then(Mono.fromRunnable(() -> {
-//            HttpStatusCode statusCode = exchange.getResponse().getStatusCode();
-//            if (statusCode != null) logger.info("<<< (Outgoing Response) [{}] Path: {} | Status: {}", method, path, statusCode.value());
-//        }));
-//    }
-
     @Override
     @NullMarked
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
@@ -55,7 +39,11 @@ public class GlobalRequestLoggingFilter implements WebFilter, Ordered {
 
     @Override
     public int getOrder() {
-        return Ordered.HIGHEST_PRECEDENCE;
+        /*
+         * The lower value the higher priority. The one with higher priority runs first.
+         * Ordered.HIGHEST_PRECEDENCE = Integer.MIN_VALUE
+         * */
+        return Ordered.HIGHEST_PRECEDENCE + 100;
     }
 
 }

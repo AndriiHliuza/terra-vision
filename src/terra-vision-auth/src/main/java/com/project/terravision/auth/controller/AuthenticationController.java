@@ -2,9 +2,9 @@ package com.project.terravision.auth.controller;
 
 import com.project.terravision.auth.dto.AuthenticationRequest;
 import com.project.terravision.auth.dto.AuthenticationResponse;
-import com.project.terravision.auth.dto.UserDto;
+import com.project.terravision.auth.dto.MeResponse;
 import com.project.terravision.auth.service.AuthenticationService;
-import com.project.terravision.auth.service.RSAKeyService;
+import com.project.terravision.auth.service.impl.RSAKeyService;
 import com.project.terravision.auth.utils.WebUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +36,7 @@ public class AuthenticationController {
     }
 
     @GetMapping("/me")
-    public UserDto me(@AuthenticationPrincipal Jwt jwt) {
+    public MeResponse me(@AuthenticationPrincipal Jwt jwt) {
         return authenticationService.me(jwt);
     }
 
