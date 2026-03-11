@@ -1,6 +1,6 @@
 import {Circle, Polygon, Rectangle} from "react-leaflet";
-import {getShapeEventHandlers} from "../commons/map-controls.ts";
-import type {Shape} from "../commons/models.ts";
+import {getShapeEventHandlers} from "../commons/utils/map-controls.ts";
+import type {Shape} from "../commons/schemas/gis-schemas.ts";
 
 function MapShapes({ shapes }: { shapes: Shape[] }) {
     return (

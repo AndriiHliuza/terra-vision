@@ -8,10 +8,10 @@ import {
 import "leaflet/dist/leaflet.css";
 import Header from "../components/Header.tsx";
 import {useEffect, useState} from "react";
-import type {MarkerData} from "../commons/models.ts";
-import {stubMarkers} from "../commons/stub.ts";
+import type {MarkerData} from "../commons/schemas/gis-schemas.ts";
+import {stubMarkers} from "../commons/stubs/map-stubs.ts";
 import {MAP_LAYERS} from "../configs/settings.ts";
-import {MapEventsHandler} from "../commons/map-controls.ts";
+import {MapEventsHandler} from "../commons/utils/map-controls.ts";
 import MapLayers from "../components/MapLayers.tsx";
 import clsx from "clsx";
 import mapLayersOpenBtnImg from "../assets/layers.png";

@@ -1,4 +1,4 @@
-import type {MarkerData, Shape} from "./models.ts";
+import type {MarkerData, Shape} from "../schemas/gis-schemas.ts";
 
 export const stubShapes: Shape[] = [
     {

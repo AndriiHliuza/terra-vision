@@ -1,4 +1,4 @@
-import {PermissionStrategy, type ProtectedRouteProps, SystemRoleLevels} from "../commons/models.ts";
+import {PermissionStrategy, type ProtectedRouteProps, SystemRoleLevels} from "../commons/schemas/auth-schemas.ts";
 import {useAppContext} from "../configs/context/contexts.ts";
 import {Navigate, Outlet, useParams} from "react-router-dom";
 import {ROUTES} from "../configs/settings.ts";
@@ -12,12 +12,12 @@ function ProtectedRoute({
                             redirectToIfAccessForbidden
                         }: ProtectedRouteProps) {
     const {lang} = useParams();
-    const {user, hasMinPowerLevel, hasRole, hasPermissions} = useAppContext();
+    const {isAuthenticated, hasMinPowerLevel, hasRole, hasPermissions} = useAppContext();
 
     const loginPath    = redirectToIfNotAuthenticated ?? `/${lang}/${ROUTES.LOGIN}`;
     const forbiddenPath = redirectToIfAccessForbidden ?? `/${lang}/${ROUTES.FORBIDDEN}`;
 
-    if (!user) return <Navigate to={loginPath} replace/>;
+    if (!isAuthenticated) return <Navigate to={loginPath} replace/>;
     if (!hasMinPowerLevel(minPowerLevel)) return <Navigate to={forbiddenPath} replace/>;
     if (requiredRole && !hasRole(requiredRole)) return <Navigate to={forbiddenPath} replace/>;
     if (!hasPermissions(requiredPermissions, permissionStrategy)) {

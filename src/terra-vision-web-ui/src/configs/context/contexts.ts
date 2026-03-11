@@ -1,5 +1,5 @@
 import {createContext, type Dispatch, type SetStateAction, useContext} from "react";
-import type {PermissionStrategy, User} from "../../commons/models.ts";
+import type {PermissionStrategy, User} from "../../commons/schemas/auth-schemas.ts";
 
 export type ApplicationContextData = {
     loading: boolean;
@@ -12,6 +12,7 @@ export type ApplicationContextData = {
     hasRole: (role: string) => boolean;
     hasPermission: (permission: string) => boolean;
     hasPermissions: (permissions: string[], strategy?: PermissionStrategy) => boolean;
+
     logout: () => Promise<void>;
 };
 

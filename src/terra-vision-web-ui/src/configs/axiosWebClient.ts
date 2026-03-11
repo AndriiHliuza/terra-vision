@@ -14,7 +14,6 @@ axiosWebClient.interceptors.response.use(config => {
         .split("; ")
         .find(row => row.startsWith("XSRF-TOKEN="))
         ?.split("=")[1]
-    console.log(csrfToken);
 
     if (csrfToken) {
         config.headers['X-XSRF-TOKEN'] = csrfToken;
@@ -31,6 +30,7 @@ axiosWebClient.interceptors.response.use(
 
         // Skip /api/auth/me
         if (url.includes('/api/auth/me')) return Promise.reject(error);
+        if (url.includes('/profile/image')) return Promise.reject(error);
 
         const lang = window.location.pathname.split('/')[1] ?? 'en';
 

@@ -11,7 +11,7 @@ import Localization from "./Localization.tsx";
 import i18n from "./i18n.ts";
 import {SimpleChartPage} from "../components/SimpleChartPage.tsx";
 import ProtectedRoute from "../layouts/ProtectedRoute.tsx";
-import {SystemRoleLevels} from "../commons/models.ts";
+import {SystemRoleLevels} from "../commons/schemas/auth-schemas.ts";
 
 function Routing() {
     return (

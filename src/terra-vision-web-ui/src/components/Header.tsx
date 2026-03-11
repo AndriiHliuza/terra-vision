@@ -8,9 +8,12 @@ import {Menu, X} from "lucide-react";
 import ukrainianFlag from "../assets/ukraine-flag.png";
 import unitedKingdomFlag from "../assets/united-kingdom-flag.png"
 import doubleDownArrowImg from "../assets/double-down-arrow.png";
+import defaultProfileImg from "../assets/default-profile-img.png";
 import i18n from "../configs/i18n.ts";
-import {useScreenWidth} from "../commons/utils.ts";
 import {useAppContext} from "../configs/context/contexts.ts";
+import {axiosWebClient} from "../configs/axiosWebClient.ts";
+import axios from "axios";
+
 
 function Header({scrollOffset = 1000}: { scrollOffset?: number }) {
 
@@ -19,8 +22,7 @@ function Header({scrollOffset = 1000}: { scrollOffset?: number }) {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const { isAuthenticated } = useAppContext();
-    const [userImageExists, setUserImageExists] = useState(true); // This is just a stub
+    const { isAuthenticated, user } = useAppContext();
 
     const [headerHidden, setHeaderHidden] = useState(false);
     const [lastScrollPosition, setLastScrollPosition] = useState(0);
@@ -34,7 +36,27 @@ function Header({scrollOffset = 1000}: { scrollOffset?: number }) {
     const lastScrollPositionRef = useRef<number>(lastScrollPosition);
     const headerControlsOpenRef = useRef<boolean>(headerControlsOpen);
 
-    const screenWidth = useScreenWidth();
+    const [profileImage, setProfileImage] = useState<string>(defaultProfileImg);
+
+    useEffect(() => {
+        const controller = new AbortController();
+        let profileImageUrl: string | null = null;
+        axiosWebClient.get(`/api/users/${user?.id}/profile/image`, {
+            signal: controller.signal,
+            responseType: 'blob',
+        }).then(res => {
+                profileImageUrl = URL.createObjectURL(res.data);
+                setProfileImage(profileImageUrl);
+            }).catch(err => {
+                if (axios.isCancel(err)) return;
+            });
+        return () => {
+            controller.abort(); // Stops the fetch if user navigates away
+            if (profileImageUrl) {
+                URL.revokeObjectURL(profileImageUrl); // Releases the image from RAM
+            }
+        };
+    }, [user?.id]);
 
     useEffect(() => {
         lastScrollPositionRef.current = lastScrollPosition;
@@ -164,15 +186,14 @@ function Header({scrollOffset = 1000}: { scrollOffset?: number }) {
                     <NavLink
                         to={isAuthenticated ? `/${lang}/${ROUTES.ACCOUNT_ROUTES.ROOT}` : `/${lang}/${ROUTES.LOGIN}`}
                         className="auth-link">
-                        {
-                            isAuthenticated
-                                ? screenWidth > 768
-                                    ? userImageExists
-                                        ? <img src="/globe.svg" alt="Terra Logo"/>
-                                        : <div>default image</div>
-                                    : <div>Account</div>
-                                : <div> Sign in</div>
-                        }
+                        {isAuthenticated ? (
+                            <>
+                                <img src={profileImage} alt="Profile Image" />
+                                <div className="mobile-view-tab-name">Account</div>
+                            </>
+                        ) : (
+                            <div>Sign in</div>
+                        )}
                     </NavLink>
                 </div>
 

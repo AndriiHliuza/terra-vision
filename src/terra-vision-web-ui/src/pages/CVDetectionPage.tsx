@@ -6,21 +6,7 @@ import {useTranslation} from "react-i18next";
 import {toast} from "react-toastify";
 import PopUp from "../components/PopUp.tsx";
 import downloadIcon from "../assets/download-icon.png";
-import {
-    type CVModelDescription,
-    type CVModelDescriptionResponse,
-    type FileItem
-} from "../commons/models.ts";
-import {
-    blobToFile,
-    blobToZip,
-    createArchiveFromFileItems,
-    getTruncateFileNameLengthsByWidth,
-    isArchive, isImage,
-    truncateFileName,
-    useScreenWidth
-} from "../commons/utils.ts";
-import {API_URLS, TRUNCATE_FILE_NAME_RULES} from "../configs/settings.ts";
+import {API_URLS} from "../configs/settings.ts";
 import ARCHIVE_IMG from "../assets/archive-icon.png";
 import {Dropdown} from "../components/Dropdown.tsx";
 import {axiosWebClient} from "../configs/axiosWebClient.ts";
@@ -29,18 +15,29 @@ import axios from "axios";
 import JSZip from "jszip";
 import PartialLoadingOverlay from "../components/PartialLoadingOverlay.tsx";
 import {useNavigate} from "react-router-dom";
+import {useScreenWidth} from "../commons/hooks/hooks.ts";
+import {
+    blobToFile,
+    blobToZip,
+    type FileItem,
+    generateArchive,
+    isArchive,
+    isImageByFileName, isImageByFileType
+} from "../commons/utils/file-utils.ts";
+import {getShortenedString, type StringShorteningRule} from "../commons/utils/string-utils.ts";
+import type {CVModelDescription, CVModelDescriptionResponse} from "../commons/dto/cv-dtos.ts";
+
+const SHORTENING_FILE_NAME_RULES: StringShorteningRule[] = [
+    {maxScreenWidth: 300, startStringLength: 3, endStringLength: 4},
+    {maxScreenWidth: 500, startStringLength: 4, endStringLength: 6},
+    {maxScreenWidth: 9999, startStringLength: 6, endStringLength: 9}, // desktop fallback
+]
 
 function CVDetectionPage() {
 
     const {t} = useTranslation();
     const navigate = useNavigate();
     const screenWidth = useScreenWidth();
-
-    /* getTruncateFileNameLengthsByWidth runs on every render/rerender (when screenWidth changes) */
-    const {
-        startFileNameLength,
-        endFileNameLength
-    } = getTruncateFileNameLengthsByWidth(screenWidth, TRUNCATE_FILE_NAME_RULES)
 
     const [isProcessing, setProcessing] = useState<boolean>(false);
 
@@ -56,7 +53,7 @@ function CVDetectionPage() {
     const outputSectionRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        /* Getting all models */
+        /* Getting all schemas */
         axiosWebClient.get<CVModelDescriptionResponse>(API_URLS.AI_API_URLS.CV_YOLO_URLS.MODELS_DETAILS_URL, {
             params: {lang: i18n.language}
         }).then(response => {
@@ -149,7 +146,7 @@ function CVDetectionPage() {
                 for (const [fileName, innerZipEntry] of Object.entries(innerZip.files)) {
                     if (innerZipEntry.dir) continue;
 
-                    if (isImage(fileName)) {
+                    if (isImageByFileName(fileName)) {
                         const imageBlob = await innerZipEntry.async('blob');
                         const imageFile = blobToFile(imageBlob, fileName);
 
@@ -211,7 +208,7 @@ function CVDetectionPage() {
     }> {
         let imagesArchive: FileItem | null = null;
         if (uploadedImages.length > 0) {
-            const zipBlob: Blob = await createArchiveFromFileItems(uploadedImages);
+            const zipBlob: Blob = await generateArchive(uploadedImages);
             const zipArchiveName = `images-${Date.now()}-${crypto.randomUUID().toString()}-.zip`;
             const zipArchive: File = blobToZip(zipBlob, zipArchiveName);
             imagesArchive = {
@@ -258,12 +255,12 @@ function CVDetectionPage() {
         const archiveFiles: FileItem[] = [];
 
         files.forEach(file => {
-            if (file.type.startsWith("image")) {
+            if (isImageByFileType(file)) {
                 imageFiles.push({
                     id: `${file.name}-${Date.now()}-${crypto.randomUUID().toString()}-.zip`,
                     file: file
                 })
-            } else if (isArchive(file.type, file.name)) {
+            } else if (isArchive(file)) {
                 archiveFiles.push({
                     id: `${file.name}-${Date.now()}-${crypto.randomUUID().toString()}-.zip`,
                     file: file
@@ -278,7 +275,7 @@ function CVDetectionPage() {
     const onFileDropRejected = useCallback((fileRejections: FileRejection[]) => {
         fileRejections.forEach((fileRejection) => {
             const file = fileRejection.file;
-            if (!file.type.startsWith("image") || !isArchive(file.type, file.name)) {
+            if (!isImageByFileType(file) || !isArchive(file)) {
                 toast.error(
                     <PopUp
                         title={t("landmine-detection-page.pop-ups.invalid-file-pop-up.title")}
@@ -360,7 +357,7 @@ function CVDetectionPage() {
                                         alt={image.file.name}
                                     />
                                     <div
-                                        className="image-name-overlay">{truncateFileName(image.file.name, startFileNameLength, endFileNameLength)}</div>
+                                        className="image-name-overlay">{getShortenedString(image.file.name, screenWidth, SHORTENING_FILE_NAME_RULES)}</div>
                                 </div>
                             );
                         })}
@@ -375,7 +372,7 @@ function CVDetectionPage() {
                                 >
                                     <button onClick={() => removeUploadedArchive(archive.id)}>×</button>
                                     <h4>{t("landmine-detection-page.archive-item-title").toUpperCase()}</h4>
-                                    <div>{truncateFileName(archive.file.name, startFileNameLength, endFileNameLength)}</div>
+                                    <div>{getShortenedString(archive.file.name, screenWidth, SHORTENING_FILE_NAME_RULES)}</div>
                                     <img src={ARCHIVE_IMG} alt="Archive"/>
                                 </div>
                             );
@@ -440,7 +437,7 @@ function CVDetectionPage() {
                                                     alt={image.file.name}
                                                 />
                                                 <div
-                                                    className="image-name-overlay">{truncateFileName(image.file.name, startFileNameLength, endFileNameLength)}</div>
+                                                    className="image-name-overlay">{getShortenedString(image.file.name, screenWidth, SHORTENING_FILE_NAME_RULES)}</div>
                                                 <a
                                                     href={imagePreview}
                                                     download={image.file.name} // filename when downloaded
@@ -463,7 +460,7 @@ function CVDetectionPage() {
                                             >
                                                 <button onClick={() => removeProcessedArchive(archive.id)}>×</button>
                                                 <h4>{t("landmine-detection-page.archive-item-title").toUpperCase()}</h4>
-                                                <div>{truncateFileName(archive.file.name, startFileNameLength, endFileNameLength)}</div>
+                                                <div>{getShortenedString(archive.file.name, screenWidth, SHORTENING_FILE_NAME_RULES)}</div>
                                                 <a
                                                     href={archiveUrl}
                                                     download={archive.file.name} // sets downloaded filename

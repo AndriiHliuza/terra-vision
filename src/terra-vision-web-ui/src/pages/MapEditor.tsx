@@ -6,9 +6,9 @@ import {
     Tooltip
 } from "react-leaflet";
 import {useEffect, useRef, useState, type MouseEvent as ReactMouseEvent} from "react";
-import type {MarkerData} from "../commons/models.ts";
-import {stubMarkers} from "../commons/stub.ts";
-import {MapEventsHandler, MapResizeHandler} from "../commons/map-controls.ts";
+import type {MarkerData} from "../commons/schemas/gis-schemas.ts";
+import {stubMarkers} from "../commons/stubs/map-stubs.ts";
+import {MapEventsHandler, MapResizeHandler} from "../commons/utils/map-controls.ts";
 import MapLayers from "../components/MapLayers.tsx";
 import PartialLoadingOverlay from "../components/PartialLoadingOverlay.tsx";
 import {useTranslation} from "react-i18next";

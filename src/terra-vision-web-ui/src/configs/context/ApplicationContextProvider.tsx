@@ -1,8 +1,8 @@
 import {type PropsWithChildren, useEffect, useState} from "react";
 import { ApplicationContext } from "./contexts";
-import {PermissionStrategy, type User} from "../../commons/models.ts";
 import {axiosWebClient} from "../axiosWebClient.ts";
 import {API_URLS} from "../settings.ts";
+import {PermissionStrategy, type User} from "../../commons/schemas/auth-schemas.ts";
 
 const ApplicationContextProvider = ({ children }: PropsWithChildren) => {
     const [loading, setLoading] = useState(false);
@@ -44,14 +44,17 @@ const ApplicationContextProvider = ({ children }: PropsWithChildren) => {
 
     return (
         <ApplicationContext.Provider value={{
-            user,
-            isAuthenticated: !!user,
             loading,
             setLoading,
+
+            user,
+            isAuthenticated: !!user,
+
             hasMinPowerLevel,
             hasRole,
             hasPermission,
             hasPermissions,
+
             logout
         }}>
             {children}

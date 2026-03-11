@@ -1,11 +1,10 @@
-import {buildUrlForAllLanguages} from "../commons/utils.ts";
-import {type TruncateFileNameRule, URL_TYPE} from "../commons/models.ts";
 import layer_OSM_Streets from "../assets/map-layers/OSM_Streets.png"
 import layer_OSM_Humanitarian from "../assets/map-layers/OSM_Humanitarian.png"
 import layer_OpenTopoMap from "../assets/map-layers/OpenTopoMap.png"
 import layer_ESRI_Satellite from "../assets/map-layers/ESRI_Satellite.png"
 import layer_ESRI_Topographic from "../assets/map-layers/ESRI_Topographic.png"
 import layer_Carto_Light from "../assets/map-layers/Carto_Light.png"
+import {buildUrlForAllLanguages, URL_TYPE} from "../commons/utils/url-utils.ts";
 
 /* Localization */
 export const SUPPORTED_LANGUAGES = ["en", "ua"]
@@ -96,10 +95,5 @@ export const MAP_LAYERS = [
     }
 ]
 
-/* File name width for screen width */
-export const TRUNCATE_FILE_NAME_RULES: TruncateFileNameRule[] = [
-    {maxScreenWidth: 300, startFileNameLength: 3, endFileNameLength: 4},
-    {maxScreenWidth: 500, startFileNameLength: 4, endFileNameLength: 6},
-    {maxScreenWidth: 9999, startFileNameLength: 6, endFileNameLength: 9}, // desktop fallback
-]
+
 

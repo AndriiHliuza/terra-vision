@@ -18,7 +18,7 @@ function Home() {
             <Header/>
             <main id="home-page">
                 <section className="home-page-leaves-img-section">
-                    <h1>{t("home.main.welcome")}</h1>
+                    <h1>TERRA VISION</h1>
                 </section>
                 <section className="data-section">
                     <div className="section-info section-info-1">
