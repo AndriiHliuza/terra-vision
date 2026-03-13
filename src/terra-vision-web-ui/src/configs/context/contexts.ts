@@ -1,5 +1,6 @@
 import {createContext, type Dispatch, type SetStateAction, useContext} from "react";
 import type {PermissionStrategy, User} from "../../commons/schemas/auth-schemas.ts";
+import type {LoginFormData} from "../form-validation-schemas.ts";
 
 export type ApplicationContextData = {
     loading: boolean;
@@ -14,6 +15,7 @@ export type ApplicationContextData = {
     hasPermission: (permission: string) => boolean;
     hasPermissions: (permissions: string[], strategy?: PermissionStrategy) => boolean;
 
+    login: (data: LoginFormData) => Promise<void>;
     logout: () => Promise<void>;
 
     profileImage: string;

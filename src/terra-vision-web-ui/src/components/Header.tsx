@@ -19,6 +19,10 @@ function Header({scrollOffset = 1000}: { scrollOffset?: number }) {
     const location = useLocation();
 
     const { isAuthenticated, profileImage } = useAppContext();
+    const isAuthPage = [
+        `/${lang}/login`,
+        `/${lang}/sign-up`,
+    ].includes(location.pathname);
 
     const [headerHidden, setHeaderHidden] = useState(false);
     const [lastScrollPosition, setLastScrollPosition] = useState(0);
@@ -100,7 +104,7 @@ function Header({scrollOffset = 1000}: { scrollOffset?: number }) {
 
     const links = [
         {to: `/${lang}`, label: t("header.home")},
-        {to: `/${lang}/detector`, label: t("header.landmine-detector")},
+        {to: `/${lang}/detector`, label: t("header.detector")},
         {to: `/${lang}/map`, label: t("header.map")},
     ];
 
@@ -156,20 +160,22 @@ function Header({scrollOffset = 1000}: { scrollOffset?: number }) {
                         </div>
                     ))}
                 </nav>
-                <div className={clsx("auth-controls", {"hide-header": headerHidden})}>
-                    <NavLink
-                        to={isAuthenticated ? `/${lang}/account` : `/${lang}/login`}
-                        className="auth-link">
-                        {isAuthenticated ? (
-                            <>
-                                <img src={profileImage} alt="Profile Image" />
-                                <div className="mobile-view-tab-name">Account</div>
-                            </>
-                        ) : (
-                            <div>Sign in</div>
-                        )}
-                    </NavLink>
-                </div>
+                {(!isAuthPage || isAuthenticated) && (
+                    <div className={clsx("auth-controls", {"hide-header": headerHidden})}>
+                        <NavLink
+                            to={isAuthenticated ? `/${lang}/account` : `/${lang}/login`}
+                            className="auth-link">
+                            {isAuthenticated ? (
+                                <>
+                                    <img src={profileImage} alt="Profile Image" />
+                                    <div className="mobile-view-tab-name">{t("header.account")}</div>
+                                </>
+                            ) : (
+                                <div>{t("header.login")}</div>
+                            )}
+                        </NavLink>
+                    </div>
+                )}
 
                 {/* Language controls */}
                 <div

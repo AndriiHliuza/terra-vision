@@ -1,4 +1,4 @@
-import "../styles/pages/ComputerVisionPage.css";
+import "../styles/pages/DetectorPage.css";
 import Header from "../components/Header.tsx";
 import {useCallback, useEffect, useRef, useState} from "react";
 import {type FileRejection, useDropzone} from "react-dropzone";
@@ -31,7 +31,7 @@ const SHORTENING_FILE_NAME_RULES: StringShorteningRule[] = [
     {maxScreenWidth: 9999, startStringLength: 6, endStringLength: 9}, // desktop fallback
 ]
 
-function CVDetectionPage() {
+function DetectorPage() {
 
     const {t} = useTranslation();
     const navigate = useNavigate();
@@ -58,11 +58,11 @@ function CVDetectionPage() {
             setModels(response.data.cv_models)
 
             /* Checking if stored in localstorage model actually exists */
-            const selectedModelId = localStorage.getItem("selectedLandmineDetectionModel") ?? "";
+            const selectedModelId = localStorage.getItem("selectedDetectionModel") ?? "";
             const selectedModel = response.data.cv_models.find(model => model.id === selectedModelId)
             setSelectedModel(selectedModel)
             if (!selectedModel) {
-                localStorage.removeItem("selectedLandmineDetectionModel");
+                localStorage.removeItem("selectedDetectionModel");
             }
 
         }).catch(err => {
@@ -160,8 +160,8 @@ function CVDetectionPage() {
         setProcessedImages(prev => [...prev, ...extractedImages]);
         toast.success(
             <PopUp
-                title={t("landmine-detection-page.pop-ups.data-successfully-processed-popup.title")}
-                description={t("landmine-detection-page.pop-ups.data-successfully-processed-popup.description")}
+                title={t("detector-page.pop-ups.data-successfully-processed-popup.title")}
+                description={t("detector-page.pop-ups.data-successfully-processed-popup.description")}
             />
         );
     }
@@ -174,8 +174,8 @@ function CVDetectionPage() {
             if (!userId || !jobTimestamp) {
                 toast.error(
                     <PopUp
-                        title={t("landmine-detection-page.pop-ups.data-processing-failed-popup.title")}
-                        description={t("landmine-detection-page.pop-ups.data-processing-failed-popup.description")}
+                        title={t("detector-page.pop-ups.data-processing-failed-popup.title")}
+                        description={t("detector-page.pop-ups.data-processing-failed-popup.description")}
                     />
                 );
                 return;
@@ -186,8 +186,8 @@ function CVDetectionPage() {
             if (!blob) {
                 toast.error(
                     <PopUp
-                        title={t("landmine-detection-page.pop-ups.processed-data-loading-failed-popup.title")}
-                        description={t("landmine-detection-page.pop-ups.processed-data-loading-failed-popup.description")}
+                        title={t("detector-page.pop-ups.processed-data-loading-failed-popup.title")}
+                        description={t("detector-page.pop-ups.processed-data-loading-failed-popup.description")}
                     />
                 );
                 return;
@@ -240,8 +240,8 @@ function CVDetectionPage() {
         } else {
             toast.error(
                 <PopUp
-                    title={t("landmine-detection-page.pop-ups.model-not-selected-pop-up.title")}
-                    description={t("landmine-detection-page.pop-ups.model-not-selected-pop-up.description")}
+                    title={t("detector-page.pop-ups.model-not-selected-pop-up.title")}
+                    description={t("detector-page.pop-ups.model-not-selected-pop-up.description")}
                 />
             );
         }
@@ -276,8 +276,8 @@ function CVDetectionPage() {
             if (!isImageByFileType(file) || !isArchive(file)) {
                 toast.error(
                     <PopUp
-                        title={t("landmine-detection-page.pop-ups.invalid-file-pop-up.title")}
-                        description={t("landmine-detection-page.pop-ups.invalid-file-pop-up.description", {name: file.name})}
+                        title={t("detector-page.pop-ups.invalid-file-pop-up.title")}
+                        description={t("detector-page.pop-ups.invalid-file-pop-up.description", {name: file.name})}
                     />
                 );
             }
@@ -303,26 +303,26 @@ function CVDetectionPage() {
     return (
         <>
             <Header/>
-            <div id="cv-detection-service-page">
+            <div id="detector-page">
                 <section className="input-section">
-                    <h1>{t("landmine-detection-page.title")}</h1>
+                    <h1>{t("detector-page.title")}</h1>
                     <div className="models-section">
                         <div className="models-dropdown-container">
                             <Dropdown
-                                label={selectedModel?.name ? selectedModel.name : t("landmine-detection-page.models-dropdown-title")}
+                                label={selectedModel?.name ? selectedModel.name : t("detector-page.models-dropdown-title")}
                                 items={models.map(model => ({
                                     id: model.id,
                                     name: model.name,
                                 }))}
                                 onSelect={model => {
                                     setSelectedModel(models.find(m => m.id === model.id));
-                                    localStorage.setItem("selectedLandmineDetectionModel", model.id);
+                                    localStorage.setItem("selectedDetectionModel", model.id);
                                 }}
                             />
                         </div>
                         <div className="model-description">{models
                             .find(model => model.id === selectedModel?.id)
-                            ?.description ?? t("landmine-detection-page.model-description-default-text")
+                            ?.description ?? t("detector-page.model-description-default-text")
                         }</div>
                     </div>
 
@@ -336,8 +336,8 @@ function CVDetectionPage() {
                             className="dropzone-input"
                         />
                         {isDragActive
-                            ? t("landmine-detection-page.drag-and-drop-section-text-for-active-drag")
-                            : t("landmine-detection-page.drag-and-drop-section-text-for-not-active-drag")
+                            ? t("detector-page.drag-and-drop-section-text-for-active-drag")
+                            : t("detector-page.drag-and-drop-section-text-for-not-active-drag")
                         }
                     </div>
 
@@ -369,7 +369,7 @@ function CVDetectionPage() {
                                     className="archive-preview-container"
                                 >
                                     <button onClick={() => removeUploadedArchive(archive.id)}>×</button>
-                                    <h4>{t("landmine-detection-page.archive-item-title").toUpperCase()}</h4>
+                                    <h4>{t("detector-page.archive-item-title").toUpperCase()}</h4>
                                     <div>{getShortenedString(archive.file.name, screenWidth, SHORTENING_FILE_NAME_RULES)}</div>
                                     <img src={ARCHIVE_IMG} alt="Archive"/>
                                 </div>
@@ -386,13 +386,13 @@ function CVDetectionPage() {
                                         id="clear-all-images-btn"
                                         onClick={clearUploadedFiles}
                                     >
-                                        {t("landmine-detection-page.clear-all-images-btn-text")}
+                                        {t("detector-page.clear-all-images-btn-text")}
                                     </div>
                                     <div
                                         id="process-images-btn"
                                         onClick={send}
                                     >
-                                        {t("landmine-detection-page.process-images-btn-text")}
+                                        {t("detector-page.process-images-btn-text")}
                                     </div>
                                 </div>
                             )
@@ -404,7 +404,7 @@ function CVDetectionPage() {
                             ? (
                                 <div className="processing-message">
                                     <div
-                                        className="processing-message-text">{t("landmine-detection-page.processing-message-text.text-1")}<br/>{t("landmine-detection-page.processing-message-text.text-2")}
+                                        className="processing-message-text">{t("detector-page.processing-message-text.text-1")}<br/>{t("detector-page.processing-message-text.text-2")}
                                     </div>
                                     <LoadingOverlay visible={isProcessing}/>
                                 </div>
@@ -420,7 +420,7 @@ function CVDetectionPage() {
                                 ref={outputSectionRef}
                                 className="output-section"
                             >
-                                <h1>{t("landmine-detection-page.processed-files-section.title")}</h1>
+                                <h1>{t("detector-page.processed-files-section.title")}</h1>
                                 <section className="images-section">
                                     {processedImages.map(image => {
                                         const imagePreview = URL.createObjectURL(image.file);
@@ -457,13 +457,13 @@ function CVDetectionPage() {
                                                 className="archive-preview-container"
                                             >
                                                 <button onClick={() => removeProcessedArchive(archive.id)}>×</button>
-                                                <h4>{t("landmine-detection-page.archive-item-title").toUpperCase()}</h4>
+                                                <h4>{t("detector-page.archive-item-title").toUpperCase()}</h4>
                                                 <div>{getShortenedString(archive.file.name, screenWidth, SHORTENING_FILE_NAME_RULES)}</div>
                                                 <a
                                                     href={archiveUrl}
                                                     download={archive.file.name} // sets downloaded filename
                                                     className="archive-download-btn"
-                                                >{t("landmine-detection-page.download-archive-btn")}</a>
+                                                >{t("detector-page.download-archive-btn")}</a>
                                                 <img src={ARCHIVE_IMG} alt="Archive"/>
                                             </div>
                                         );
@@ -479,13 +479,13 @@ function CVDetectionPage() {
                                                     id="clear-all-images-btn"
                                                     onClick={clearProcessedFiles}
                                                 >
-                                                    {t("landmine-detection-page.clear-all-images-btn-text")}
+                                                    {t("detector-page.clear-all-images-btn-text")}
                                                 </div>
                                                 <div
                                                     id="view-stats-btn"
                                                     onClick={() => navigate("/hello-world")}
                                                 >
-                                                    {t("landmine-detection-page.view-stats-btn-text")}
+                                                    {t("detector-page.view-stats-btn-text")}
                                                 </div>
                                             </div>
                                         )
@@ -503,4 +503,4 @@ function CVDetectionPage() {
     )
 }
 
-export default CVDetectionPage;
+export default DetectorPage;

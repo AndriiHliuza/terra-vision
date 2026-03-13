@@ -1,4 +1,4 @@
-import "../styles/pages/Map.css";
+import "../styles/pages/MapPage.css";
 import {
     MapContainer,
     Marker,
@@ -20,13 +20,13 @@ import MapPositionDetailsPopup from "../components/MapPositionDetailsPopup.tsx";
 import {MAP_LAYERS} from "../configs/settings.ts";
 import LoadingOverlay from "../components/LoadingOverlay.tsx";
 
-function Map() {
+function MapPage() {
 
     const [popupPosition, setPopupPosition] = useState<[number, number] | null>(null);
     const [isMapLoading, setMapLoading] = useState<boolean>(false);
 
     const [selectedLayer, setSelectedLayer] = useState(
-        () => localStorage.getItem("preferredMapLayer") || "OSM Streets"
+        () => localStorage.getItem("preferredMapLayer") || "OSM Standard"
     );
 
     useEffect(() => {
@@ -118,4 +118,4 @@ function Map() {
     )
 }
 
-export default Map;
+export default MapPage;

@@ -2,8 +2,8 @@ import {createBrowserRouter, Navigate} from "react-router-dom";
 import ApplicationContextProvider from "../context/ApplicationContextProvider.tsx";
 import i18n from "../i18n.ts";
 import LocalizationRoute from "./LocalizationRoute.tsx";
-import CVDetectionPage from "../../pages/CVDetectionPage.tsx";
-import Map from "../../pages/Map.tsx";
+import DetectorPage from "../../pages/DetectorPage.tsx";
+import MapPage from "../../pages/MapPage.tsx";
 import PublicOnlyRoute from "./PublicOnlyRoute.tsx";
 import RegistrationPage from "../../pages/RegistrationPage.tsx";
 import LoginPage from "../../pages/LoginPage.tsx";
@@ -13,8 +13,8 @@ import AdminLayout from "../../layouts/AdminLayout.tsx";
 import AdminDashboard from "../../pages/AdminDashboard.tsx";
 import MapEditor from "../../pages/MapEditor.tsx";
 import {SimpleChartPage} from "../../components/SimpleChartPage.tsx";
-import NotFound from "../../pages/NotFound.tsx";
-import Home from "../../pages/Home.tsx";
+import NotFoundPage from "../../pages/NotFoundPage.tsx";
+import HomePage from "../../pages/HomePage.tsx";
 
 export const router = createBrowserRouter([
     {
@@ -28,12 +28,12 @@ export const router = createBrowserRouter([
                 path: ":lang",
                 element: <LocalizationRoute />,
                 children: [
-                    { index: true, element: <Home /> },
-                    { path: "detector", element: <CVDetectionPage /> },
+                    { index: true, element: <HomePage /> },
+                    { path: "detector", element: <DetectorPage /> },
                     {
                         path: "map",
                         children: [
-                            { index: true, element: <Map /> },
+                            { index: true, element: <MapPage /> },
                             { path: "marker", element: <div>Marker Page</div> }
                         ]
                     },
@@ -41,7 +41,7 @@ export const router = createBrowserRouter([
                         element: <PublicOnlyRoute />,
                         children: [
                             { path: "login",    element: <LoginPage /> },
-                            { path: "sign-in", element: <RegistrationPage /> },
+                            { path: "sign-up", element: <RegistrationPage /> },
                         ]
                     },
                     {
@@ -65,7 +65,7 @@ export const router = createBrowserRouter([
                         ]
                     },
                     { path: "charts", element: <SimpleChartPage /> },
-                    { path: "*", element: <NotFound /> }
+                    { path: "*", element: <NotFoundPage /> }
                 ]
             }
         ]

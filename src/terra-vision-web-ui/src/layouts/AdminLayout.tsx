@@ -1,7 +1,7 @@
 import "../styles/layouts/AdminLayout.css";
 import {Outlet} from "react-router-dom";
 import AdminNavigationPanel from "../components/AdminNavigationPanel.tsx";
-import MatrixBackground from "../components/MatrixBackground.tsx";
+import MatrixBackground from "../components/graphics/MatrixBackground.tsx";
 import Header from "../components/Header.tsx";
 
 function AdminLayout() {

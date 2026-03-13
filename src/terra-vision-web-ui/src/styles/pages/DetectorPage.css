@@ -1,4 +1,4 @@
-#cv-detection-service-page {
+#detector-page {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -12,7 +12,7 @@
     background-size: auto 600px;
 }
 
-#cv-detection-service-page > section {
+#detector-page > section {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -30,11 +30,11 @@
     -webkit-backdrop-filter: blur(var(--glass-blur-px));
 }
 
-#cv-detection-service-page > .input-section {
+#detector-page > .input-section {
     margin-top: 130px;
 }
 
-#cv-detection-service-page > .input-section > h1 {
+#detector-page > .input-section > h1 {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -57,7 +57,7 @@
     transition: transform 0.5s ease;
 }
 
-#cv-detection-service-page > .input-section > .models-section {
+#detector-page > .input-section > .models-section {
     display: flex;
     justify-content: flex-start;
     align-items: center;
@@ -67,7 +67,7 @@
     margin: 30px 0 0 0;
 }
 
-#cv-detection-service-page > .input-section > .models-section > .models-dropdown-container {
+#detector-page > .input-section > .models-section > .models-dropdown-container {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -77,7 +77,7 @@
     min-width: 200px;
 }
 
-#cv-detection-service-page > .input-section > .models-section > .model-description {
+#detector-page > .input-section > .models-section > .model-description {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -90,7 +90,7 @@
     word-spacing: 3px;
 }
 
-#cv-detection-service-page > .input-section > .dropzone-container {
+#detector-page > .input-section > .dropzone-container {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -120,11 +120,11 @@
                 background-color 0.5s ease;
 }
 
-#cv-detection-service-page > .input-section > .dropzone-container::selection {
+#detector-page > .input-section > .dropzone-container::selection {
     background: transparent;
 }
 
-#cv-detection-service-page > .input-section > .dropzone-container:hover {
+#detector-page > .input-section > .dropzone-container:hover {
     box-shadow: 0 0 8px #3c3c3c, 0 0 16px #3c3c3c;
     text-shadow: 0 0 8px whitesmoke, 0 0 16px whitesmoke;
 
@@ -135,18 +135,18 @@
     background-color: var(--glass-hover-bg-color);
 }
 
-#cv-detection-service-page > .input-section > .dropzone-container:active {
+#detector-page > .input-section > .dropzone-container:active {
     transform: scale(0.9);
 }
 
-#cv-detection-service-page > section > .images-section {
+#detector-page > section > .images-section {
     display: flex;
     justify-content: center;
     align-items: center;
     flex-wrap: wrap;
 }
 
-#cv-detection-service-page .images-section > .image-preview-container {
+#detector-page .images-section > .image-preview-container {
     position: relative;
 
     display: flex;
@@ -165,12 +165,12 @@
                 background-color 0.8s ease;
 }
 
-#cv-detection-service-page .images-section > .image-preview-container:hover {
+#detector-page .images-section > .image-preview-container:hover {
     transform: scale(1.1);
     filter: brightness(50%);
 }
 
-#cv-detection-service-page .images-section > .image-preview-container > img {
+#detector-page .images-section > .image-preview-container > img {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -187,11 +187,11 @@
     cursor: grab;
 }
 
-#cv-detection-service-page .images-section > .image-preview-container > img:active {
+#detector-page .images-section > .image-preview-container > img:active {
     cursor: grabbing;
 }
 
-#cv-detection-service-page .images-section > .image-preview-container > .image-name-overlay {
+#detector-page .images-section > .image-preview-container > .image-name-overlay {
     position: absolute;
     bottom: 0;
     left: 0;
@@ -215,11 +215,11 @@
     transition: opacity 0.8s ease;
 }
 
-#cv-detection-service-page .images-section > .image-preview-container:hover > .image-name-overlay {
+#detector-page .images-section > .image-preview-container:hover > .image-name-overlay {
     opacity: 1;
 }
 
-#cv-detection-service-page .images-section > .image-preview-container > button {
+#detector-page .images-section > .image-preview-container > button {
     position: absolute;
     top: 0;
     right: 0;
@@ -241,18 +241,18 @@
     cursor: pointer;
 }
 
-#cv-detection-service-page .images-section > .image-preview-container > button::selection {
+#detector-page .images-section > .image-preview-container > button::selection {
     background: transparent;
 }
 
-#cv-detection-service-page > section > .archives-section {
+#detector-page > section > .archives-section {
     display: flex;
     justify-content: center;
     align-items: center;
     flex-wrap: wrap;
 }
 
-#cv-detection-service-page .archives-section > .archive-preview-container {
+#detector-page .archives-section > .archive-preview-container {
     position: relative;
 
     display: flex;
@@ -278,12 +278,12 @@
                 background-color 0.8s ease;
 }
 
-#cv-detection-service-page .archives-section > .archive-preview-container:hover {
+#detector-page .archives-section > .archive-preview-container:hover {
     transform: scale(1.03);
     background: var(--glass-hover-bg-color);
 }
 
-#cv-detection-service-page .archives-section > .archive-preview-container > h4 {
+#detector-page .archives-section > .archive-preview-container > h4 {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -292,7 +292,7 @@
     margin-bottom: 0;
 }
 
-#cv-detection-service-page .archives-section > .archive-preview-container > div {
+#detector-page .archives-section > .archive-preview-container > div {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -301,7 +301,7 @@
     height: 100%;
 }
 
-#cv-detection-service-page .archives-section > .archive-preview-container > button {
+#detector-page .archives-section > .archive-preview-container > button {
     position: absolute;
     top: -5px;
     right: -5px;
@@ -323,11 +323,11 @@
     cursor: pointer;
 }
 
-#cv-detection-service-page .archives-section > .archive-preview-container > button::selection {
+#detector-page .archives-section > .archive-preview-container > button::selection {
     background: transparent;
 }
 
-#cv-detection-service-page .archives-section > .archive-preview-container > img {
+#detector-page .archives-section > .archive-preview-container > img {
     position: absolute;
     top: 15px;
     left: 10px;
@@ -341,7 +341,7 @@
     height: 30px;
 }
 
-#cv-detection-service-page > .input-section > .processing-message {
+#detector-page > .input-section > .processing-message {
     position: relative;
     display: flex;
     justify-content: space-around;
@@ -360,7 +360,7 @@
     background-color: var(--glass-bg-color);
 }
 
-#cv-detection-service-page > .input-section > .processing-message > .processing-message-text {
+#detector-page > .input-section > .processing-message > .processing-message-text {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -371,7 +371,7 @@
     margin: 0 5px;
 }
 
-#cv-detection-service-page > .input-section > .processing-message > .loading-overlay {
+#detector-page > .input-section > .processing-message > .loading-overlay {
     position: static;
 
     display: flex;
@@ -381,19 +381,19 @@
     margin: 0 5px;
 }
 
-#cv-detection-service-page > .input-section > .processing-message > .loading-overlay > .loading-image {
+#detector-page > .input-section > .processing-message > .loading-overlay > .loading-image {
     width: 50px;
 }
 
-#cv-detection-service-page > section > .controls-wrapper {
+#detector-page > section > .controls-wrapper {
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-#cv-detection-service-page > section #clear-all-images-btn,
-#cv-detection-service-page > section #process-images-btn,
-#cv-detection-service-page > section #view-stats-btn {
+#detector-page > section #clear-all-images-btn,
+#detector-page > section #process-images-btn,
+#detector-page > section #view-stats-btn {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -417,31 +417,31 @@
     transition: all 0.3s ease;
 }
 
-#cv-detection-service-page > section #clear-all-images-btn::selection,
-#cv-detection-service-page > section #process-images-btn::selection,
-#cv-detection-service-page > section #view-stats-btn::selection {
+#detector-page > section #clear-all-images-btn::selection,
+#detector-page > section #process-images-btn::selection,
+#detector-page > section #view-stats-btn::selection {
     background: transparent;
 }
 
-#cv-detection-service-page > section #clear-all-images-btn:hover,
-#cv-detection-service-page > section #process-images-btn:hover,
-#cv-detection-service-page > section #view-stats-btn:hover {
+#detector-page > section #clear-all-images-btn:hover,
+#detector-page > section #process-images-btn:hover,
+#detector-page > section #view-stats-btn:hover {
     background: var(--glass-hover-bg-color);
     transform: scale(1.1);
     width: 200px;
 }
 
-#cv-detection-service-page > section #clear-all-images-btn:active,
-#cv-detection-service-page > section #process-images-btn:active,
-#cv-detection-service-page > section #view-stats-btn:active {
+#detector-page > section #clear-all-images-btn:active,
+#detector-page > section #process-images-btn:active,
+#detector-page > section #view-stats-btn:active {
     transform: scale(0.9);
 }
 
-#cv-detection-service-page > .output-section {
+#detector-page > .output-section {
     margin-top: 0;
 }
 
-#cv-detection-service-page > .output-section > h1 {
+#detector-page > .output-section > h1 {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -463,22 +463,22 @@
 }
 
 
-#cv-detection-service-page > .output-section > .archives-section > .archive-preview-container {
+#detector-page > .output-section > .archives-section > .archive-preview-container {
     height: 150px;
 }
 
-#cv-detection-service-page .images-section > .image-preview-container > .image-download-btn {
+#detector-page .images-section > .image-preview-container > .image-download-btn {
     position: absolute;
     transform: translate(0, 15%);
     opacity: 0;
     transition: opacity 0.5s ease;
 }
 
-#cv-detection-service-page .images-section > .image-preview-container:hover > .image-download-btn {
+#detector-page .images-section > .image-preview-container:hover > .image-download-btn {
     opacity: 1;
 }
 
-#cv-detection-service-page .images-section > .image-preview-container > .image-download-btn > .image-download-icon {
+#detector-page .images-section > .image-preview-container > .image-download-btn > .image-download-icon {
     width: 50px;
     height: 50px;
 
@@ -487,17 +487,17 @@
     transition: transform 0.5s ease, opacity 0.3s ease;
 }
 
-#cv-detection-service-page .images-section > .image-preview-container > .image-download-btn > .image-download-icon:hover {
+#detector-page .images-section > .image-preview-container > .image-download-btn > .image-download-icon:hover {
     transform: scale(1.1);
     opacity: 1;
 }
 
-#cv-detection-service-page .images-section > .image-preview-container > .image-download-btn > .image-download-icon:active {
+#detector-page .images-section > .image-preview-container > .image-download-btn > .image-download-icon:active {
     transform: scale(0.9);
     opacity: 1;
 }
 
-#cv-detection-service-page .archives-section > .archive-preview-container > .archive-download-btn {
+#detector-page .archives-section > .archive-preview-container > .archive-download-btn {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -517,83 +517,83 @@
     transition: transform 0.5s ease, opacity 0.3s ease;
 }
 
-#cv-detection-service-page .archives-section > .archive-preview-container > .archive-download-btn:hover {
+#detector-page .archives-section > .archive-preview-container > .archive-download-btn:hover {
     opacity: 1;
     transform: scale(1.05);
 }
 
-#cv-detection-service-page .archives-section > .archive-preview-container > .archive-download-btn:active {
+#detector-page .archives-section > .archive-preview-container > .archive-download-btn:active {
     opacity: 1;
     transform: scale(0.9);
 }
 
 @media (max-width: 600px) {
-    #cv-detection-service-page > .input-section > .models-section {
+    #detector-page > .input-section > .models-section {
         justify-content: center;
 
         height: 50px;
         width: 85%;
     }
 
-    #cv-detection-service-page > .input-section > .models-section > .models-dropdown-container {
+    #detector-page > .input-section > .models-section > .models-dropdown-container {
         width: 100%;
         min-width: 100px;
     }
 
-    #cv-detection-service-page > .input-section > .models-section > .model-description{
+    #detector-page > .input-section > .models-section > .model-description{
         display: none;
     }
 }
 
 @media (max-width: 488px) {
-    #cv-detection-service-page > section > .controls-wrapper {
+    #detector-page > section > .controls-wrapper {
         flex-direction: column;
     }
 }
 
 @media (max-width: 300px) {
-    #cv-detection-service-page .images-section > .image-preview-container {
+    #detector-page .images-section > .image-preview-container {
         width: 150px;
         height: 150px;
     }
 
-    #cv-detection-service-page .archives-section > .archive-preview-container {
+    #detector-page .archives-section > .archive-preview-container {
         width: 150px;
     }
 
-    #cv-detection-service-page > .input-section > .processing-message > .processing-message-text {
+    #detector-page > .input-section > .processing-message > .processing-message-text {
         font-size: 15px;
     }
 
-    #cv-detection-service-page > .input-section > .processing-message > .loading-overlay > .loading-image {
+    #detector-page > .input-section > .processing-message > .loading-overlay > .loading-image {
         width: 35px;
     }
 
-    #cv-detection-service-page > .input-section > h1 {
+    #detector-page > .input-section > h1 {
         font-size: 20px;
     }
 
-    #cv-detection-service-page > .output-section > h1 {
+    #detector-page > .output-section > h1 {
         font-size: 20px;
     }
 }
 
 @media (max-width: 200px) {
-    #cv-detection-service-page > section #clear-all-images-btn,
-    #cv-detection-service-page > section #process-images-btn,
-    #cv-detection-service-page > section #view-stats-btn {
+    #detector-page > section #clear-all-images-btn,
+    #detector-page > section #process-images-btn,
+    #detector-page > section #view-stats-btn {
         width: 120px;
     }
 
-    #cv-detection-service-page .archives-section > .archive-preview-container {
+    #detector-page .archives-section > .archive-preview-container {
         width: 120px;
     }
 
-    #cv-detection-service-page > .input-section > h1 {
+    #detector-page > .input-section > h1 {
         font-size: 15px;
     }
 
-    #cv-detection-service-page > .output-section > h1 {
+    #detector-page > .output-section > h1 {
         font-size: 15px;
     }
 }

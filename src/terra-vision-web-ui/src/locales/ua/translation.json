@@ -1,8 +1,10 @@
 {
   "header": {
     "home": "Головна",
-    "landmine-detector": "Детектор",
+    "detector": "Детектор",
     "map": "Карта",
+    "login": "Увійти",
+    "account": "Акаунт",
     "languages": {
       "en": {
         "fullName": "Англійська",
@@ -14,7 +16,60 @@
       }
     }
   },
-  "home": {
+  "forms": {
+    "login-form": {
+      "errors": {
+        "invalid-email": "Невалідний формат електронної пошти",
+        "invalid-password": "Пароль має містити щонайменше 8 символів"
+      }
+    },
+    "create-user-form": {
+      "errors": {
+        "invalid-email": "Невалідний формат електронної пошти",
+        "invalid-password": "Пароль має містити щонайменше 8 символів",
+        "passwords-not-match": "Паролі мають співпадати"
+      }
+    }
+  },
+  "login-page": {
+    "title": "Увійти в систему",
+    "labels": {
+      "email": "Логін",
+      "password": "Пароль"
+    },
+
+    "submit-btn": "Увійти",
+
+    "no-account": "Не маєте акаунту?",
+    "sign-up": "Зареєстуватись",
+
+    "errors": {
+      "invalid-credentials": "НЕВІРНІ ДАНІ",
+      "server-error": "ПОМИЛКА СЕРВЕРУ"
+    }
+  },
+  "registration-page": {
+    "title": "Зареєструватись",
+    "labels": {
+      "email": "Логін",
+      "username": "Ім'я користувача",
+      "firstname": "Ім'я",
+      "lastname": "Прізвище",
+      "password": "Пароль",
+      "confirmPassword": "Підтвердити пароль"
+    },
+
+    "submit-btn": "Створити",
+
+    "no-account": "Уже маєте акаунт?",
+    "login": "Увійти",
+
+    "errors": {
+      "account-already-exists": "ACCOUNT ALREADY EXISTS",
+      "server-error": "SERVER ERROR"
+    }
+  },
+  "home-page": {
     "main": {
       "section": {
         "section-controls": {
@@ -39,7 +94,7 @@
       }
     }
   },
-  "landmine-detection-page": {
+  "detector-page": {
     "title": "Детектор",
     "models-dropdown-title": "ОБРАТИ МОДЕЛЬ",
     "model-description-default-text": "Модель не обрано",

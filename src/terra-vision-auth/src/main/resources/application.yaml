@@ -62,7 +62,7 @@ application:
   mail:
     from: noreply@terra-vision.com
     verification-props:
-      base-url: http://localhost:8080/api/auth/registration/confirm # Should be http://localhost:5173 instead of http://localhost:8080
+      base-url: http://localhost:5173/api/auth/registration/confirm # Should be http://localhost:5173 instead of http://localhost:8080
       expiration: 15m
 
   security:

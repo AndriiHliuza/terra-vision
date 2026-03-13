@@ -281,11 +281,11 @@ header #language-controls-btn > .chosen-language-section {
     height: 50px;
     width: 55px;
 
-    border: 2px solid rgba(100, 149, 237, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.2);
     border-radius: 15px;
 
-    backdrop-filter: blur(var(--glass-blur-px));
-    -webkit-backdrop-filter: blur(var(--glass-blur-px));
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
 
     margin-right: 5px;
 }
@@ -660,53 +660,6 @@ header > #header-controls > #language-controls > #language-dropdown-menu > .lang
 
 
 
-
-/* ------ ComputerVisionStatsPage Header styles ------- */
-
-.cv-stats-page > header {
-    color: var(--cv-stats-page-text-color);
-}
-
-.cv-stats-page > header > #header-controls > nav {
-    border: 2px solid var(--cv-stats-page-glass-border-color);
-}
-
-.cv-stats-page > header .nav-menu-item > hr {
-    border: 1px solid var(--cv-stats-page-glass-border-color);
-}
-
-.cv-stats-page > header .nav-menu-item > a:hover {
-    border: 2px solid var(--cv-stats-page-glass-border-color);
-}
-
-.cv-stats-page > header .nav-menu-item > a.active-nav-link {
-    border: 2px solid var(--cv-stats-page-glass-border-color);
-}
-
-.cv-stats-page > header #language-controls-btn {
-    border: 2px solid var(--cv-stats-page-glass-border-color);
-}
-
-.cv-stats-page > header > #header-controls > #language-controls:hover > #language-controls-btn {
-    border: 2px solid var(--cv-stats-page-glass-border-color);
-}
-
-.cv-stats-page > header > #header-controls > #language-controls > #language-dropdown-menu > .language-dropdown-item {
-    border: 2px solid var(--cv-stats-page-glass-border-color);
-}
-
-@media (max-width: 768px) {
-    #map-page > header .nav-menu-item > a.active-nav-link {
-        border: none;
-    }
-
-    #map-page > header > #burger-btn {
-        border: 2px solid var(--cv-stats-page-glass-border-color);
-    }
-}
-
-
-
 /* ------ MapPage Header styles ------- */
 
 #map-page > header > #header-controls > nav {
@@ -739,9 +692,6 @@ header > #header-controls > #language-controls > #language-dropdown-menu > .lang
 
 #map-page > header #language-controls-btn > .chosen-language-section {
     border: 2px solid var(--map-page-glass-border-color);
-
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
 }
 
 #map-page > header > #header-controls > #language-controls > #language-dropdown-menu > .language-dropdown-item {

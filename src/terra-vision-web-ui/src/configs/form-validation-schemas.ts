@@ -2,10 +2,10 @@ import {z} from "zod";
 
 export const getLoginFormSchema = (t: (key: string) => string) => z.object({
     email: z
-        .email(t("login.errors.invalid-email")),
+        .email(t("forms.login-form.errors.invalid-email")),
     password: z
         .string()
-        .min(8, t("login.errors.invalid-password")),
+        .min(8, t("forms.login-form.errors.invalid-password")),
 })
 
 export const getRegistrationFormSchema = (t: (key: string) => string) => z.object({
@@ -13,13 +13,13 @@ export const getRegistrationFormSchema = (t: (key: string) => string) => z.objec
         .string()
         .optional(),
     email: z
-        .email(t("login.errors.invalid-email")),
+        .email(t("forms.create-user-form.errors.invalid-email")),
     password: z
         .string()
-        .min(8, t("login.errors.invalid-password")),
+        .min(8, t("forms.create-user-form.errors.invalid-password")),
     confirmPassword: z
         .string()
-        .min(8, t("login.errors.invalid-password")),
+        .min(8, t("forms.create-user-form.errors.invalid-password")),
     firstname: z
         .string()
         .optional(),
@@ -27,7 +27,7 @@ export const getRegistrationFormSchema = (t: (key: string) => string) => z.objec
         .string()
         .optional(),
 }).refine(data => data.password === data.confirmPassword, {
-    message: t("login.errors.passwords-not-match"),
+    message: t("forms.create-user-form.errors.passwords-not-match"),
     path: ["confirmPassword"]
 })
 

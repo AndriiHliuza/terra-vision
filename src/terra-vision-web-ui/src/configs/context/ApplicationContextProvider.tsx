@@ -5,6 +5,7 @@ import {PermissionStrategy, type User} from "../../commons/schemas/auth-schemas.
 import {Outlet, useNavigate, useParams} from "react-router-dom";
 import defaultProfileImg from "../../assets/default-profile-img.png";
 import axios from "axios";
+import type {LoginFormData} from "../form-validation-schemas.ts";
 
 const ApplicationContextProvider = () => {
 
@@ -88,6 +89,13 @@ const ApplicationContextProvider = () => {
             : requiredPermissions.some(p => hasPermission(p));
     };
 
+    const login = async (data: LoginFormData): Promise<void> => {
+        await axiosWebClient.post("/api/auth/login", data);
+        const me = await axiosWebClient.get<User>("/api/auth/me");
+        setUser(me.data);
+        navigate(`/${lang}/account`, { replace: true });
+    };
+
     const logout = async (): Promise<void> => {
         await axiosWebClient.post("/api/auth/logout");
         setUser(null);
@@ -107,6 +115,7 @@ const ApplicationContextProvider = () => {
             hasPermission,
             hasPermissions,
 
+            login,
             logout,
 
             profileImage,

@@ -1,11 +1,11 @@
-import "../styles/pages/NotFound.css";
+import "../styles/pages/NotFoundPage.css";
 import notFoundImg from "../assets/404-error-icon.webp";
 import {NavLink} from "react-router-dom";
 import leftArrowIcon from "../assets/home.png";
 import {t} from "i18next";
 import i18n from "../configs/i18n.ts";
 
-function NotFound() {
+function NotFoundPage() {
     return (
         <main id="not-found-page">
             <NavLink to={`/${i18n.language}`} className="left-arrow-icon">
@@ -17,4 +17,4 @@ function NotFound() {
     )
 }
 
-export default NotFound;
+export default NotFoundPage;
