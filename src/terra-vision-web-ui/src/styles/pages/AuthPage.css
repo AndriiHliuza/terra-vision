@@ -168,7 +168,6 @@
     cursor: pointer;
 }
 
-
 .auth-page > .auth-form-card > form > .form-card-item > .error-message {
     display: flex;
     justify-content: center;
@@ -249,6 +248,10 @@
     cursor: pointer;
 
     transition: all 0.6s ease;
+}
+
+.auth-page.registration-page > .auth-form-card > form > button {
+    height: 45px;
 }
 
 .auth-page > .auth-form-card > form > button::selection {

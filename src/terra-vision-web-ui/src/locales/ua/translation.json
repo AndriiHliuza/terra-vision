@@ -59,14 +59,14 @@
       "confirmPassword": "Підтвердити пароль"
     },
 
-    "submit-btn": "Створити",
+    "submit-btn": "Створити акаунт",
 
     "no-account": "Уже маєте акаунт?",
     "login": "Увійти",
 
     "errors": {
-      "account-already-exists": "ACCOUNT ALREADY EXISTS",
-      "server-error": "SERVER ERROR"
+      "account-already-exists": "АКАУНТ ВЖЕ ІСНУЄ",
+      "server-error": "ПОМИЛКА СЕРВЕРУ"
     }
   },
   "home-page": {

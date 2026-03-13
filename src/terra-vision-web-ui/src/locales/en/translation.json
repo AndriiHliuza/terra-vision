@@ -65,7 +65,7 @@
     "login": "Login",
 
     "errors": {
-      "account-already-exists": "АКАУНТ ВЖЕ ІСНУЄ",
+      "account-already-exists": "ACCOUNT ALREADY EXISTS",
       "server-error": "SERVER ERROR"
     }
   },

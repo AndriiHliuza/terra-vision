@@ -47,15 +47,15 @@ function RegistrationPage() {
         try {
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const { confirmPassword, ...payload } = data;
-            await axiosWebClient.post("/api/users", payload);
+            await axiosWebClient.post("/api/auth/registration", payload);
             console.log("Check your email")
         } catch (error) {
             if (axios.isAxiosError(error)) {
                 const status = error.response?.status;
                 if (status === 409) {
-                    setError("root", {message: "login-page.errors.account-already-exists"});
+                    setError("root", {message: "registration-page.errors.account-already-exists"});
                 } else {
-                    setError("root", {message: "login-page.errors.server-error"});
+                    setError("root", {message: "registration-page.errors.server-error"});
                 }
             }
         }
