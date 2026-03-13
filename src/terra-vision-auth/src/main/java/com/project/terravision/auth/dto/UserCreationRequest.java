@@ -13,7 +13,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UserCreationRequest {
 
-    @NotBlank
     private String username;
 
     @Email

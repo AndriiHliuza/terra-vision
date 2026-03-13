@@ -3,7 +3,8 @@ import type {PermissionStrategy, User} from "../../commons/schemas/auth-schemas.
 
 export type ApplicationContextData = {
     loading: boolean;
-    setLoading: Dispatch<SetStateAction<boolean>>;
+    loadingBackground: string | undefined;
+    setLoadingLayout: (loading: boolean, background?: string) => void;
 
     user: User | null;
     isAuthenticated:  boolean;
@@ -14,6 +15,11 @@ export type ApplicationContextData = {
     hasPermissions: (permissions: string[], strategy?: PermissionStrategy) => boolean;
 
     logout: () => Promise<void>;
+
+    profileImage: string;
+
+    forbidden: boolean;
+    setForbidden: Dispatch<SetStateAction<boolean>>;
 };
 
 export const ApplicationContext = createContext<ApplicationContextData | undefined>(undefined);

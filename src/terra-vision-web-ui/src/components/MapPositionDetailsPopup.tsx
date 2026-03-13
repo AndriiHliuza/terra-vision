@@ -1,10 +1,11 @@
 import "../styles/components/MapPositionDetailsPopup.css";
-import {ROUTES} from "../configs/settings.ts";
-import {useNavigate} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
+import type {LocationProps} from "../commons/schemas/gis-schemas.ts";
 
 function MapPositionDetailsPopup({ lat, lng }: LocationProps) {
 
     const navigate = useNavigate();
+    const { lang } = useParams();
 
     return (
         <div className="map-position-popup">
@@ -15,7 +16,7 @@ function MapPositionDetailsPopup({ lat, lng }: LocationProps) {
             Lng: {lng.toFixed(6)}
             <br/>
             <button
-                onClick={() => navigate(ROUTES.MAP_ROUTES.MARKER)}
+                onClick={() => navigate(`/${lang}/map/marker`)}
             >
                 ADD
             </button>

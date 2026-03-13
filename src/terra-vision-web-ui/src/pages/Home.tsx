@@ -2,8 +2,7 @@ import "../styles/pages/Home.css";
 import {useTranslation} from "react-i18next";
 import Header from "../components/Header.tsx";
 import Footer from "../components/Footer.tsx";
-import {Link} from "react-router-dom";
-import {ROUTES} from "../configs/settings.ts";
+import {Link, useParams} from "react-router-dom";
 import landmineFieldImg from "../assets/landmines-field.webp";
 import ukraineMapImg from "../assets/ukraine.png";
 import mountainsImg from "../assets/ukraine-mountains.jpg";
@@ -12,6 +11,7 @@ import landmineImg from "../assets/landmine.png";
 function Home() {
 
     const {t} = useTranslation();
+    const { lang } = useParams();
 
     return (
         <>
@@ -34,7 +34,7 @@ function Home() {
                             </div>
                             <div className="try-service-section">
                                 <Link
-                                    to={ROUTES.COMPUTER_VISION_DETECTION_ROUTES.ROOT}
+                                    to={`/${lang}/detector`}
                                     className="try-service-link"
                                 >
                                     {t("home.main.section.section-controls.try-service-link-text")}
@@ -58,7 +58,7 @@ function Home() {
                             </div>
                             <div className="try-service-section">
                                 <Link
-                                    to={ROUTES.MAP_ROUTES.ROOT}
+                                    to={`/${lang}/map`}
                                     className="try-service-link"
                                 >
                                     {t("home.main.section.section-controls.try-service-link-text")}

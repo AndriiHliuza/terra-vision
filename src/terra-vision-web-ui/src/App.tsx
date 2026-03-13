@@ -1,17 +1,31 @@
 import "./App.css";
-import Routing from "./configs/Routing.tsx";
-import ApplicationContextProvider from "./configs/context/ApplicationContextProvider.tsx";
-import {BrowserRouter} from "react-router-dom";
-import GlobalComponents from "./components/GlobalComponents.tsx";
+import {RouterProvider} from "react-router-dom";
+import {router} from "./configs/routing/router.tsx";
+import {ToastContainer} from "react-toastify";
+import BackToTopBtn from "./components/BackToTopBtn.tsx";
+import MouseTrail from "./components/MouseTrail.tsx";
 
 function App() {
     return (
-        <ApplicationContextProvider>
-            <BrowserRouter>
-                <Routing/>
-                <GlobalComponents/>
-            </BrowserRouter>
-        </ApplicationContextProvider>
+        <>
+            {/* Routing settings */}
+            <RouterProvider router={router}/>
+
+            {/* Popup window settings */}
+            <ToastContainer
+                position="bottom-left"
+                autoClose={5000}
+                newestOnTop={true}
+                closeOnClick={true}
+                pauseOnHover={true}
+                draggable={true}
+                theme="colored"
+            />
+
+            {/* UI elements */}
+            <BackToTopBtn />
+            <MouseTrail />
+        </>
     )
 }
 

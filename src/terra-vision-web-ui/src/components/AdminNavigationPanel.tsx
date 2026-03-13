@@ -1,6 +1,5 @@
 import "../styles/components/AdminNavigationPanel.css";
-import {NavLink} from "react-router-dom";
-import {ROUTES} from "../configs/settings.ts";
+import {NavLink, useParams} from "react-router-dom";
 import dashboardIcon from "../assets/dashboard-icon.png";
 import mapEditorIcon from "../assets/map-editor-icon.png";
 import sidebarBtnIcon from "../assets/sidebar-btn.png";
@@ -11,6 +10,7 @@ import {useTranslation} from "react-i18next";
 function AdminNavigationPanel() {
 
     const {t} = useTranslation();
+    const { lang } = useParams();
 
     const [isNavPanelCollapsed, setNavPanelCollapsed] = useState<boolean>(() => {
         if (window.innerWidth < 768) return true; // small screens always collapsed
@@ -23,8 +23,8 @@ function AdminNavigationPanel() {
     });
 
     const links = [
-        {to: ROUTES.ADMIN_ROUTES.DASHBOARD, label: t("admin-page.dashboard.tab-name"), icon: dashboardIcon},
-        {to: ROUTES.ADMIN_ROUTES.MAP_EDITOR, label: t("admin-page.map-editor.tab-name"), icon: mapEditorIcon}
+        {to: `/${lang}/admin/dashboard`, label: t("admin-page.dashboard.tab-name"), icon: dashboardIcon},
+        {to: `/${lang}/admin/map-editor`, label: t("admin-page.map-editor.tab-name"), icon: mapEditorIcon}
     ];
 
     const handleNavPanelCollapse = () => {

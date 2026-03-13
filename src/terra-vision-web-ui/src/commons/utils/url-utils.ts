@@ -1,5 +1,3 @@
-import {SUPPORTED_LANGUAGES} from "../../configs/settings.ts";
-
 /* <<<<<<<<<<<< schemas >>>>>>>>>>>> */
 export const URL_TYPE = {
     ABSOLUTE: "absolute",
@@ -30,11 +28,4 @@ export function buildUrl(
     }
 
     return urlBuilders[urlType](url);
-}
-
-export function buildUrlForAllLanguages(urlSegments: string | string[], urlType: UrlType = URL_TYPE.ABSOLUTE) {
-    return SUPPORTED_LANGUAGES.map(lang => {
-        const segments = Array.isArray(urlSegments) ? [lang, ...urlSegments] : [lang, urlSegments];
-        return buildUrl(segments, urlType);
-    });
 }

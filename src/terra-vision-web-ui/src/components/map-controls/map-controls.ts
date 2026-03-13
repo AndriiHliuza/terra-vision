@@ -47,7 +47,7 @@ export function MapResizeHandler() {
     return null;
 }
 
-// Helper to add hover styles
+// Helper function to add hover styles
 export const getShapeEventHandlers = (defaultStyle: L.PathOptions, hoverStyle: L.PathOptions) => ({
     mouseover: (e: L.LeafletMouseEvent) => {
         e.target.setStyle(hoverStyle);

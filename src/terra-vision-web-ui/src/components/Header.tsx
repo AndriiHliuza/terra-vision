@@ -1,18 +1,14 @@
 import "../styles/components/Header.css";
 import {useEffect, useRef, useState} from "react";
 import {NavLink, useLocation, useNavigate, useParams} from "react-router-dom";
-import {ROUTES} from "../configs/settings.ts";
 import {useTranslation} from "react-i18next";
 import clsx from 'clsx';
 import {Menu, X} from "lucide-react";
 import ukrainianFlag from "../assets/ukraine-flag.png";
 import unitedKingdomFlag from "../assets/united-kingdom-flag.png"
 import doubleDownArrowImg from "../assets/double-down-arrow.png";
-import defaultProfileImg from "../assets/default-profile-img.png";
 import i18n from "../configs/i18n.ts";
 import {useAppContext} from "../configs/context/contexts.ts";
-import {axiosWebClient} from "../configs/axiosWebClient.ts";
-import axios from "axios";
 
 
 function Header({scrollOffset = 1000}: { scrollOffset?: number }) {
@@ -22,7 +18,7 @@ function Header({scrollOffset = 1000}: { scrollOffset?: number }) {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const { isAuthenticated, user } = useAppContext();
+    const { isAuthenticated, profileImage } = useAppContext();
 
     const [headerHidden, setHeaderHidden] = useState(false);
     const [lastScrollPosition, setLastScrollPosition] = useState(0);
@@ -35,28 +31,6 @@ function Header({scrollOffset = 1000}: { scrollOffset?: number }) {
 
     const lastScrollPositionRef = useRef<number>(lastScrollPosition);
     const headerControlsOpenRef = useRef<boolean>(headerControlsOpen);
-
-    const [profileImage, setProfileImage] = useState<string>(defaultProfileImg);
-
-    useEffect(() => {
-        const controller = new AbortController();
-        let profileImageUrl: string | null = null;
-        axiosWebClient.get(`/api/users/${user?.id}/profile/image`, {
-            signal: controller.signal,
-            responseType: 'blob',
-        }).then(res => {
-                profileImageUrl = URL.createObjectURL(res.data);
-                setProfileImage(profileImageUrl);
-            }).catch(err => {
-                if (axios.isCancel(err)) return;
-            });
-        return () => {
-            controller.abort(); // Stops the fetch if user navigates away
-            if (profileImageUrl) {
-                URL.revokeObjectURL(profileImageUrl); // Releases the image from RAM
-            }
-        };
-    }, [user?.id]);
 
     useEffect(() => {
         lastScrollPositionRef.current = lastScrollPosition;
@@ -126,8 +100,8 @@ function Header({scrollOffset = 1000}: { scrollOffset?: number }) {
 
     const links = [
         {to: `/${lang}`, label: t("header.home")},
-        {to: `/${lang}/${ROUTES.COMPUTER_VISION_DETECTION_ROUTES.ROOT}`, label: t("header.landmine-detector")},
-        {to: `/${lang}/${ROUTES.MAP_ROUTES.ROOT}`, label: t("header.map")},
+        {to: `/${lang}/detector`, label: t("header.landmine-detector")},
+        {to: `/${lang}/map`, label: t("header.map")},
     ];
 
     const languages = [
@@ -184,7 +158,7 @@ function Header({scrollOffset = 1000}: { scrollOffset?: number }) {
                 </nav>
                 <div className={clsx("auth-controls", {"hide-header": headerHidden})}>
                     <NavLink
-                        to={isAuthenticated ? `/${lang}/${ROUTES.ACCOUNT_ROUTES.ROOT}` : `/${lang}/${ROUTES.LOGIN}`}
+                        to={isAuthenticated ? `/${lang}/account` : `/${lang}/login`}
                         className="auth-link">
                         {isAuthenticated ? (
                             <>

@@ -6,14 +6,11 @@ import {useTranslation} from "react-i18next";
 import {toast} from "react-toastify";
 import PopUp from "../components/PopUp.tsx";
 import downloadIcon from "../assets/download-icon.png";
-import {API_URLS} from "../configs/settings.ts";
 import ARCHIVE_IMG from "../assets/archive-icon.png";
 import {Dropdown} from "../components/Dropdown.tsx";
-import {axiosWebClient} from "../configs/axiosWebClient.ts";
+import {axiosWebClient} from "../configs/axios-web-client.ts";
 import i18n from "../configs/i18n.ts";
-import axios from "axios";
 import JSZip from "jszip";
-import PartialLoadingOverlay from "../components/PartialLoadingOverlay.tsx";
 import {useNavigate} from "react-router-dom";
 import {useScreenWidth} from "../commons/hooks/hooks.ts";
 import {
@@ -26,6 +23,7 @@ import {
 } from "../commons/utils/file-utils.ts";
 import {getShortenedString, type StringShorteningRule} from "../commons/utils/string-utils.ts";
 import type {CVModelDescription, CVModelDescriptionResponse} from "../commons/dto/cv-dtos.ts";
+import LoadingOverlay from "../components/LoadingOverlay.tsx";
 
 const SHORTENING_FILE_NAME_RULES: StringShorteningRule[] = [
     {maxScreenWidth: 300, startStringLength: 3, endStringLength: 4},
@@ -54,7 +52,7 @@ function CVDetectionPage() {
 
     useEffect(() => {
         /* Getting all schemas */
-        axiosWebClient.get<CVModelDescriptionResponse>(API_URLS.AI_API_URLS.CV_YOLO_URLS.MODELS_DETAILS_URL, {
+        axiosWebClient.get<CVModelDescriptionResponse>("/api/ai/cv/yolo/models/details", {
             params: {lang: i18n.language}
         }).then(response => {
             setModels(response.data.cv_models)
@@ -110,8 +108,8 @@ function CVDetectionPage() {
         formData.append("user_id", "my-random-user-id");
         formData.append("model_id", modelId);
         archives.forEach(archive => formData.append("archives", archive));
-        return await axios.post(
-            API_URLS.AI_API_URLS.CV_YOLO_URLS.DETECTIONS_URL,
+        return await axiosWebClient.post(
+            "/api/ai/cv/yolo/detections",
             formData,
             {
                 headers: {"Content-Type": "multipart/form-data"}
@@ -120,7 +118,7 @@ function CVDetectionPage() {
     }
 
     async function getProcessedArchive(userId: string, jobId: string) {
-        return await axios.get(`${API_URLS.AI_API_URLS.CV_YOLO_URLS.DETECTIONS_RESULTS_URL}/${userId}/processed`, {
+        return await axiosWebClient.get(`/api/ai/cv/yolo/detections/results/${userId}/processed`, {
             params: {cv_processing_job_timestamp: jobId},
             responseType: "blob",
         });
@@ -408,7 +406,7 @@ function CVDetectionPage() {
                                     <div
                                         className="processing-message-text">{t("landmine-detection-page.processing-message-text.text-1")}<br/>{t("landmine-detection-page.processing-message-text.text-2")}
                                     </div>
-                                    <PartialLoadingOverlay visible={isProcessing}/>
+                                    <LoadingOverlay visible={isProcessing}/>
                                 </div>
                             )
                             : null

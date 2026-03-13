@@ -20,10 +20,13 @@ public class GlobalExceptionHandler {
 
     /* ------ Custom Exceptions Handling ------ */
 
-    // --- Base Exception class for custom exceptions
+    // --- Global BAD_REQUEST (400) handling
 
-    @ExceptionHandler(ApplicationException.class)
-    public ProblemDetail handleApplicationException(ApplicationException ex, HttpServletRequest request) {
+    @ExceptionHandler({
+            ApplicationException.class, // Base Exception class for custom exceptions
+            IllegalArgumentException.class
+    })
+    public ProblemDetail handleApplicationException(Exception ex, HttpServletRequest request) {
         return WebUtils.createProblemDetails(
                 HttpStatus.BAD_REQUEST,
                 request,

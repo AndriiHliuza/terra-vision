@@ -8,19 +8,18 @@ import {
 import {useEffect, useRef, useState, type MouseEvent as ReactMouseEvent} from "react";
 import type {MarkerData} from "../commons/schemas/gis-schemas.ts";
 import {stubMarkers} from "../commons/stubs/map-stubs.ts";
-import {MapEventsHandler, MapResizeHandler} from "../commons/utils/map-controls.ts";
+import {MapEventsHandler, MapResizeHandler} from "../components/map-controls/map-controls.ts";
 import MapLayers from "../components/MapLayers.tsx";
-import PartialLoadingOverlay from "../components/PartialLoadingOverlay.tsx";
 import {useTranslation} from "react-i18next";
-import {MAP_LAYERS, ROUTES} from "../configs/settings.ts";
 import clsx from "clsx";
 import dropdownBtnImg from "../assets/two-arrows-down.png";
-import {useNavigate} from "react-router-dom";
+import {MAP_LAYERS} from "../configs/settings.ts";
+import LoadingOverlay from "../components/LoadingOverlay.tsx";
+import MapPositionDetailsPopup from "../components/MapPositionDetailsPopup.tsx";
 
 function MapEditor() {
 
     const {t} = useTranslation();
-    const navigate = useNavigate();
 
     const [isMapLoading, setMapLoading] = useState(true);
 
@@ -150,23 +149,8 @@ function MapEditor() {
                     {popupPosition && (
                         <Popup
                             position={popupPosition}
-                            eventHandlers={{
-                                remove: () => setPopupPosition(null)
-                            }}
                         >
-                            <div>
-                                <strong>Coordinates:</strong>
-                                <br/>
-                                Lat: {popupPosition[0].toFixed(6)}
-                                <br/>
-                                Lng: {popupPosition[1].toFixed(6)}
-                                <br/>
-                                <button
-                                    onClick={() => navigate(ROUTES.MAP_ROUTES.MARKER)}
-                                >
-                                    ADD
-                                </button>
-                            </div>
+                            <MapPositionDetailsPopup lat={popupPosition[0]} lng={popupPosition[1]}/>
                         </Popup>
                     )}
                     <MapEventsHandler
@@ -181,7 +165,7 @@ function MapEditor() {
                     <hr/>
                 </div>
 
-                <PartialLoadingOverlay visible={isMapLoading}/>
+                <LoadingOverlay visible={isMapLoading}/>
             </div>
 
             {/* ✅ External Layer Switcher */}

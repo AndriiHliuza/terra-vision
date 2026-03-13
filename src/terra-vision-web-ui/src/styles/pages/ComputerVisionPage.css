@@ -371,7 +371,7 @@
     margin: 0 5px;
 }
 
-#cv-detection-service-page > .input-section > .processing-message > .partial-loading-overlay {
+#cv-detection-service-page > .input-section > .processing-message > .loading-overlay {
     position: static;
 
     display: flex;
@@ -381,7 +381,7 @@
     margin: 0 5px;
 }
 
-#cv-detection-service-page > .input-section > .processing-message > .partial-loading-overlay > .loading-image {
+#cv-detection-service-page > .input-section > .processing-message > .loading-overlay > .loading-image {
     width: 50px;
 }
 
@@ -565,7 +565,7 @@
         font-size: 15px;
     }
 
-    #cv-detection-service-page > .input-section > .processing-message > .partial-loading-overlay > .loading-image {
+    #cv-detection-service-page > .input-section > .processing-message > .loading-overlay > .loading-image {
         width: 35px;
     }
 

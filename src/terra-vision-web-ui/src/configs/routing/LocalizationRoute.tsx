@@ -1,10 +1,10 @@
 import {Outlet, useParams} from "react-router-dom";
 import {useEffect} from "react";
-import {SUPPORTED_LANGUAGES} from "./settings.ts";
-import i18n from "./i18n.ts";
-import NotFound from "../pages/NotFound.tsx";
+import {SUPPORTED_LANGUAGES} from "../settings.ts";
+import i18n from "../i18n.ts";
+import NotFound from "../../pages/NotFound.tsx";
 
-export default function Localization() {
+export default function LocalizationRoute() {
     const { lang } = useParams();
 
     const isValidLang = lang && SUPPORTED_LANGUAGES.includes(lang);

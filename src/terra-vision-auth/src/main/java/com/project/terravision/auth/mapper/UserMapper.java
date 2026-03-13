@@ -23,6 +23,7 @@ import java.util.Map;
 public interface UserMapper {
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "username", ignore = true)
     @Mapping(target = "imageId", ignore = true)
     @Mapping(target = "accountState", expression = "java(AccountState.PENDING_VERIFICATION)")
     @Mapping(target = "verifiedAt", ignore = true)
@@ -39,12 +40,21 @@ public interface UserMapper {
     );
 
     @AfterMapping
-    default void encodePassword(
+    default void handlePasswordAndUsernameMapping(
             @MappingTarget User user,
             UserCreationRequest request,
             @Context PasswordEncoder passwordEncoder
     ) {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
+
+        String username = request.getUsername();
+        if (username == null || username.isBlank()) {
+            username = request.getEmail().split("@")[0];
+            if (username.isBlank()) {
+                throw new IllegalArgumentException("Cannot derive username from email: " + request.getEmail());
+            }
+        }
+        user.setUsername(username);
     }
 
     UserCreationResponse toUserCreationResponse(User user);

@@ -14,15 +14,15 @@ function BackToTopBtn({ scrollOffset = 1000 }: { scrollOffset?: number }) {
         });
     };
 
-    const handleScroll = () => {
-        const currentScroll = window.scrollY;
-        setVisible(currentScroll > scrollOffset);
-    };
-
     useEffect(() => {
+        const handleScroll = () => {
+            const currentScroll = window.scrollY;
+            setVisible(currentScroll > scrollOffset);
+        };
+        
         window.addEventListener("scroll", handleScroll);
         return () => window.removeEventListener("scroll", handleScroll);
-    }, []);
+    }, [scrollOffset]);
 
     return (
         <div

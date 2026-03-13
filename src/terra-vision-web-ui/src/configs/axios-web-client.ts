@@ -1,5 +1,5 @@
 import axios from "axios";
-import {API_DOMAIN, ROUTES} from "./settings.ts";
+import {API_DOMAIN} from "./settings.ts";
 
 export const axiosWebClient = axios.create({
     baseURL: API_DOMAIN,
@@ -25,17 +25,10 @@ axiosWebClient.interceptors.response.use(config => {
 axiosWebClient.interceptors.response.use(
     response => response,
     error => {
-        const url = error.config?.url ?? '';
         const status = error.response?.status;
 
-        // Skip /api/auth/me
-        if (url.includes('/api/auth/me')) return Promise.reject(error);
-        if (url.includes('/profile/image')) return Promise.reject(error);
-
-        const lang = window.location.pathname.split('/')[1] ?? 'en';
-
-        if (status === 401) window.location.href = `/${lang}/${ROUTES.LOGIN}`;
-        if (status === 403) window.location.href = `/${lang}/${ROUTES.FORBIDDEN}`;
+        if (status === 401) window.dispatchEvent(new CustomEvent('auth:unauthorized'));
+        if (status === 403) window.dispatchEvent(new CustomEvent('auth:forbidden'));
 
         return Promise.reject(error);
     }

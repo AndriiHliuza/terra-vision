@@ -4,56 +4,12 @@ import layer_OpenTopoMap from "../assets/map-layers/OpenTopoMap.png"
 import layer_ESRI_Satellite from "../assets/map-layers/ESRI_Satellite.png"
 import layer_ESRI_Topographic from "../assets/map-layers/ESRI_Topographic.png"
 import layer_Carto_Light from "../assets/map-layers/Carto_Light.png"
-import {buildUrlForAllLanguages, URL_TYPE} from "../commons/utils/url-utils.ts";
 
 /* Localization */
 export const SUPPORTED_LANGUAGES = ["en", "ua"]
 
-/* Routing section */
-export const ROUTES = {
-    ROOT: "/",
-    MAP_ROUTES: {
-        ROOT: "map",
-        MARKER: "marker",
-    },
-    COMPUTER_VISION_DETECTION_ROUTES: {
-        ROOT: "cv-detection",
-    },
-    LOGIN: "login",
-    REGISTER: "register",
-    ACCOUNT_ROUTES: {
-        ROOT: "account"
-    },
-    ADMIN_ROUTES: {
-        ROOT: "admin",
-        DASHBOARD: "dashboard",
-        MAP_EDITOR: "map-editor"
-    },
-    FORBIDDEN: "forbidden",
-    NOT_FOUND: "*",
-}
-
-/* Mouse trail settings */
-export const ROUTES_WITHOUT_MOUSE_TRAIL = [
-    ...buildUrlForAllLanguages(ROUTES.MAP_ROUTES.ROOT, URL_TYPE.ABSOLUTE),
-    ...buildUrlForAllLanguages(ROUTES.COMPUTER_VISION_DETECTION_ROUTES.ROOT, URL_TYPE.ABSOLUTE),
-    ...buildUrlForAllLanguages([ROUTES.ADMIN_ROUTES.ROOT, ROUTES.ADMIN_ROUTES.DASHBOARD], URL_TYPE.ABSOLUTE),
-    ...buildUrlForAllLanguages([ROUTES.ADMIN_ROUTES.ROOT, ROUTES.ADMIN_ROUTES.MAP_EDITOR], URL_TYPE.ABSOLUTE),
-]
-
 /* API URLS */
 export const API_DOMAIN = "http://localhost:8080"
-export const API_URLS = {
-    ME: API_DOMAIN + "/api/auth/me",
-    LOGOUT: API_DOMAIN + "/api/auth/logout",
-    AI_API_URLS: {
-        CV_YOLO_URLS: {
-            MODELS_DETAILS_URL: API_DOMAIN + "/api/ai/cv/yolo/models/details",
-            DETECTIONS_URL: API_DOMAIN + "/api/ai/cv/yolo/detections",
-            DETECTIONS_RESULTS_URL: API_DOMAIN + "/api/ai/cv/yolo/detections/results",
-        }
-    },
-}
 
 /* Map section */
 export const MAP_LAYERS = [
@@ -94,6 +50,4 @@ export const MAP_LAYERS = [
         img: layer_Carto_Light
     }
 ]
-
-
 
