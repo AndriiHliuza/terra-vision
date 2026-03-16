@@ -7,6 +7,7 @@ import com.project.terravision.auth.service.VerificationTokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -20,7 +21,7 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
     private static final String LATEST_PREFIX = "latest:";
 
     private final MailProperties mailProperties;
-    private final RedisTemplate<String, String> redisTemplate;
+    private final StringRedisTemplate stringRedisTemplate;
 
     /**
      * Generates a new email verification token and stores it in Redis.
@@ -58,12 +59,12 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
         String commonKeyPrefix = VERIFY_PREFIX.concat(getVerificationTypePrefix(verificationType));
 
         String tokenKey = commonKeyPrefix.concat(token);
-        redisTemplate.opsForValue().set(tokenKey, userId.toString(), expiration);
+        stringRedisTemplate.opsForValue().set(tokenKey, userId.toString(), expiration);
 
         String latestKey = commonKeyPrefix.concat(LATEST_PREFIX).concat(userId.toString());
-        redisTemplate.opsForValue().set(latestKey, token, expiration);
+        stringRedisTemplate.opsForValue().set(latestKey, token, expiration);
 
-        log.debug("Verification token generated for user with id: '{}', verification type: '{}'", userId, verificationType);
+        log.debug("Verification token generated for user with id={}, Verification type: {}", userId, verificationType);
         return token;
     }
 
@@ -91,19 +92,19 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
         String commonKeyPrefix = VERIFY_PREFIX.concat(getVerificationTypePrefix(verificationType));
 
         String tokenKey = commonKeyPrefix.concat(token);
-        String userId = redisTemplate.opsForValue().get(tokenKey);
+        String userId = stringRedisTemplate.opsForValue().get(tokenKey);
 
         if (userId == null) throw new InvalidVerificationToken();
 
         String latestKey = commonKeyPrefix.concat(LATEST_PREFIX).concat(userId);
-        String latestToken = redisTemplate.opsForValue().get(latestKey);
+        String latestToken = stringRedisTemplate.opsForValue().get(latestKey);
 
         if (!token.equals(latestToken)) throw new InvalidVerificationToken();
 
-        redisTemplate.delete(tokenKey);
-        redisTemplate.delete(latestKey);
+        stringRedisTemplate.delete(tokenKey);
+        stringRedisTemplate.delete(latestKey);
 
-        log.debug("Verification token validated for user with id: '{}', Verification type: '{}'", userId, verificationType);
+        log.debug("Verification token validated for user with id: {}, Verification type: {}", userId, verificationType);
         return UUID.fromString(userId);
     }
 

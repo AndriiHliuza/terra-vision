@@ -73,6 +73,7 @@ application:
       reset-password-email-subject:
         en: "Reset your password"
         uk: "Скидання пароля"
+    fallback-email-subject: "Terra Vision Mail"
     verification-props:
       base-url: http://localhost:5173
       url-to-verify-email: /verify-email

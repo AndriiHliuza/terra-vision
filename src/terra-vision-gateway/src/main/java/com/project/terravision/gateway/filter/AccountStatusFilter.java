@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.core.Ordered;
 import org.springframework.core.io.buffer.DataBuffer;
-import org.springframework.data.redis.core.ReactiveRedisTemplate;
+import org.springframework.data.redis.core.ReactiveStringRedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -22,16 +22,14 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
-import tools.jackson.databind.ObjectMapper;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class AccountStatusFilter implements WebFilter, Ordered {
 
-    private final ReactiveRedisTemplate<String, Object> reactiveRedisTemplate;
+    private final ReactiveStringRedisTemplate reactiveStringRedisTemplate;
     private final ReactiveJwtDecoder jwtDecoder;
-    private final ObjectMapper objectMapper;
     private final WebClient authWebClient;
 
     private static final String ACCOUNT_STATUS_PREFIX = "account:status:";
@@ -47,32 +45,26 @@ public class AccountStatusFilter implements WebFilter, Ordered {
             return chain.filter(exchange);
         }
 
-        String authorizationHeader = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
-        if (authorizationHeader == null || !authorizationHeader.startsWith(WebAttributes.BEARER_PREFIX)) {
-            return chain.filter(exchange);
+        /*
+        * 'verifiedUserId' is being set in SessionValidationFilter after session is validated
+        * */
+        String userId = exchange.getAttribute("verifiedUserId");
+        if (userId == null) {
+            log.warn("verifiedUserId not found in exchange attributes — session was not validated");
+            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+            return exchange.getResponse().setComplete();
         }
 
-        String token = authorizationHeader.substring(WebAttributes.BEARER_PREFIX.length());
-
-        return jwtDecoder.decode(token)
-                .flatMap(jwt -> {
-                    String userId = jwt.getClaim("userId");
-                    return reactiveRedisTemplate.opsForValue()
-                            .get(ACCOUNT_STATUS_PREFIX + userId)
-                            .map(status -> AccountStatus.valueOf(objectMapper.convertValue(status, String.class)))
-                            .switchIfEmpty(fetchFromAuthServiceAndCache(userId))
-                            .flatMap(accountStatus -> {
-                                if (accountStatus != AccountStatus.ACTIVE) {
-                                    log.warn("Account status check failed for userId: {},  Account status: {}", userId, accountStatus);
-                                    return rejectRequest(exchange, accountStatus);
-                                }
-                                return chain.filter(exchange);
-                            });
-                })
-                .onErrorResume(JwtException.class, e -> {
-                    log.error("Invalid JWT during account status check: {}", e.getMessage());
-                    exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-                    return exchange.getResponse().setComplete();
+        return reactiveStringRedisTemplate.opsForValue()
+                .get(ACCOUNT_STATUS_PREFIX + userId)
+                .map(AccountStatus::valueOf)
+                .switchIfEmpty(fetchFromAuthServiceAndCache(userId))
+                .flatMap(accountStatus -> {
+                    if (accountStatus != AccountStatus.ACTIVE) {
+                        log.warn("Account status check failed for userId={},  Account status: {}", userId, accountStatus);
+                        return rejectRequest(exchange, accountStatus);
+                    }
+                    return chain.filter(exchange);
                 });
     }
 
@@ -86,13 +78,13 @@ public class AccountStatusFilter implements WebFilter, Ordered {
     }
 
     private Mono<AccountStatus> fetchFromAuthServiceAndCache(String userId) {
-        log.debug("Account status cache miss for userId: {} — fetching from auth microservice", userId);
+        log.debug("Account status cache miss for userId={} — fetching from auth microservice", userId);
         return authWebClient.get()
                 .uri("/api/auth/internal/account-status/{userId}", userId)
                 .retrieve()
                 .bodyToMono(String.class)
                 .map(AccountStatus::valueOf)
-                .flatMap(status -> reactiveRedisTemplate.opsForValue()
+                .flatMap(status -> reactiveStringRedisTemplate.opsForValue()
                         .set(ACCOUNT_STATUS_PREFIX + userId, status.name())
                         .thenReturn(status)
                 );

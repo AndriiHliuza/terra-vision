@@ -63,7 +63,7 @@ public class AuthenticationResponseToTokenCookiesGatewayFilterFactory extends Ab
                             AuthenticationResponse authenticationResponse = objectMapper.convertValue(originalBody, AuthenticationResponse.class);
                             //noinspection ConstantValue
                             if (authenticationResponse == null) {
-                                log.warn("AuthResponse is null — auth service returned non authenticated response body");
+                                log.warn("AuthResponse is null — auth service returned non-authenticated response body");
                                 return Mono.empty();
                             }
 

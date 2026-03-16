@@ -37,6 +37,7 @@ public class AccessTokenCookieToAuthorizationHeaderTransformationFilter implemen
             log.debug("Public path [{}] — skipping 'accessToken' cookie to Authorization header transformation", path);
             return chain.filter(exchange);
         }
+
         if (request.getHeaders().containsHeader(HttpHeaders.AUTHORIZATION)) {
             log.debug("Authorization header already present — skipping 'accessToken' cookie to Authorization header transformation");
             return chain.filter(exchange);
@@ -69,7 +70,7 @@ public class AccessTokenCookieToAuthorizationHeaderTransformationFilter implemen
                 exchange.getRequest().getCookies(),
                 List.of(WebAttributes.ACCESS_TOKEN_COOKIE, WebAttributes.REFRESH_TOKEN_COOKIE)
         );
-        log.debug("'accessToken' and 'refreshToken' cookies were removed from 'Cookie' header");
+        log.debug("Filtering cookies. 'accessToken' and 'refreshToken' cookies were removed from 'Cookie' header");
         return exchange.getRequest().mutate()
                 .header(HttpHeaders.AUTHORIZATION, WebAttributes.BEARER_PREFIX + accessToken)
                 .headers(headers -> mutateCookieHeader(headers, filteredCookies))

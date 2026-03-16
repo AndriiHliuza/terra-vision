@@ -22,9 +22,8 @@ public class InternalServiceImpl implements InternalService {
 
     @Override
     public AccountStatus getAccountStatus(String userId) {
-        log.debug("[Internal request] — Fetching account status for userId: '{}'", userId);
         User user = userRepository.findById(UUID.fromString(userId)).orElseThrow(
-                () -> new UserNotFoundException("User with id: '%s' not found".formatted(userId))
+                () -> new UserNotFoundException("User with id=%s not found".formatted(userId))
         );
 
         accountStatusCacheService.cacheAccountStatus(user.getId(), user.getAccountStatus());

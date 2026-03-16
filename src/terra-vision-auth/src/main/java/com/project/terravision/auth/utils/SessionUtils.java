@@ -1,16 +1,12 @@
-package com.project.terravision.auth.service.impl;
+package com.project.terravision.auth.utils;
 
 import com.project.terravision.auth.config.WebAttributes;
 import com.project.terravision.auth.dto.SessionDetails;
-import com.project.terravision.auth.service.SessionDetailsService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpHeaders;
-import org.springframework.stereotype.Service;
 
-@Service
-public class SessionDetailsServiceImpl implements SessionDetailsService {
-    @Override
-    public SessionDetails getSessionDetails(HttpServletRequest request) {
+public abstract class SessionUtils {
+    public static SessionDetails getSessionDetails(HttpServletRequest request) {
         return SessionDetails.builder()
                 .ip(getIp(request))
                 .browser(getBrowser(request))
@@ -20,15 +16,13 @@ public class SessionDetailsServiceImpl implements SessionDetailsService {
                 .build();
     }
 
-    @Override
-    public String getIp(HttpServletRequest request) {
+    public static String getIp(HttpServletRequest request) {
         String ip = request.getHeader(WebAttributes.X_FORWARDED_FOR_HEADER); // behind proxy/gateway
         if (ip == null || ip.isBlank()) ip = request.getRemoteAddr();
         return ip;
     }
 
-    @Override
-    public String getOs(HttpServletRequest request) {
+    public static String getOs(HttpServletRequest request) {
         String userAgent = request.getHeader(HttpHeaders.USER_AGENT);
         if (userAgent == null) return "unknown";
         if (userAgent.contains("Windows")) return "Windows";
@@ -39,8 +33,7 @@ public class SessionDetailsServiceImpl implements SessionDetailsService {
         return "unknown";
     }
 
-    @Override
-    public String getBrowser(HttpServletRequest request) {
+    public static String getBrowser(HttpServletRequest request) {
         String userAgent = request.getHeader(HttpHeaders.USER_AGENT);
         if (userAgent == null) return "unknown";
         if (userAgent.contains("OPR")) return "Opera";

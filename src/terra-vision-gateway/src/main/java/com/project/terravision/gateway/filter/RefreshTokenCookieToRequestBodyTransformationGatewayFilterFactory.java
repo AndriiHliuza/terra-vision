@@ -113,6 +113,7 @@ public class RefreshTokenCookieToRequestBodyTransformationGatewayFilterFactory e
                 exchange.getRequest().getCookies(),
                 List.of(WebAttributes.ACCESS_TOKEN_COOKIE, WebAttributes.REFRESH_TOKEN_COOKIE)
         );
+        log.debug("Filtering cookies. 'accessToken' and 'refreshToken' cookies were removed from 'Cookie' header");
 
         return exchange.getRequest().mutate()
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)

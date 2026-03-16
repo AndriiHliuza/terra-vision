@@ -4,6 +4,7 @@ import com.project.terravision.auth.dto.request.AuthenticationRequest;
 import com.project.terravision.auth.dto.request.ResetPasswordRequest;
 import com.project.terravision.auth.dto.response.AuthenticationResponse;
 import com.project.terravision.auth.dto.response.MeResponse;
+import com.project.terravision.auth.enums.EmailVerificationType;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -19,8 +20,15 @@ public interface AuthenticationService {
     MeResponse me(Jwt jwt);
     void logout(String accessToken);
 
-    // ------------ Method to reset password ------------
+
+
+    // ------------ Method to send verification email ------------
+    void sendVerificationEmail(String email, EmailVerificationType verificationType);
+
+    // ------------ Method that resets password after verifying the email ------------
     void resetPassword(ResetPasswordRequest request);
+
+
 
     // ------------ Method to get new ACCESS jwt ------------
     AuthenticationResponse refreshToken(String refreshToken);

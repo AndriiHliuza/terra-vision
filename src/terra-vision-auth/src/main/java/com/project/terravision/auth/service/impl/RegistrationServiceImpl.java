@@ -14,14 +14,12 @@ import com.project.terravision.auth.enums.EmailVerificationType;
 import com.project.terravision.auth.enums.SystemRole;
 import com.project.terravision.auth.repository.RoleRepository;
 import com.project.terravision.auth.repository.UserRepository;
-import com.project.terravision.auth.service.AccountStatusCacheService;
-import com.project.terravision.auth.service.VerificationEmailService;
-import com.project.terravision.auth.service.VerificationTokenService;
-import com.project.terravision.auth.service.RegistrationService;
+import com.project.terravision.auth.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -32,9 +30,8 @@ public class RegistrationServiceImpl implements RegistrationService {
 
     private final PasswordEncoder passwordEncoder;
 
-    private final VerificationEmailService verificationEmailService;
+    private final AuthenticationService authenticationService;
     private final VerificationTokenService verificationTokenService;
-
     private final AccountStatusCacheService accountStatusCacheService;
 
     private final UserRepository userRepository;
@@ -43,6 +40,7 @@ public class RegistrationServiceImpl implements RegistrationService {
     private final UserMapper userMapper;
 
     @Override
+    @Transactional
     public UserCreatedResponse register(CreateUserRequest request) {
         return userRepository.findByEmail(request.email())
                 .map(user -> handleExistingUser(user, request))
@@ -50,15 +48,19 @@ public class RegistrationServiceImpl implements RegistrationService {
     }
 
     @Override
+    @Transactional
     public void verifyEmail(String verificationToken) {
         UUID userId = verificationTokenService.validateToken(verificationToken, EmailVerificationType.REGISTRATION_VERIFICATION);
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User with id '%s' not found".formatted(userId)));
+                .orElseThrow(() -> new UserNotFoundException("User with id=%s not found".formatted(userId)));
+
         validateAccountStatusForEmailVerification(user);
+
         user.setAccountStatus(AccountStatus.ACTIVE);
         userRepository.save(user);
+
         accountStatusCacheService.cacheAccountStatus(userId, AccountStatus.ACTIVE);
-        log.debug("Email verified for user with email: '{}'", user.getEmail());
+        log.debug("Email verified for user with email={}", user.getEmail());
     }
 
 
@@ -76,8 +78,12 @@ public class RegistrationServiceImpl implements RegistrationService {
      */
     private UserCreatedResponse handleExistingUser(User user, CreateUserRequest request) {
         validateAccountStatusForRegistration(user); // throws for ACTIVE, BLOCKED
+
         updatedExistingUser(user, request); // only PENDING_VERIFICATION and DEACTIVATED reach here
-        verificationEmailService.sendVerificationEmail(user.getEmail(), EmailVerificationType.REGISTRATION_VERIFICATION);
+
+        accountStatusCacheService.cacheAccountStatus(user.getId(), AccountStatus.PENDING_VERIFICATION);
+        authenticationService.sendVerificationEmail(user.getEmail(), EmailVerificationType.REGISTRATION_VERIFICATION);
+
         return userMapper.toUserCreatedResponse(user);
     }
 
@@ -96,14 +102,17 @@ public class RegistrationServiceImpl implements RegistrationService {
         Role defaultRole = roleRepository
                 .findByName(SystemRole.USER.name())
                 .orElseThrow(() -> new IllegalStateException("Default role not found in database"));
-        User user = userRepository.save(userMapper.toUser(request, defaultRole, passwordEncoder));
-        accountStatusCacheService.cacheAccountStatus(user.getId(), user.getAccountStatus());
-        verificationEmailService.sendVerificationEmail(user.getEmail(), EmailVerificationType.REGISTRATION_VERIFICATION);
+
+        User user = saveNewUser(request, defaultRole);
+
+        accountStatusCacheService.cacheAccountStatus(user.getId(), AccountStatus.PENDING_VERIFICATION);
+        authenticationService.sendVerificationEmail(user.getEmail(), EmailVerificationType.REGISTRATION_VERIFICATION);
+
         return userMapper.toUserCreatedResponse(user);
     }
 
     /**
-     * Updates an existing user with the data from a new registration request.
+     * Updates an existing {@link User} entity with the data from a new registration request.
      *
      * <p>This method is used when a user attempts to register again while their
      * account is still in a state that allows continuation of the registration
@@ -114,9 +123,31 @@ public class RegistrationServiceImpl implements RegistrationService {
      */
     private void updatedExistingUser(User user, CreateUserRequest request) {
         userMapper.updateUserFromCreateUserRequest(request, user, passwordEncoder);
-        accountStatusCacheService.cacheAccountStatus(user.getId(), user.getAccountStatus());
+        user.setAccountStatus(AccountStatus.PENDING_VERIFICATION);
         userRepository.save(user);
     }
+
+    /**
+     * Creates and persists a new {@link User} entity based on the provided registration request.
+     *
+     * <p>This method maps the incoming {@link CreateUserRequest} to a {@link User} entity,
+     * assigns the specified {@link Role}, encodes the user's password, and sets the initial
+     * {@link AccountStatus} to {@link AccountStatus#PENDING_VERIFICATION}. The user is then
+     * persisted to the database.</p>
+     *
+     * <p>The {@code PENDING_VERIFICATION} status ensures that the account cannot be used
+     * for authentication until the email verification process is completed.</p>
+     *
+     * @param request the registration request containing user information used for registration
+     * @param role the role assigned to the new user
+     * @return the persisted {@link User} entity
+     */
+    private User saveNewUser(CreateUserRequest request, Role role) {
+        User user = userMapper.toUser(request, role, passwordEncoder);
+        user.setAccountStatus(AccountStatus.PENDING_VERIFICATION);
+        return userRepository.save(user);
+    }
+
 
     /**
      * Validates whether the user's account status allows a new registration attempt.
@@ -133,26 +164,26 @@ public class RegistrationServiceImpl implements RegistrationService {
     private void validateAccountStatusForRegistration(User user) {
         switch (user.getAccountStatus()) {
             case ACTIVE -> throw new UserAlreadyExists(
-                    "[Registration] Email: '%s', Account status: '%s' - User already exists".formatted(
+                    "[Registration] Email: %s, Account status: %s - User already exists".formatted(
                             user.getEmail(),
                             user.getAccountStatus()
                     )
             );
 
             case PENDING_VERIFICATION -> log.debug(
-                    "[Registration] Email: '{}', Account status: '{}' - Account already exists and pending verification",
+                    "[Registration] Email: {}, Account status: {} - Account already exists and pending verification",
                     user.getEmail(),
                     user.getAccountStatus()
             );
 
             case DEACTIVATED -> log.debug(
-                    "[Registration] Email: '{}', Account status: '{}' - Account is deactivated, reactivating...",
+                    "[Registration] Email: {}, Account status: {} - Account is deactivated, reactivating...",
                     user.getEmail(),
                     user.getAccountStatus()
             );
 
             case BLOCKED -> throw new AccountBlockedException(
-                    "[Registration] Email: '%s', Account status: '%s' - Account is blocked"
+                    "[Registration] Email: %s, Account status: %s - Account is blocked"
                             .formatted(user.getEmail(), user.getAccountStatus()),
                     user.getBlockedAt(),
                     user.getBlockReason());
@@ -173,26 +204,26 @@ public class RegistrationServiceImpl implements RegistrationService {
     private void validateAccountStatusForEmailVerification(User user) {
         switch (user.getAccountStatus()) {
             case ACTIVE -> throw new AccountActiveException(
-                    "[Email Verification] Email: '%s', Account status: '%s' - Account already activated".formatted(
+                    "[Email Verification] Email: %s, Account status: %s - Account already activated".formatted(
                             user.getEmail(),
                             user.getAccountStatus()
                     )
             );
 
             case PENDING_VERIFICATION -> log.debug(
-                    "[Email Verification] Email: '{}', Account status: '{}' - Proceeding with verification",
+                    "[Email Verification] Email: {}, Account status: {} - Proceeding with verification",
                     user.getEmail(),
                     user.getAccountStatus()
             );
 
             case DEACTIVATED -> log.debug(
-                    "[Email Verification] Email: '{}', Account status: '{}' - Account is deactivated, reactivating...",
+                    "[Email Verification] Email: '{}', Account status: {} - Account is deactivated, reactivating...",
                     user.getEmail(),
                     user.getAccountStatus()
             );
 
             case BLOCKED -> throw new AccountBlockedException(
-                    "[Email Verification] Email: '%s', Account status: '%s' - Account is blocked".formatted(
+                    "[Email Verification] Email: %s, Account status: %s - Account is blocked".formatted(
                             user.getEmail(),
                             user.getAccountStatus()
                     ),

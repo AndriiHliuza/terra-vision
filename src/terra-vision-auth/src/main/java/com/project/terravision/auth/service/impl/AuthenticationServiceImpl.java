@@ -6,7 +6,6 @@ import com.project.terravision.auth.dto.request.AuthenticationRequest;
 import com.project.terravision.auth.dto.request.ResetPasswordRequest;
 import com.project.terravision.auth.dto.response.AuthenticationResponse;
 import com.project.terravision.auth.dto.response.MeResponse;
-import com.project.terravision.auth.enums.AccountStatus;
 import com.project.terravision.auth.enums.EmailVerificationType;
 import com.project.terravision.auth.exceptions.account.AccountBlockedException;
 import com.project.terravision.auth.exceptions.account.AccountDeactivatedException;
@@ -21,9 +20,12 @@ import com.project.terravision.auth.model.User;
 import com.project.terravision.auth.enums.JwtType;
 import com.project.terravision.auth.repository.UserRepository;
 import com.project.terravision.auth.service.*;
+import com.project.terravision.auth.utils.SessionUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.helpers.MessageFormatter;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -41,26 +43,24 @@ import java.util.*;
 public class AuthenticationServiceImpl implements AuthenticationService {
 
     private final AuthenticationManager authenticationManager;
-    private final SecurityContextProviderService securityContextProviderService;
-
     private final PasswordEncoder passwordEncoder;
+
+    private final SecurityContextProviderService securityContextProviderService;
 
     private final JwtService jwtService;
     private final RSAKeyService rsaKeyService;
     private final JwtDecoder jwtDecoder;
 
-    private final UserRepository userRepository;
-
     private final AuthoritiesService authoritiesService;
-
-    private final SessionDetailsService sessionDetailsService;
     private final SessionService sessionService;
-
+    private final EmailService emailService;
     private final VerificationTokenService verificationTokenService;
 
     private final AuthenticationMapper authenticationMapper;
     private final UserMapper userMapper;
     private final RoleMapper roleMapper;
+
+    private final UserRepository userRepository;
 
     // ------------ Authentication methods ------------
 
@@ -73,7 +73,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String username = securityContextProviderService.getAuthentication().getName();
         User user = userRepository
                 .findByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException("User with username '%s' not found".formatted(username)));
+                .orElseThrow(() -> new UserNotFoundException("User with username=%s not found".formatted(username)));
 
         validateAccountStatus(user);
         Map<String, String> tokens = generateTokensAndSaveSession(user, httpServletRequest);
@@ -87,7 +87,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         User user = userRepository
                 .findByIdAndUsername(userId, username)
-                .orElseThrow(() -> new UserNotFoundException("User with id '%s' and username '%s' not found".formatted(userId, username)));
+                .orElseThrow(() -> new UserNotFoundException("User with id=%s and username=%s not found".formatted(userId, username)));
 
         return userMapper.toMeResponse(user, authoritiesService);
     }
@@ -102,21 +102,29 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         log.debug("User with userId: {}  logged out", userId);
     }
 
+    @Override
+    public void sendVerificationEmail(String email, EmailVerificationType verificationType) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException(
+                        MessageFormatter.format("User with email={} not found", email).getMessage())
+                );
+        String verificationToken = verificationTokenService.generateAndSaveToken(user.getId(), verificationType);
+        String lang = LocaleContextHolder.getLocale().getLanguage();
+        emailService.sendVerificationEmail(user.getEmail(), user.getUsername(), verificationToken, verificationType, lang);
+    }
 
+    // ------------ Method that resets password after verifying the email ------------
 
-    // ------------ Method to get new ACCESS jwt ------------
-
+    @Override
     public void resetPassword(ResetPasswordRequest request) {
         UUID userId = verificationTokenService.validateToken(request.token(), EmailVerificationType.RESET_PASSWORD_VERIFICATION);
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User with id '%s' not found".formatted(userId)));
+                .orElseThrow(() -> new UserNotFoundException("User with id='%s' not found".formatted(userId)));
         validateAccountStatus(user);
         user.setPassword(passwordEncoder.encode(request.password()));
         userRepository.save(user);
         log.debug("Password was reset for user with email: {}", user.getEmail());
     }
-
-
 
     // ------------ Method to get new ACCESS jwt ------------
 
@@ -128,10 +136,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String username = jwt.getSubject(); // username
         UUID userId = UUID.fromString(jwt.getClaim("userId"));
 
-        if (!sessionService.isValidSession(userId.toString(), jti)) throw new InvalidSessionException();
+        if (!sessionService.isValidSession(userId.toString(), jti)) throw new InvalidSessionException(
+                "Session not found for user with id: %s. Login required".formatted(userId)
+        );
         User user = userRepository
                 .findByIdAndUsername(userId, username)
-                .orElseThrow(() -> new UserNotFoundException("User with id '%s' and username '%s' not found".formatted(userId, username)));
+                .orElseThrow(() -> new UserNotFoundException("User with id: %s and username: %s not found".formatted(userId, username)));
 
         Map<String, Object> claims = getClaimsForNewAccessToken(user);
         String newAccessToken = jwtService.generateToken(jti, username, claims, JwtType.ACCESS);
@@ -142,8 +152,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 JwtType.REFRESH.name(), refreshToken
         ));
     }
-
-
 
     // ------------ Method to get JSON Web Keys required to check if JWTs are valid ------------
 
@@ -235,7 +243,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String accessToken = jwtService.generateToken(jti, user.getUsername(), accessTokenClaims, JwtType.ACCESS);
         String refreshToken = jwtService.generateToken(jti, user.getUsername(), refreshTokenClaims, JwtType.REFRESH);
 
-        SessionDetails sessionDetails = sessionDetailsService.getSessionDetails(httpServletRequest);
+        SessionDetails sessionDetails = SessionUtils.getSessionDetails(httpServletRequest);
         sessionService.saveSession(user.getId().toString(), jti, sessionDetails);
 
         return Map.of(

@@ -17,7 +17,7 @@ public class AuthControllerLoggingAspect {
             returning = "result"
     )
     public void logAfterAuthentication(AuthenticationResponse result) {
-        log.debug("Authentication successful for user with email: '{}'", result.getEmail());
+        log.debug("Authentication successful for user with email={}", result.getEmail());
     }
 
     @AfterReturning(
@@ -25,7 +25,7 @@ public class AuthControllerLoggingAspect {
             returning = "result"
     )
     public void logAfterTokenRefreshing(AuthenticationResponse result) {
-        log.debug("Token refreshed, new ACCESS token received for user with email: {}", result.getEmail());
+        log.debug("Token refreshed, new ACCESS token received for user with email={}", result.getEmail());
     }
 
     @AfterReturning(
@@ -33,6 +33,6 @@ public class AuthControllerLoggingAspect {
             returning = "result"
     )
     public void logAfterUserRegistration(UserCreatedResponse result) {
-        log.debug("User registered successfully. Email: {}", result.getEmail());
+        log.debug("User registered successfully. Email={}", result.getEmail());
     }
 }

@@ -7,7 +7,6 @@ import com.project.terravision.auth.dto.response.MeResponse;
 import com.project.terravision.auth.dto.response.UserCreatedResponse;
 import com.project.terravision.auth.enums.EmailVerificationType;
 import com.project.terravision.auth.service.AuthenticationService;
-import com.project.terravision.auth.service.VerificationEmailService;
 import com.project.terravision.auth.service.RegistrationService;
 import com.project.terravision.auth.service.impl.RSAKeyService;
 import com.project.terravision.auth.utils.WebUtils;
@@ -29,10 +28,7 @@ public class AuthController {
 
     private final AuthenticationService authenticationService;
     private final RegistrationService registrationService;
-
     private final RSAKeyService rsaKeyService;
-
-    private final VerificationEmailService verificationEmailService;
 
     // ------------ Authentication endpoints ------------
 
@@ -95,7 +91,7 @@ public class AuthController {
     @PostMapping("/forgot-password")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void forgotPassword(@RequestBody @Valid ForgotPasswordRequest request) {
-        verificationEmailService.sendVerificationEmail(request.email(), EmailVerificationType.RESET_PASSWORD_VERIFICATION);
+        authenticationService.sendVerificationEmail(request.email(), EmailVerificationType.RESET_PASSWORD_VERIFICATION);
     }
 
     @PostMapping("/reset-password")
@@ -111,7 +107,7 @@ public class AuthController {
     @PostMapping("/resend-verification")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void resendVerificationEmail(@RequestBody @Valid ResendVerificationEmailRequest request) {
-        verificationEmailService.sendVerificationEmail(
+        authenticationService.sendVerificationEmail(
                 request.email(),
                 EmailVerificationType.valueOf(request.verificationType().toUpperCase())
         );

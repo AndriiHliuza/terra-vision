@@ -6,8 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.core.Ordered;
-import org.springframework.data.redis.core.ReactiveRedisTemplate;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ReactiveStringRedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -24,7 +23,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class SessionValidationFilter implements WebFilter, Ordered {
 
-    private final ReactiveRedisTemplate<String, Object> reactiveRedisTemplate;
+    private final ReactiveStringRedisTemplate reactiveStringRedisTemplate;
     private final ReactiveJwtDecoder jwtDecoder;
 
     @NullMarked
@@ -33,10 +32,14 @@ public class SessionValidationFilter implements WebFilter, Ordered {
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getPath().toString();
 
-        if (SecurityUtils.isPathPublic(path, request.getMethod())) return chain.filter(exchange);
+        if (SecurityUtils.isPathPublic(path, request.getMethod())) {
+            log.debug("Public path [{}] — skipping session check", path);
+            return chain.filter(exchange);
+        }
 
         String authorizationHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
         if (authorizationHeader == null || !authorizationHeader.startsWith(WebAttributes.BEARER_PREFIX)) {
+            log.debug("Authorization header is null or does not contain Bearer JWT - returning UNAUTHORIZED");
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();
         }
@@ -48,19 +51,21 @@ public class SessionValidationFilter implements WebFilter, Ordered {
                     String userId = jwt.getClaim("userId");
                     String jti = jwt.getId();
 
-                    return reactiveRedisTemplate.hasKey("session:" + userId + ":" + jti) // ✅ reactive
+                    return reactiveStringRedisTemplate.hasKey("session:" + userId + ":" + jti) // ✅ reactive
                             .flatMap(isValid -> {
                                 if (!isValid) {
-                                    log.warn("Session not found in Redis for userId: {}", userId);
+                                    log.warn("Session not found in Redis for userId={}", userId);
                                     exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
                                     return exchange.getResponse().setComplete();
                                 }
-                                log.debug("Session validated for userId: {}", userId);
+
+                                exchange.getAttributes().put("verifiedUserId", userId); // 'verifiedUserId' attribute is used in AccountStatusFilter
+                                log.debug("Session validated for userId={}", userId);
                                 return chain.filter(exchange);
                             });
                 })
-                .onErrorResume(JwtException.class, e -> {
-                    log.error("Invalid JWT during session check: {}", e.getMessage());
+                .onErrorResume(JwtException.class, ex -> {
+                    log.error("Invalid JWT during session check: {}", ex.getMessage());
                     exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
                     return exchange.getResponse().setComplete();
                 });

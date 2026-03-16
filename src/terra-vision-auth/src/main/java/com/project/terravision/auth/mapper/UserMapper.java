@@ -14,8 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Mapper(
         config = MappingConfig.class,
-        uses = {RoleMapper.class},
-        imports = {AccountStatus.class}
+        uses = {RoleMapper.class}
 )
 public interface UserMapper {
 
@@ -24,7 +23,6 @@ public interface UserMapper {
     @Mapping(target = "email", source = "request.email")
     @Mapping(target = "firstname", source = "request.firstname")
     @Mapping(target = "lastname", source = "request.lastname")
-    @Mapping(target = "accountStatus", expression = "java(AccountStatus.PENDING_VERIFICATION)")
     @Mapping(target = "role", source = "role")
     User toUser(
             CreateUserRequest request,
@@ -40,7 +38,6 @@ public interface UserMapper {
     @Mapping(target = "email", source = "request.email")
     @Mapping(target = "firstname", source = "request.firstname")
     @Mapping(target = "lastname", source = "request.lastname")
-    @Mapping(target = "accountStatus", expression = "java(AccountStatus.PENDING_VERIFICATION)")
     void updateUserFromCreateUserRequest(
             CreateUserRequest request,
             @MappingTarget User user,
@@ -66,7 +63,7 @@ public interface UserMapper {
             if (username == null || username.isBlank()) {
                 username = request.email().split("@")[0];
                 if (username.isBlank()) {
-                    throw new IllegalArgumentException("Cannot derive username from email: " + request.email());
+                    throw new IllegalArgumentException("Cannot derive username from email: %s".formatted(request.email()));
                 }
             }
             user.setUsername(username);

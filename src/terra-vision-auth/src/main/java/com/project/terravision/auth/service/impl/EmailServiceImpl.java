@@ -38,8 +38,6 @@ public class EmailServiceImpl implements EmailService {
             EmailVerificationType verificationType,
             String lang
     ) {
-        System.out.println(lang);
-        System.out.println(applicationProperties.getSupportedLanguages());
         String verificationLink = getVerificationLink(verificationType, lang, token);
 
         Duration expiration = mailProperties.getVerificationProps().getExpiration();
@@ -60,9 +58,9 @@ public class EmailServiceImpl implements EmailService {
             helper.setSubject(getSubject(verificationType, lang));
             helper.setText(html, true);
             mailSender.send(message);
-            log.debug("Verification email sent to '{}'", to);
+            log.debug("Verification email sent to {}", to);
         } catch (MessagingException e) {
-            log.error("Failed to send verification email to '{}', Exception: {}", to, e.getMessage());
+            log.error("Failed to send verification email to {}, Exception: {}", to, e.getMessage());
         }
     }
 
@@ -94,6 +92,6 @@ public class EmailServiceImpl implements EmailService {
         };
         return mailProperties.getSubjects()
                 .getOrDefault(key, Map.of())
-                .getOrDefault(lang, "Notification");
+                .getOrDefault(lang, mailProperties.getFallbackEmailSubject());
     }
 }

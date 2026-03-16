@@ -14,7 +14,10 @@ import java.util.Map;
 @ConfigurationProperties(prefix = "application.mail")
 public class MailProperties {
     private String from;
+
     private Map<String, Map<String, String>> subjects = new HashMap<>();
+    private String fallbackEmailSubject;
+
     private VerificationProps verificationProps = new VerificationProps();
 
     @Getter @Setter

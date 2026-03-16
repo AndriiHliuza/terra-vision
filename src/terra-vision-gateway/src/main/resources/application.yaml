@@ -42,7 +42,7 @@ spring:
               predicates:
                 - Path=/api/auth/login
               filters:
-                - name: AuthenticationResponseToTokenCookies
+                - name: AuthenticationResponseToTokenCookies # AuthenticationResponseToTokenCookiesGatewayFilterFactory
                   args:
                     <<: *commonCookieConfig # Injects the common config here
 
@@ -52,7 +52,12 @@ spring:
               predicates:
                 - Path=/api/auth/refresh
               filters:
+                # RefreshTokenCookieToRequestBodyTransformationGatewayFilterFactory
+                # name: ClearAuthCookiesOnLogoutGatewayFilterFactory without GatewayFilterFactory
                 - name: RefreshTokenCookieToRequestBodyTransformation
+
+                # AuthenticationResponseToTokenCookiesGatewayFilterFactory
+                # name: ClearAuthCookiesOnLogoutGatewayFilterFactory without GatewayFilterFactory
                 - name: AuthenticationResponseToTokenCookies
                   args:
                     <<: *commonCookieConfig # Injects the common config here
@@ -63,6 +68,8 @@ spring:
               predicates:
                 - Path=/api/auth/logout
               filters:
+                # ClearAuthCookiesOnLogoutGatewayFilterFactory
+                # name: ClearAuthCookiesOnLogoutGatewayFilterFactory without GatewayFilterFactory
                 - name: ClearAuthCookiesOnLogout
                   args:
                     <<: *commonCookieConfig # Injects the common config here

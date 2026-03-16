@@ -23,7 +23,7 @@ public class ExceptionLoggingAspect {
      */
     @Before("handlerMethod() && args(ex, ..)")
     public void logException(Exception ex) {
-        log.error("Exception: {} Message: {}",
+        log.error("Exception: {}, Message: {}",
                 ex.getClass().getSimpleName(),
                 ex.getMessage());
     }
