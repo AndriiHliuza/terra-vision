@@ -6,7 +6,7 @@ import layer_ESRI_Topographic from "../assets/map-layers/ESRI_Topographic.png"
 import layer_Carto_Light from "../assets/map-layers/Carto_Light.png"
 
 /* Localization */
-export const SUPPORTED_LANGUAGES = ["en", "ua"]
+export const SUPPORTED_LANGUAGES = ["en", "uk"]
 
 /* API URLS */
 export const API_DOMAIN = "http://localhost:8080"

@@ -110,7 +110,7 @@ function Header({scrollOffset = 1000}: { scrollOffset?: number }) {
 
     const languages = [
         {code: "en", label: t("header.languages.en.fullName"), flagImg: unitedKingdomFlag},
-        {code: "ua", label: t("header.languages.ua.fullName"), flagImg: ukrainianFlag},
+        {code: "uk", label: t("header.languages.uk.fullName"), flagImg: ukrainianFlag},
     ];
 
     const changeLanguage = (newLang: string) => {

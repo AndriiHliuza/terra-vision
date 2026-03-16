@@ -1,0 +1,6 @@
+CREATE TYPE account_status AS ENUM (
+    'PENDING_VERIFICATION',
+    'ACTIVE',
+    'BLOCKED',
+    'DEACTIVATED'
+);

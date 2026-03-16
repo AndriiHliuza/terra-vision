@@ -57,6 +57,8 @@
 
 .auth-page > .auth-form-card > h1 {
     margin: 10px;
+
+    transition: all 0.3s ease;
 }
 
 .auth-page > .auth-form-card > form {
@@ -85,6 +87,11 @@
 
     margin: 0 5px;
     font-size: 15px;
+}
+
+.auth-page > .auth-form-card > form > .form-card-item > label > span {
+    font-size: 10px;
+    transform: translateY(-8px) rotate(90deg);
 }
 
 .auth-page > .auth-form-card > form > .form-card-item input {
@@ -161,11 +168,15 @@
 
     backdrop-filter: blur(var(--glass-blur-px));
     -webkit-backdrop-filter: blur(var(--glass-blur-px));
+
+    transition: all 0.3s ease;
 }
 
 .auth-page > .auth-form-card > form > .form-card-item > .password-item-wrapper > .show-hide-password-img-wrapper > img {
     width: 25px;
     cursor: pointer;
+
+    transition: all 0.3s ease;
 }
 
 .auth-page > .auth-form-card > form > .form-card-item > .error-message {
@@ -184,6 +195,25 @@
     content: "●";
     margin-right: 5px;
     font-size: 0.6rem;
+}
+
+.auth-page > .auth-form-card > form > .forgot-password-link {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+
+    width: 100%;
+    margin-top: 5px;
+
+    font-size: 14px;
+
+    color: rgba(33, 54, 83, 0.78);
+
+    text-decoration: underline;
+    font-weight: bold;
+
+    font-family: "Poppins", system-ui, Avenir, Helvetica, Arial, sans-serif;
+    transition: all 0.3s ease;
 }
 
 .auth-page > .auth-form-card > form > .root-error-section {
@@ -210,16 +240,40 @@
     margin-bottom: 15px;
 }
 
-.auth-page > .auth-form-card > form > .root-error-section > .root-error-message {
+.auth-page > .auth-form-card > form > .root-error-section > .root-error-message-container {
     display: flex;
     justify-content: center;
     align-items: center;
 
+    min-height: 50px;
     width: 100%;
+
+    padding: 5px;
+
+    border-radius: 5px;
+
+    background: rgba(255, 0, 0, 0.2);
+}
+
+.auth-page > .auth-form-card > form > .root-error-section > .root-error-message-container > img {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    height: 40px;
+    width: auto;
+
+    margin-right: 5px;
+}
+
+.auth-page > .auth-form-card > form > .root-error-section > .root-error-message-container > .root-error-message {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
     font-size: 1rem;
 
-    color: rgba(112, 13, 13, 0.8);
+    color: rgba(85, 10, 10, 0.8);
     font-weight: bold;
 
     font-family: "Poppins", system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -294,7 +348,7 @@
 @media (max-width: 400px) {
 
     .auth-page > .auth-form-card > h1 {
-        font-size: 1rem;
+        font-size: 1.4rem;
     }
 
     .auth-page > .auth-form-card > form > .form-card-item > .password-item-wrapper > .show-hide-password-img-wrapper {
@@ -311,6 +365,10 @@
 
     .auth-page > .auth-form-card > form > .form-card-item > .password-item-wrapper > .show-hide-password-img-wrapper > img {
         width: 15px;
+    }
+
+    .auth-page > .auth-form-card > form > .forgot-password-link {
+        font-size: 10px;
     }
 
     .auth-page > .auth-form-card > form > button {

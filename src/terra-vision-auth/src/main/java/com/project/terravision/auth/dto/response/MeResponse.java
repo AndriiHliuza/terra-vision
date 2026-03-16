@@ -1,0 +1,32 @@
+package com.project.terravision.auth.dto.response;
+
+import com.project.terravision.auth.dto.RoleClaim;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class MeResponse {
+    private UUID id;
+    private String username;
+    private String email;
+
+    private String firstname;
+    private String lastname;
+
+    private String imageId;
+
+    private Instant createdAt;
+    private Instant updatedAt;
+
+    private RoleClaim role;
+    private List<String> permissions;
+}

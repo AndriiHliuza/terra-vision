@@ -37,20 +37,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    public static final String[] PERMIT_ALL_PATHS = {
-            "/api/auth/login",
-            "/api/auth/refresh",
-
-            "/api/auth/.well-known/jwks.json", // JSON Web Key Set
-            "/api/auth/rotate-key",
-
-            "/api/auth/registration",
-            "/api/auth/registration/confirmation/email/resend",
-            "/api/auth/registration/confirm",
-
-            "/api/auth/public" // Just for testing
-    };
-
     @Bean
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http,
@@ -67,18 +53,21 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET,
                                 "/api/auth/.well-known/jwks.json", // JSON Web Key Set
 
-                                "/api/auth/registration/confirm",
-
-                                "/api/auth/public"
+                                "/api/auth/public" // Just for testing purposes
                         ).permitAll()
                         .requestMatchers(HttpMethod.POST,
                                 "/api/auth/login",
-                                "/api/auth/refresh",
+                                "/api/auth/refresh-token",
 
                                 "/api/auth/rotate-key",
 
-                                "/api/auth/registration",
-                                "/api/auth/registration/confirmation/email/resend"
+                                "/api/auth/sign-up",
+                                "/api/auth/verify-email",
+
+                                "/api/auth/forgot-password",
+                                "/api/auth/reset-password",
+
+                                "/api/auth/resend-verification"
                         ).permitAll()
 
                         .anyRequest().authenticated()

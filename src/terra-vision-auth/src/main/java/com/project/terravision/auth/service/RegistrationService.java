@@ -1,10 +1,9 @@
 package com.project.terravision.auth.service;
 
-import com.project.terravision.auth.dto.UserCreationRequest;
-import com.project.terravision.auth.dto.UserCreationResponse;
+import com.project.terravision.auth.dto.request.CreateUserRequest;
+import com.project.terravision.auth.dto.response.UserCreatedResponse;
 
 public interface RegistrationService {
-    UserCreationResponse createUserAccount(UserCreationRequest userCreationRequest);
-    UserCreationResponse resendConfirmationEmail(UserCreationRequest userCreationRequest);
-    UserCreationResponse confirmEmail(String emailVerificationToken);
+    UserCreatedResponse register(CreateUserRequest request);
+    void verifyEmail(String emailVerificationToken);
 }

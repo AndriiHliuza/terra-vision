@@ -4,6 +4,7 @@ import com.project.terravision.auth.config.properties.SecurityProperties;
 import com.project.terravision.auth.dto.SessionDetails;
 import com.project.terravision.auth.service.SessionService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.ObjectMapper;
@@ -14,6 +15,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SessionServiceImpl implements SessionService {
@@ -29,17 +31,20 @@ public class SessionServiceImpl implements SessionService {
         String key = SESSION_PREFIX + userId + ":" + jti;
         Duration duration = securityProperties.getJwt().getRefreshToken().getExpiration();
         redisTemplate.opsForValue().set(key, sessionDetails, duration);
+        log.debug("Saved session object for userId: '{}', jti: '{}'", userId, jti);
     }
 
     @Override
     public void revokeSession(String userId, String jti) {
         redisTemplate.delete(SESSION_PREFIX + userId + ":" + jti);
+        log.debug("Revoked session for userId: '{}', jti: '{}'", userId, jti);
     }
 
     @Override
     public void revokeAllSessions(String userId) {
         Set<String> keys = redisTemplate.keys(SESSION_PREFIX + userId + ":*");
         if (keys != null && !keys.isEmpty()) redisTemplate.delete(keys);
+        log.debug("Revoked all sessions for userId: '{}'", userId);
     }
 
     @Override
@@ -53,6 +58,7 @@ public class SessionServiceImpl implements SessionService {
         sessionDetails.setLastUsedAt(System.currentTimeMillis());
         Long ttl = redisTemplate.getExpire(key, TimeUnit.DAYS);
         redisTemplate.opsForValue().set(key, sessionDetails, ttl, TimeUnit.DAYS);
+        log.debug("Updated session object for userId: '{}', jti: '{}'", userId, jti);
     }
 
     @Override

@@ -2,7 +2,7 @@ package com.project.terravision.auth.service.impl;
 
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.RSAKey;
-import com.project.terravision.auth.config.properties.KeySize;
+import com.project.terravision.auth.enums.KeySize;
 import com.project.terravision.auth.config.properties.SecurityProperties;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;

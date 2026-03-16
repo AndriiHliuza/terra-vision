@@ -9,7 +9,7 @@ import RegistrationPage from "../../pages/RegistrationPage.tsx";
 import LoginPage from "../../pages/LoginPage.tsx";
 import ProtectedRoute from "./ProtectedRoute.tsx";
 import {SystemRoleLevels} from "../../commons/schemas/auth-schemas.ts";
-import AdminLayout from "../../layouts/AdminLayout.tsx";
+import AdminPagesLayout from "../../layouts/AdminPagesLayout.tsx";
 import AdminDashboard from "../../pages/AdminDashboard.tsx";
 import MapEditor from "../../pages/MapEditor.tsx";
 import {SimpleChartPage} from "../../components/SimpleChartPage.tsx";
@@ -55,7 +55,7 @@ export const router = createBrowserRouter([
                         children: [
                             {
                                 path: "admin",
-                                element: <AdminLayout />,
+                                element: <AdminPagesLayout />,
                                 children: [
                                     { index: true, element: <Navigate to="dashboard" replace /> },
                                     { path: "dashboard", element: <AdminDashboard /> },

@@ -9,6 +9,7 @@ import {useAppContext} from "../configs/context/contexts.ts";
 import axios from "axios";
 import showPasswordImg from "../assets/eye-password-show.png";
 import hidePasswordImg from "../assets/eye-password-hide.png";
+import warningImg from "../assets/warning.png";
 import {Link, useParams} from "react-router-dom";
 import LoadingOverlay from "../components/LoadingOverlay.tsx";
 
@@ -58,7 +59,7 @@ function LoginPage() {
                 <h1>{t("login-page.title")}</h1>
                 <form onSubmit={handleSubmit(onSubmit)} noValidate>
                     <div className="form-card-item">
-                        <label htmlFor="email">{t("login-page.labels.email")}</label>
+                        <label htmlFor="email">{t("login-page.labels.email")}<span>✱</span></label>
                         <input
                             id="email"
                             type="email"
@@ -71,12 +72,12 @@ function LoginPage() {
                         >{errors.email.message}</p>}
                     </div>
                     <div className="form-card-item">
-                        <label htmlFor="password">{t("login-page.labels.password")}</label>
+                        <label htmlFor="password">{t("login-page.labels.password")}<span>✱</span></label>
                         <div className="password-item-wrapper">
                             <input
                                 id="password"
                                 type={showPassword ? "text" : "password"}
-                                placeholder="qwerty12345"
+                                placeholder="Must have at least 8 characters"
                                 {...register("password")}
                             />
                             <div className="show-hide-password-img-wrapper">
@@ -92,13 +93,20 @@ function LoginPage() {
                             className="error-message"
                         >{errors.password.message}</p>}
                     </div>
+                    <Link
+                        to={`/${lang}/renew`}
+                        className="forgot-password-link"
+                    >{t("login-page.forgot-password-message")}</Link>
                     {errors.root && (
                         <div className="root-error-section">
                             <hr className="form-divider" />
-                            <div
-                                role="alert"
-                                className="root-error-message"
-                            >{errors.root.message ? t(errors.root.message) : "ERROR"}</div>
+                            <div className="root-error-message-container">
+                                <img src={warningImg} alt="Warning"/>
+                                <div
+                                    role="alert"
+                                    className="root-error-message"
+                                >{errors.root.message ? t(errors.root.message) : "ERROR"}</div>
+                            </div>
                         </div>
                     )}
                     <button type="submit" disabled={isSubmitting}>{t("login-page.submit-btn")}</button>

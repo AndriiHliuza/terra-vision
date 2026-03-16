@@ -10,7 +10,7 @@ CREATE TABLE users (
     image_id      VARCHAR(512),
 
     -- Account state
-    account_state ACCOUNT_STATE NOT NULL DEFAULT 'PENDING_VERIFICATION',
+    account_status ACCOUNT_STATUS NOT NULL DEFAULT 'PENDING_VERIFICATION',
 
     -- Audit Timestamps & Metadata
     verified_at   TIMESTAMPTZ            DEFAULT NULL,
@@ -29,13 +29,13 @@ CREATE TABLE users (
     CONSTRAINT fk_blocked_by FOREIGN KEY (blocked_by) REFERENCES users (id) ON DELETE SET NULL,
     CONSTRAINT check_block_consistency CHECK (
         (
-            account_state = 'BLOCKED'
+            account_status = 'BLOCKED'
                 AND blocked_at IS NOT NULL
                 AND blocked_by IS NOT NULL
         )
             OR
         (
-            account_state <> 'BLOCKED'
+            account_status <> 'BLOCKED'
                 AND blocked_at IS NULL
                 AND blocked_by IS NULL
                 AND block_reason IS NULL

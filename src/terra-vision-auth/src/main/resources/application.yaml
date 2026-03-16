@@ -59,10 +59,24 @@ server:
 
 application:
 
+  supported-languages:
+    - en
+    - uk
+  fallback-language: en
+
   mail:
     from: noreply@terra-vision.com
+    subjects:
+      registration-email-subject:
+        en: "Verify your email address"
+        uk: "Підтвердження електронної пошти"
+      reset-password-email-subject:
+        en: "Reset your password"
+        uk: "Скидання пароля"
     verification-props:
-      base-url: http://localhost:5173/api/auth/registration/confirm # Should be http://localhost:5173 instead of http://localhost:8080
+      base-url: http://localhost:5173
+      url-to-verify-email: /verify-email
+      url-to-reset-password: /reset-password
       expiration: 15m
 
   security:

@@ -1,0 +1,160 @@
+{
+  "header": {
+    "home": "Головна",
+    "detector": "Детектор",
+    "map": "Карта",
+    "login": "Увійти",
+    "account": "Акаунт",
+    "languages": {
+      "en": {
+        "fullName": "Англійська",
+        "shortName": "АНГЛ"
+      },
+      "uk": {
+        "fullName": "Українська",
+        "shortName": "УКР"
+      }
+    }
+  },
+  "forms": {
+    "login-form": {
+      "errors": {
+        "invalid-email": "Невалідний формат електронної пошти",
+        "invalid-password": "Пароль має містити щонайменше 8 символів"
+      }
+    },
+    "create-user-form": {
+      "errors": {
+        "invalid-email": "Невалідний формат електронної пошти",
+        "invalid-password": "Пароль має містити щонайменше 8 символів",
+        "passwords-not-match": "Паролі мають співпадати"
+      }
+    }
+  },
+  "login-page": {
+    "title": "Увійти в систему",
+    "labels": {
+      "email": "Логін",
+      "password": "Пароль"
+    },
+
+    "forgot-password-message": "Забули пароль?",
+
+    "submit-btn": "Увійти",
+
+    "no-account": "Не маєте акаунту?",
+    "sign-up": "Зареєстуватись",
+
+    "errors": {
+      "invalid-credentials": "НЕВІРНІ ДАНІ",
+      "server-error": "ПОМИЛКА СЕРВЕРУ"
+    }
+  },
+  "registration-page": {
+    "title": "Зареєструватись",
+    "labels": {
+      "email": "Логін",
+      "username": "Ім'я користувача",
+      "firstname": "Ім'я",
+      "lastname": "Прізвище",
+      "password": "Пароль",
+      "confirmPassword": "Підтвердити пароль"
+    },
+
+    "submit-btn": "Створити акаунт",
+
+    "no-account": "Уже маєте акаунт?",
+    "login": "Увійти",
+
+    "errors": {
+      "account-already-exists": "АКАУНТ ВЖЕ ІСНУЄ",
+      "server-error": "ПОМИЛКА СЕРВЕРУ"
+    }
+  },
+  "home-page": {
+    "main": {
+      "section": {
+        "section-controls": {
+          "try-service-link-text": "Скористатись сервісом"
+        }
+      },
+      "section-1": {
+        "section-info": {
+          "service-title": "Детектор"
+        },
+        "section-controls": {
+          "section-description": "Система виявлення наземних мін, яка використовує тепловізійні (інфрачервоні) зображення та технології комп'ютерного зору."
+        }
+      },
+      "section-2": {
+        "section-info": {
+          "service-title": "Мапа замінованості"
+        },
+        "section-controls": {
+          "section-description": "Інтерактивна мапа з позначенням замінованості території."
+        }
+      }
+    }
+  },
+  "detector-page": {
+    "title": "Детектор",
+    "models-dropdown-title": "ОБРАТИ МОДЕЛЬ",
+    "model-description-default-text": "Модель не обрано",
+    "drag-and-drop-section-text-for-not-active-drag": "Натисніть або перетягніть зображення чи «.zip» архів",
+    "drag-and-drop-section-text-for-active-drag": "Перетягніть зображення чи «.zip» архів...",
+    "clear-all-images-btn-text": "Очистити",
+    "process-images-btn-text": "Обробити",
+    "view-stats-btn-text": "Детальніше",
+    "processing-message-text": {
+      "text-1": "Будь ласка, зачекайте, поки ми намагаємось обробити...",
+      "text-2": "Це може зайняти декілька секунд..."
+    },
+    "pop-ups": {
+      "invalid-file-pop-up": {
+        "title": "Невалідний тип файлу",
+        "description": "Файл «{{name}}» відхилено. Дозволено завантажувати лише зображення та архіви .zip."
+      },
+      "model-not-selected-pop-up": {
+        "title": "Оберіть модель",
+        "description": "Для обробки даних потрібно обрати модель"
+      },
+      "data-processing-failed-popup": {
+        "title": "Помилка обробки даних",
+        "description": "Будь-ласка спробуйте знову"
+      },
+      "processed-data-loading-failed-popup": {
+        "title": "Помилка завантаження оброблених даних",
+        "description": "Будь-ласка спробуйте знову"
+      },
+      "data-successfully-processed-popup": {
+        "title": "Обробка завершена",
+        "description": "Дані успішно оброблено"
+      }
+    },
+    "processed-files-section": {
+      "title": "Оброблені зображення"
+    },
+    "archive-item-title": "Архів",
+    "download-archive-btn": "Завантажити"
+  },
+  "admin-page": {
+    "dashboard": {
+      "tab-name": "Інформаційна панель"
+    },
+    "map-editor": {
+      "tab-name": "Редактор карт",
+      "layers-section": {
+        "title": "Шари"
+      }
+    }
+  },
+  "not-found-page": {
+    "description": "Сторінки, яку ви шукаєте, не існує"
+  },
+  "footer": {
+    "title": "Детальніше",
+    "projectName": "Назва проекту",
+    "developedBy": "Розробник"
+  }
+}
+

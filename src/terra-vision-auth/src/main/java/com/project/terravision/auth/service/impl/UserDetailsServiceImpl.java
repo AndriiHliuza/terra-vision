@@ -4,7 +4,6 @@ import com.project.terravision.auth.model.Permission;
 import com.project.terravision.auth.model.Role;
 import com.project.terravision.auth.model.RolePermission;
 import com.project.terravision.auth.model.User;
-import com.project.terravision.auth.model.enums.AccountState;
 import com.project.terravision.auth.repository.RolePermissionRepository;
 import com.project.terravision.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -35,16 +34,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException(email));
 
-        boolean isDeactivated = user.getAccountState() == AccountState.DEACTIVATED;
-        boolean isBlocked = user.getAccountState() == AccountState.BLOCKED;
-
         Collection<? extends GrantedAuthority> authorities = getAuthorities(user);
 
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getUsername())
                 .password(user.getPassword())
-                .disabled(isDeactivated)
-                .accountLocked(isBlocked)
                 .authorities(authorities)
                 .build();
     }

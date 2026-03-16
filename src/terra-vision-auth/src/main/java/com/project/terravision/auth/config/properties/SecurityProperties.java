@@ -1,5 +1,6 @@
 package com.project.terravision.auth.config.properties;
 
+import com.project.terravision.auth.enums.KeySize;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;

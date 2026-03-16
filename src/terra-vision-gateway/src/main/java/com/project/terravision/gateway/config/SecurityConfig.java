@@ -33,7 +33,15 @@ import static com.project.terravision.gateway.manager.AuthorizationManager.hasAt
 @Configuration
 public class SecurityConfig {
 
-    @Bean // Default order is @Order(100)
+    /*
+     * SecurityWebFilterChain filters run after all WebFilter filters
+     * and all GlobalFilter filters.
+     * Execution order of filters:
+     * 1) WebFilter filters
+     * 2) GlobalFilter filters
+     * 3) SecurityFilterChain filters
+     * */
+    @Bean
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http, CsrfTokenCookieFilter csrfTokenCookieFilter) {
         return http
                 /*
@@ -51,6 +59,9 @@ public class SecurityConfig {
                         .csrfTokenRequestHandler(new ServerCsrfTokenRequestAttributeHandler())
                         .requireCsrfProtectionMatcher(SecurityUtils::requireCsrfProtection)
                 )
+                /*
+                * CSRF filter is part if SecurityFilterChain filters
+                * */
                 .addFilterAfter(csrfTokenCookieFilter, SecurityWebFiltersOrder.REACTOR_CONTEXT)
                 .authorizeExchange(exchange -> exchange
 
@@ -81,6 +92,7 @@ public class SecurityConfig {
                                 HttpMethod.GET,
                                 "/api/auth/super-admin/protected"
                         ).access(hasAtLeastPowerLevel(SystemRoleLevel.SUPER_ADMIN))
+                        .pathMatchers(SecurityPaths.INTERNAL_PATHS).denyAll()
                         .anyExchange().authenticated()
                 )
                 .oauth2ResourceServer(oAuth2ResourceServerSpec -> oAuth2ResourceServerSpec

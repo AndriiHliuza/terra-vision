@@ -1,69 +1,97 @@
 package com.project.terravision.auth.mapper;
 
 import com.project.terravision.auth.config.MappingConfig;
-import com.project.terravision.auth.dto.MeResponse;
-import com.project.terravision.auth.dto.UserCreationRequest;
-import com.project.terravision.auth.dto.UserCreationResponse;
+import com.project.terravision.auth.dto.response.MeResponse;
+import com.project.terravision.auth.dto.request.CreateUserRequest;
+import com.project.terravision.auth.dto.response.UserCreatedResponse;
+import com.project.terravision.auth.enums.AccountStatus;
 import com.project.terravision.auth.model.Permission;
 import com.project.terravision.auth.model.Role;
 import com.project.terravision.auth.model.User;
-import com.project.terravision.auth.model.enums.AccountState;
-import com.project.terravision.auth.model.enums.TokenType;
 import com.project.terravision.auth.service.AuthoritiesService;
 import org.mapstruct.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.Map;
-
 @Mapper(
         config = MappingConfig.class,
-        uses = { RoleMapper.class },
-        imports = { AccountState.class, TokenType.class, Map.class }
+        uses = {RoleMapper.class},
+        imports = {AccountStatus.class}
 )
 public interface UserMapper {
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "username", ignore = true)
-    @Mapping(target = "imageId", ignore = true)
-    @Mapping(target = "accountState", expression = "java(AccountState.PENDING_VERIFICATION)")
-    @Mapping(target = "verifiedAt", ignore = true)
-    @Mapping(target = "blockedAt", ignore = true)
-    @Mapping(target = "blockedBy", ignore = true)
-    @Mapping(target = "blockReason", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "password", ignore = true)  // encoded separately
+    // ------------ toUser ------------
+    @BeanMapping(ignoreByDefault = true)
+    @Mapping(target = "email", source = "request.email")
+    @Mapping(target = "firstname", source = "request.firstname")
+    @Mapping(target = "lastname", source = "request.lastname")
+    @Mapping(target = "accountStatus", expression = "java(AccountStatus.PENDING_VERIFICATION)")
+    @Mapping(target = "role", source = "role")
     User toUser(
-            UserCreationRequest userCreationRequest,
+            CreateUserRequest request,
             Role role,
             @Context PasswordEncoder passwordEncoder
     );
 
+    // ------------ updateUserFromCreateUserRequest ------------
+    @BeanMapping(
+            ignoreByDefault = true,
+            nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
+    )
+    @Mapping(target = "email", source = "request.email")
+    @Mapping(target = "firstname", source = "request.firstname")
+    @Mapping(target = "lastname", source = "request.lastname")
+    @Mapping(target = "accountStatus", expression = "java(AccountStatus.PENDING_VERIFICATION)")
+    void updateUserFromCreateUserRequest(
+            CreateUserRequest request,
+            @MappingTarget User user,
+            @Context PasswordEncoder passwordEncoder
+    );
+
+    /*
+    * ------------ (AfterMapping) ------------
+    * For methods:
+    * - toUser
+    * - updateUserFromCreateUserRequest
+    * */
     @AfterMapping
     default void handlePasswordAndUsernameMapping(
+            CreateUserRequest request,
             @MappingTarget User user,
-            UserCreationRequest request,
             @Context PasswordEncoder passwordEncoder
     ) {
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setPassword(passwordEncoder.encode(request.password()));
 
-        String username = request.getUsername();
-        if (username == null || username.isBlank()) {
-            username = request.getEmail().split("@")[0];
-            if (username.isBlank()) {
-                throw new IllegalArgumentException("Cannot derive username from email: " + request.getEmail());
+        if (user.getUsername() == null || user.getUsername().isBlank()) {
+            String username = request.username();
+            if (username == null || username.isBlank()) {
+                username = request.email().split("@")[0];
+                if (username.isBlank()) {
+                    throw new IllegalArgumentException("Cannot derive username from email: " + request.email());
+                }
             }
+            user.setUsername(username);
         }
-        user.setUsername(username);
     }
 
-    UserCreationResponse toUserCreationResponse(User user);
 
+
+
+
+    // ------------ toUserCreationResponse ------------
+    UserCreatedResponse toUserCreatedResponse(User user);
+
+
+    // ------------ toMeResponse ------------
     @Mapping(target = "permissions", ignore = true)
     MeResponse toMeResponse(User user, @Context AuthoritiesService authoritiesService);
 
+    /*
+     * ------------ (AfterMapping) ------------
+     * For methods:
+     * - toMeResponse
+     * */
     @AfterMapping
-    default void mapPermissions(@MappingTarget MeResponse meResponse, User user, @Context AuthoritiesService authoritiesService) {
+    default void mapPermissions(User user, @MappingTarget MeResponse meResponse, @Context AuthoritiesService authoritiesService) {
         if (user.getRole() != null) {
             meResponse.setPermissions(authoritiesService.getUserPermissions(user)
                     .stream()

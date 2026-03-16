@@ -3,7 +3,7 @@ CREATE INDEX idx_roles_power_level ON roles(power_level);
 
 -- users
 CREATE INDEX idx_users_role_id ON users(role_id);
-CREATE INDEX idx_users_account_state ON users(account_state);
+CREATE INDEX idx_users_account_status ON users(account_status);
 CREATE INDEX idx_users_blocked_by ON users(blocked_by);
 CREATE INDEX idx_users_created_at ON users(created_at);
 

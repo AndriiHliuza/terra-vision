@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.core.Ordered;
+import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -23,7 +24,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class SessionValidationFilter implements WebFilter, Ordered {
 
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final ReactiveRedisTemplate<String, Object> reactiveRedisTemplate;
     private final ReactiveJwtDecoder jwtDecoder;
 
     @NullMarked
@@ -47,18 +48,19 @@ public class SessionValidationFilter implements WebFilter, Ordered {
                     String userId = jwt.getClaim("userId");
                     String jti = jwt.getId();
 
-                    Boolean isValid = redisTemplate.hasKey("session:" + userId + ":" + jti);
-                    if (!Boolean.TRUE.equals(isValid)) {
-                        log.warn("Session not found in Redis for userId: {}", userId);
-                        exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-                        return exchange.getResponse().setComplete();
-                    }
-
-                    log.info("Session validated for userId: {}", userId);
-                    return chain.filter(exchange);
+                    return reactiveRedisTemplate.hasKey("session:" + userId + ":" + jti) // ✅ reactive
+                            .flatMap(isValid -> {
+                                if (!isValid) {
+                                    log.warn("Session not found in Redis for userId: {}", userId);
+                                    exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+                                    return exchange.getResponse().setComplete();
+                                }
+                                log.debug("Session validated for userId: {}", userId);
+                                return chain.filter(exchange);
+                            });
                 })
                 .onErrorResume(JwtException.class, e -> {
-                    log.error("Invalid JWT: {}", e.getMessage());
+                    log.error("Invalid JWT during session check: {}", e.getMessage());
                     exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
                     return exchange.getResponse().setComplete();
                 });

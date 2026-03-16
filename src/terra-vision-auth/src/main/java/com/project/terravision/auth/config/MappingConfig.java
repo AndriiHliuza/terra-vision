@@ -15,40 +15,21 @@ import org.mapstruct.*;
 
 
         // ------------
-        /*
-        * If a target field has no mapping → compilation fails.
-        * */
-        unmappedTargetPolicy = ReportingPolicy.ERROR,
+        // unmappedSourcePolicy = ReportingPolicy.IGNORE, // default is IGNORE
+        unmappedTargetPolicy = ReportingPolicy.ERROR, // default is WARN
 
-        /*
-        * If a source field is not used in any mapping → silently ignored.
-        * Source objects can have extra fields that you don't need in the target.
-        * */
-        unmappedSourcePolicy = ReportingPolicy.IGNORE,
+
+
+        // ------------
+        // nullValueMappingStrategy = NullValueMappingStrategy.RETURN_NULL, // default is RETURN_NULL
+        // nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL, // default is SET_TO_NULL
+
 
 
         // ------------
         /*
-        * If the entire source object is null → return null. Caller is responsible for null handling.
+        * When mapping collections, prefer addItem() over setItems() if adder method exists. If addItem() does not exist, use setItems()
         * */
-        nullValueMappingStrategy = NullValueMappingStrategy.RETURN_NULL,
-
-        /*
-        * If an individual source field is null → skip it, keep the existing target field value.
-        * Especially useful with @MappingTarget updates — don't overwrite existing values with null.
-        * */
-        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
-
-        /*
-        * Always generate null checks before every field mapping:
-        * */
-        nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS,
-
-
-        // ------------
-        /*
-        * When mapping collections, prefer addItem() over setItems() if adder method exists
-        * */
-        collectionMappingStrategy = CollectionMappingStrategy.ADDER_PREFERRED
+        collectionMappingStrategy = CollectionMappingStrategy.ADDER_PREFERRED // default CollectionMappingStrategy.ACCESSOR_ONLY
 )
 public interface MappingConfig {}

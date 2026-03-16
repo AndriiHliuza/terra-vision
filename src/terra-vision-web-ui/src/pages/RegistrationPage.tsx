@@ -11,6 +11,7 @@ import Header from "../components/Header.tsx";
 import axios from "axios";
 import showPasswordImg from "../assets/eye-password-show.png";
 import hidePasswordImg from "../assets/eye-password-hide.png";
+import warningImg from "../assets/warning.png";
 import {Link, useParams} from "react-router-dom";
 import LoadingOverlay from "../components/LoadingOverlay.tsx";
 import {axiosWebClient} from "../configs/axios-web-client.ts";
@@ -47,7 +48,7 @@ function RegistrationPage() {
         try {
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const { confirmPassword, ...payload } = data;
-            await axiosWebClient.post("/api/auth/registration", payload);
+            await axiosWebClient.post("/api/auth/sign-up", payload);
             console.log("Check your email")
         } catch (error) {
             if (axios.isAxiosError(error)) {
@@ -68,7 +69,7 @@ function RegistrationPage() {
                 <h1>{t("registration-page.title")}</h1>
                 <form onSubmit={handleSubmit(onSubmit)} noValidate>
                     <div className="form-card-item">
-                        <label htmlFor="email">{t("registration-page.labels.email")}</label>
+                        <label htmlFor="email">{t("registration-page.labels.email")}<span>✱</span></label>
                         <input
                             id="email"
                             type="email"
@@ -84,7 +85,7 @@ function RegistrationPage() {
                         <label htmlFor="username">{t("registration-page.labels.username")}</label>
                         <input
                             id="username"
-                            placeholder="JohnSmith"
+                            placeholder="Your username"
                             {...register("username")}
                         />
                         {errors.username && <p
@@ -108,7 +109,7 @@ function RegistrationPage() {
                         <label htmlFor="lastname">{t("registration-page.labels.lastname")}</label>
                         <input
                             id="lastname"
-                            placeholder="Smith"
+                            placeholder="Doe"
                             {...register("lastname")}
                         />
                         {errors.lastname && <p
@@ -117,12 +118,12 @@ function RegistrationPage() {
                         >{errors.lastname.message}</p>}
                     </div>
                     <div className="form-card-item">
-                        <label htmlFor="password">{t("registration-page.labels.password")}</label>
+                        <label htmlFor="password">{t("registration-page.labels.password")}<span>✱</span></label>
                         <div className="password-item-wrapper">
                             <input
                                 id="password"
                                 type={showPassword ? "text" : "password"}
-                                placeholder="qwerty12345"
+                                placeholder="Must have at least 8 characters"
                                 {...register("password")}
                             />
                             <div className="show-hide-password-img-wrapper">
@@ -139,12 +140,12 @@ function RegistrationPage() {
                         >{errors.password.message}</p>}
                     </div>
                     <div className="form-card-item">
-                        <label htmlFor="confirmPassword">{t("registration-page.labels.confirmPassword")}</label>
+                        <label htmlFor="confirmPassword">{t("registration-page.labels.confirmPassword")}<span>✱</span></label>
                         <div className="password-item-wrapper">
                             <input
                                 id="confirmPassword"
                                 type={showConfirmPassword ? "text" : "password"}
-                                placeholder="qwerty12345"
+                                placeholder="Must have at least 8 characters"
                                 {...register("confirmPassword")}
                             />
                             <div className="show-hide-password-img-wrapper">
@@ -163,10 +164,13 @@ function RegistrationPage() {
                     {errors.root && (
                         <div className="root-error-section">
                             <hr className="form-divider" />
-                            <div
-                                role="alert"
-                                className="root-error-message"
-                            >{errors.root.message ? t(errors.root.message) : "ERROR"}</div>
+                            <div className="root-error-message-container">
+                                <img src={warningImg} alt="Warning"/>
+                                <div
+                                    role="alert"
+                                    className="root-error-message"
+                                >{errors.root.message ? t(errors.root.message) : "ERROR"}</div>
+                            </div>
                         </div>
                     )}
                     <button type="submit" disabled={isSubmitting}>{t("registration-page.submit-btn")}</button>

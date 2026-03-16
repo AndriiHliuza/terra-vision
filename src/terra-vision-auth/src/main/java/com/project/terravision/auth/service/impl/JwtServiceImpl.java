@@ -1,6 +1,6 @@
 package com.project.terravision.auth.service.impl;
 
-import com.project.terravision.auth.model.enums.TokenType;
+import com.project.terravision.auth.enums.JwtType;
 import com.project.terravision.auth.config.properties.SecurityProperties;
 import com.project.terravision.auth.service.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -19,14 +19,14 @@ public class JwtServiceImpl implements JwtService {
     private final SecurityProperties securityProperties;
 
     @Override
-    public String generateToken(String jti, String subject, Map<String, Object> claims, TokenType tokenType) {
+    public String generateToken(String jti, String subject, Map<String, Object> claims, JwtType jwtType) {
         Instant issuedAt = Instant.now();
 
         String issuer = securityProperties.getJwt().getIssuer();
         Duration accessTokenExpiry = securityProperties.getJwt().getAccessToken().getExpiration();
         Duration refreshTokenExpiry = securityProperties.getJwt().getRefreshToken().getExpiration();
 
-        claims.put("type",  tokenType);
+        claims.put("type", jwtType);
 
         JwtClaimsSet.Builder claimsSetBuilder = JwtClaimsSet.builder()
                 .issuer(issuer)
@@ -35,7 +35,7 @@ public class JwtServiceImpl implements JwtService {
                 .subject(subject) // username
                 .claims(claimsMap -> claimsMap.putAll(claims));
 
-        switch (tokenType) {
+        switch (jwtType) {
             case ACCESS -> claimsSetBuilder.expiresAt(issuedAt.plus(accessTokenExpiry));
             case REFRESH -> claimsSetBuilder.expiresAt(issuedAt.plus(refreshTokenExpiry));
         };

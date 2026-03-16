@@ -10,7 +10,7 @@
         "fullName": "English",
         "shortName": "EN"
       },
-      "ua": {
+      "uk": {
         "fullName": "Ukrainian",
         "shortName": "UA"
       }
@@ -37,6 +37,8 @@
       "email": "Email",
       "password": "Password"
     },
+
+    "forgot-password-message": "Forgot password?",
 
     "submit-btn": "Submit",
 

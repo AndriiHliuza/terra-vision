@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta
+            name="description"
+            content="Web page for account activation"
+    />
+    <title>АКТИВАЦІЯ АКАУНТА</title>
+</head>
+    <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2>Вітаємо, <span th:text="${username}">користувач</span>!</h2>
+        <p>Дякуємо за реєстрацію. Будь ласка, підтвердьте свій обліковий запис, натиснувши кнопку нижче:</p>
+        <a th:href="${verificationLink}"
+           style="display: inline-block;
+                      background-color: #4CAF50;
+                      color: white;
+                      padding: 14px 20px;
+                      text-decoration: none;
+                      border-radius: 4px;
+                      margin: 20px 0;">
+            Verify Account
+        </a>
+        <p>Це посилання дійсне протягом <strong th:text="${expirationHours}">15</strong> хвилин.</p>
+        <p>Якщо ви не створювали обліковий запис, будь ласка, проігноруйте цей лист.</p>
+        <p>Можливо хтось випадково ввів вашу адресу електронної пошти.</p>
+    </body>
+</html>

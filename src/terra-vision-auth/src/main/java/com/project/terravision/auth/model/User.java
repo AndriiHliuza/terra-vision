@@ -1,6 +1,7 @@
 package com.project.terravision.auth.model;
 
-import com.project.terravision.auth.model.enums.AccountState;
+import com.project.terravision.auth.enums.AccountStatus;
+import com.project.terravision.auth.enums.AccountStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -47,7 +48,7 @@ public class User {
 
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(nullable = false)
-    private AccountState accountState;
+    private AccountStatus accountStatus;
 
     // --- Audit & Metadata Information ---
 
@@ -72,13 +73,13 @@ public class User {
     @ManyToOne
     private Role role;
 
-    public User(String username, String email, String password, String firstname, String lastname, AccountState accountState, Role role) {
+    public User(String username, String email, String password, String firstname, String lastname, AccountStatus accountStatus, Role role) {
         this.username = username;
         this.email = email;
         this.password = password;
         this.firstname = firstname;
         this.lastname = lastname;
-        this.accountState = accountState;
+        this.accountStatus = accountStatus;
         this.role = role;
     }
 }
