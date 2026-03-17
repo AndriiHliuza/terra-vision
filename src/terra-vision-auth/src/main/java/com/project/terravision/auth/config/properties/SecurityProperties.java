@@ -34,5 +34,11 @@ public class SecurityProperties {
     public static class KeyPairProperties {
         private KeySize size = KeySize.STANDARD; // Default 2048 bits
         private Duration keyExpiration = Duration.ofDays(10); // Default 10 days
+
+        private boolean printKeyPair = true;
+
+        public boolean printKeyPair() {
+            return printKeyPair;
+        }
     }
 }

@@ -58,11 +58,11 @@ server:
   port: 8082
 
 application:
-
-  supported-languages:
-    - en
-    - uk
-  fallback-language: en
+  localization:
+    supported-languages:
+      - en
+      - uk
+    fallback-language: en
 
   mail:
     from: noreply@terra-vision.com
@@ -92,3 +92,4 @@ application:
     key-pair:
       size: standard
       key-expiration: 10d
+      print-key-pair: true

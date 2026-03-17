@@ -33,25 +33,14 @@ public class AccessTokenCookieToAuthorizationHeaderTransformationFilter implemen
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getPath().toString();
 
-        if (SecurityUtils.isPathPublic(path, request.getMethod())) {
-            log.debug("Public path [{}] — skipping 'accessToken' cookie to Authorization header transformation", path);
-            return chain.filter(exchange);
-        }
+        if (SecurityUtils.isPathPublic(path, request.getMethod())) return handlePublicPath(exchange, chain, path);
 
-        if (request.getHeaders().containsHeader(HttpHeaders.AUTHORIZATION)) {
-            log.debug("Authorization header already present — skipping 'accessToken' cookie to Authorization header transformation");
-            return chain.filter(exchange);
-        }
+        if (request.getHeaders().containsHeader(HttpHeaders.AUTHORIZATION)) return handleAuthorizationHeaderPresence(exchange, chain);
 
         HttpCookie accessTokenCookie = request.getCookies().getFirst(WebAttributes.ACCESS_TOKEN_COOKIE);
-        if (accessTokenCookie == null) {
-            log.debug("No 'accessToken' cookie found — skipping cookie to header transformation");
-            return chain.filter(exchange);
-        }
+        if (accessTokenCookie == null) return handleAccessTokenCookieIsNull(exchange, chain);
 
-        String accessToken = accessTokenCookie.getValue();
-        ServerHttpRequest mutatedRequest = buildMutatedRequest(exchange, accessToken);
-
+        ServerHttpRequest mutatedRequest = buildMutatedRequest(exchange, accessTokenCookie);
         log.info("Access token was moved from 'Cookie' to 'Authorization' header");
         return chain.filter(exchange.mutate().request(mutatedRequest).build());
     }
@@ -65,14 +54,33 @@ public class AccessTokenCookieToAuthorizationHeaderTransformationFilter implemen
         return Ordered.HIGHEST_PRECEDENCE + 200;
     }
 
-    private ServerHttpRequest buildMutatedRequest(ServerWebExchange exchange, String accessToken) {
+
+
+    // ------------ private methods ------------
+
+    private Mono<Void> handlePublicPath(ServerWebExchange exchange, WebFilterChain chain, String path) {
+        log.debug("PATH [{}]  is public | Skipping 'accessToken' cookie to 'Authorization' header transformation", path);
+        return chain.filter(exchange);
+    }
+
+    private Mono<Void> handleAuthorizationHeaderPresence(ServerWebExchange exchange, WebFilterChain chain) {
+        log.debug("'Authorization' header already present in request | Skipping 'accessToken' cookie to 'Authorization' header transformation");
+        return chain.filter(exchange);
+    }
+
+    private Mono<Void> handleAccessTokenCookieIsNull(ServerWebExchange exchange, WebFilterChain chain) {
+        log.debug("No 'accessToken' cookie found | Skipping cookie to header transformation");
+        return chain.filter(exchange);
+    }
+
+    private ServerHttpRequest buildMutatedRequest(ServerWebExchange exchange, HttpCookie accessTokenCookie) {
         MultiValueMap<String, HttpCookie> filteredCookies = WebUtils.filterCookies(
                 exchange.getRequest().getCookies(),
                 List.of(WebAttributes.ACCESS_TOKEN_COOKIE, WebAttributes.REFRESH_TOKEN_COOKIE)
         );
-        log.debug("Filtering cookies. 'accessToken' and 'refreshToken' cookies were removed from 'Cookie' header");
+        log.debug("Filtering cookies | Removing 'accessToken' and 'refreshToken' cookies from 'Cookie' header");
         return exchange.getRequest().mutate()
-                .header(HttpHeaders.AUTHORIZATION, WebAttributes.BEARER_PREFIX + accessToken)
+                .header(HttpHeaders.AUTHORIZATION, WebAttributes.BEARER_PREFIX + accessTokenCookie.getValue())
                 .headers(headers -> mutateCookieHeader(headers, filteredCookies))
                 .build();
     }
@@ -80,11 +88,11 @@ public class AccessTokenCookieToAuthorizationHeaderTransformationFilter implemen
     private void mutateCookieHeader(HttpHeaders headers, MultiValueMap<String, HttpCookie> cookies) {
         String cookiesString = WebUtils.convertCookiesToString(cookies);
         if (cookiesString.isBlank()) {
+            log.debug("No cookies remained | Removing 'Cookie' header from the mutated request");
             headers.remove(HttpHeaders.COOKIE);
-            log.debug("No cookies remained. Removing 'Cookie' header from the mutated request");
         } else {
-            headers.set(HttpHeaders.COOKIE, cookiesString);
             log.debug("Setting remained cookies to 'Cookie' header of the mutated request");
+            headers.set(HttpHeaders.COOKIE, cookiesString);
         }
     }
 }

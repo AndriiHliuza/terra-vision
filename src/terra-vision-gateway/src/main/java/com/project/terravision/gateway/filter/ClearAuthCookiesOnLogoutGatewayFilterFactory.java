@@ -15,6 +15,9 @@ import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 
+/*
+* WebFilter runs before GatewayFilter
+* */
 @Slf4j
 @Component
 public class ClearAuthCookiesOnLogoutGatewayFilterFactory extends AbstractGatewayFilterFactory<ClearAuthCookiesOnLogoutGatewayFilterFactory.Config> {
@@ -65,7 +68,8 @@ public class ClearAuthCookiesOnLogoutGatewayFilterFactory extends AbstractGatewa
                         exchange.getResponse().addCookie(clearRefreshCookie);
                         exchange.getResponse().addCookie(clearCsrfCookie);
 
-                        log.info("Cleared access and refresh cookies on logout");
+                        String userId = exchange.getAttribute("userId");
+                        log.info("Log out | userId={} | Cleared 'accessToken', 'refreshToken', 'XSRF-TOKEN' cookies",  userId);
                     }
                 }));
     }

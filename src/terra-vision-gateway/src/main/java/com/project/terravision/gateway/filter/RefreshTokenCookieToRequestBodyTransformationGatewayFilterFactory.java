@@ -43,47 +43,58 @@ public class RefreshTokenCookieToRequestBodyTransformationGatewayFilterFactory e
             if (contentLength > 0) {
                 return DataBufferUtils.join(request.getBody())
                         .flatMap(dataBuffer -> {
-                            byte[] bytes = new byte[dataBuffer.readableByteCount()];
-                            dataBuffer.read(bytes);
-                            DataBufferUtils.release(dataBuffer);
+                            byte[] bytes = getBodyBytes(dataBuffer);  // body as byte array
+                            String bodyString = new String(bytes, StandardCharsets.UTF_8); // body as String
 
-                            String bodyString = new String(bytes, StandardCharsets.UTF_8);
+                            if (bodyString.contains("\"refreshToken\"")) return handleBodyThatContainsRefreshToken(exchange, chain, request, bytes);
 
-                            // Re-wrap body since we consumed it
-                            DataBuffer newBuffer = exchange.getResponse()
-                                    .bufferFactory()
-                                    .wrap(bytes);
-
-                            ServerWebExchange rewrappedExchange = exchange.mutate()
-                                    .request(new ServerHttpRequestDecorator(request) {
-                                        @Override
-                                        public Flux<DataBuffer> getBody() {
-                                            return Flux.just(newBuffer);
-                                        }
-                                    })
-                                    .build();
-
-                            if (bodyString.contains("\"refreshToken\"")) {
-                                log.debug("Refresh token already in body, skipping cookie to body conversion");
-                                return chain.filter(rewrappedExchange);
-                            }
-
-                            // Body exists but no refreshToken — check if cookie has refreshToken
+                            // If body exists but no refreshToken — check if cookies have 'refreshToken' cookie
                             return extractRefreshTokenFromCookieAndMutate(exchange, chain);
                         });
             }
 
-            // Request does not have body — check if cookie has refreshToken
+            // Request does not have body — check if cookies have 'refreshToken' cookie
             return extractRefreshTokenFromCookieAndMutate(exchange, chain);
         };
     }
 
+
+
+    // ------------ private methods ------------
+
+    private byte[] getBodyBytes(DataBuffer dataBuffer) {
+        byte[] bytes = new byte[dataBuffer.readableByteCount()];
+        dataBuffer.read(bytes);
+        DataBufferUtils.release(dataBuffer);
+        return bytes;
+    }
+
+    private Mono<Void> handleBodyThatContainsRefreshToken(
+            ServerWebExchange exchange,
+            GatewayFilterChain chain,
+            ServerHttpRequest request,
+            byte[] bodyBytes
+    ) {
+        // Re-wrap body since we consumed it
+        DataBuffer newBuffer = exchange.getResponse().bufferFactory().wrap(bodyBytes);
+
+        ServerWebExchange rewrappedExchange = exchange.mutate()
+                .request(new ServerHttpRequestDecorator(request) {
+                    @NullMarked
+                    @Override
+                    public Flux<DataBuffer> getBody() { return Flux.just(newBuffer); }
+                })
+                .build();
+
+        log.debug("'refreshToken' already in body | Skipping 'refreshToken' cookie to body conversion");
+        return chain.filter(rewrappedExchange);
+    }
+
     private Mono<Void> extractRefreshTokenFromCookieAndMutate(ServerWebExchange exchange, GatewayFilterChain chain) {
-        HttpCookie refreshTokenCookie = exchange.getRequest().getCookies()
-                .getFirst(WebAttributes.REFRESH_TOKEN_COOKIE);
+        HttpCookie refreshTokenCookie = exchange.getRequest().getCookies().getFirst(WebAttributes.REFRESH_TOKEN_COOKIE);
 
         if (refreshTokenCookie == null) {
-            log.warn("No refresh token in cookie");
+            log.warn("No 'refreshToken' cookie found in request cookies");
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();
         }
@@ -113,7 +124,7 @@ public class RefreshTokenCookieToRequestBodyTransformationGatewayFilterFactory e
                 exchange.getRequest().getCookies(),
                 List.of(WebAttributes.ACCESS_TOKEN_COOKIE, WebAttributes.REFRESH_TOKEN_COOKIE)
         );
-        log.debug("Filtering cookies. 'accessToken' and 'refreshToken' cookies were removed from 'Cookie' header");
+        log.debug("Filtering cookies | Removing 'accessToken' and 'refreshToken' cookies from 'Cookie' header");
 
         return exchange.getRequest().mutate()
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
@@ -125,11 +136,11 @@ public class RefreshTokenCookieToRequestBodyTransformationGatewayFilterFactory e
     private void mutateCookieHeader(HttpHeaders headers, MultiValueMap<String, HttpCookie> cookies) {
         String cookiesString = WebUtils.convertCookiesToString(cookies);
         if (cookiesString.isBlank()) {
+            log.debug("No cookies remained | Removing 'Cookie' header from the mutated request");
             headers.remove(HttpHeaders.COOKIE);
-            log.debug("No cookies remained'. Removing 'Cookie' header from the mutated request");
         } else {
-            headers.set(HttpHeaders.COOKIE, cookiesString);
             log.debug("Setting remained cookies to 'Cookie' header of the mutated request");
+            headers.set(HttpHeaders.COOKIE, cookiesString);
         }
     }
 

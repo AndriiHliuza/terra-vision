@@ -20,13 +20,14 @@ import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
+import java.util.function.Consumer;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class AccountStatusFilter implements WebFilter, Ordered {
 
     private final ReactiveStringRedisTemplate reactiveStringRedisTemplate;
-    private final ReactiveJwtDecoder jwtDecoder;
     private final WebClient authWebClient;
 
     private static final String ACCOUNT_STATUS_PREFIX = "account:status:";
@@ -37,28 +38,23 @@ public class AccountStatusFilter implements WebFilter, Ordered {
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getPath().toString();
 
-        if (SecurityUtils.isPathPublic(path, request.getMethod())) {
-            log.debug("Public path [{}] — skipping account status check", path);
-            return chain.filter(exchange);
-        }
+        if (SecurityUtils.isPathPublic(path, request.getMethod())) return handlePublicPath(exchange, chain, path);
 
-        /*
-        * 'verifiedUserId' is being set in SessionValidationFilter after session is validated
-        * */
-        String userId = exchange.getAttribute("verifiedUserId");
-        if (userId == null) {
-            log.warn("verifiedUserId not found in exchange attributes — session was not validated");
-            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-            return exchange.getResponse().setComplete();
-        }
+        // 'userId' is being set in SessionValidationFilter after session is validated
+        String userId = exchange.getAttribute("userId");
+        if (userId == null) return handleUserIdIsNull(exchange);
 
         return reactiveStringRedisTemplate.opsForValue()
                 .get(ACCOUNT_STATUS_PREFIX + userId)
                 .map(AccountStatus::valueOf)
+                .doOnNext(accountStatus -> log.debug(
+                        "Retrieved account status from Redis for userId={}, Account status={}",
+                        userId, accountStatus)
+                )
                 .switchIfEmpty(fetchFromAuthServiceAndCache(userId))
                 .flatMap(accountStatus -> {
                     if (accountStatus != AccountStatus.ACTIVE) {
-                        log.warn("Account status check failed for userId={},  Account status: {}", userId, accountStatus);
+                        log.warn("Account status not ACTIVE for userId={}, Account status={} - Rejecting request.", userId, accountStatus);
                         return rejectRequest(exchange, accountStatus);
                     }
                     return chain.filter(exchange);
@@ -74,9 +70,24 @@ public class AccountStatusFilter implements WebFilter, Ordered {
         return Ordered.HIGHEST_PRECEDENCE + 400;
     }
 
+
+
+    // ------------ private methods ------------
+
+    private Mono<Void> handlePublicPath(ServerWebExchange exchange, WebFilterChain chain, String path) {
+        log.debug("Path [{}] is public | Skipping account status check", path);
+        return chain.filter(exchange);
+    }
+
+    private Mono<Void> handleUserIdIsNull(ServerWebExchange exchange) {
+        log.warn("'userId' not found in exchange attributes | Can not check account status");
+        exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+        return exchange.getResponse().setComplete();
+    }
+
     private Mono<AccountStatus> fetchFromAuthServiceAndCache(String userId) {
         return Mono.defer(() -> {
-            log.debug("Account status cache miss for userId={} — fetching from auth microservice", userId);
+            log.debug("Account status is not in Redis for userId={} | Fetching from auth microservice", userId);
             return authWebClient.get()
                     .uri("/api/auth/internal/account-status/{userId}", userId)
                     .retrieve()

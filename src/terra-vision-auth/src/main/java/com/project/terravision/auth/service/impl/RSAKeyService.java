@@ -31,10 +31,12 @@ public class RSAKeyService {
 
     private int keyPairSize;
     private final Duration keyExpiration;
+    private final boolean printKeyPair;
 
     public RSAKeyService(SecurityProperties securityProperties) throws NoSuchAlgorithmException {
         this.keyPairSize = securityProperties.getKeyPair().getSize().getBits();
         this.keyExpiration = securityProperties.getKeyPair().getKeyExpiration();
+        this.printKeyPair = securityProperties.getKeyPair().printKeyPair();
         this.activeKey = generateKey();
         keyHistory.add(new TimestampedRSAKey(activeKey));
     }
@@ -48,7 +50,8 @@ public class RSAKeyService {
                 .keyID(keyId)
                 .build();
 
-        printKeyPair(keyPair);
+        if (printKeyPair) printKeyPair(keyPair);
+
         log.info("RSA-{} key pair generated [kid={}]", keyPairSize, keyId);
         return rsaKey;
     }

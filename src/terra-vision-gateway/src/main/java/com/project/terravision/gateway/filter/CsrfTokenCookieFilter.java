@@ -21,9 +21,9 @@ public class CsrfTokenCookieFilter implements WebFilter {
 
         boolean hasCsrfCookie = exchange.getRequest().getCookies().getFirst("XSRF-TOKEN") != null;
         if (hasCsrfCookie) {
-            log.debug("Path [{}] - Reusing old token", path);
+            log.debug("Path [{}] | Reusing old token", path);
         } else {
-            log.debug("Path [{}] - Generating csrfToken token", path);
+            log.debug("Path [{}] | Generating csrfToken token", path);
         }
 
         // Spring Security stores the CSRF token as a lazy Mono<CsrfToken> in the exchange attributes.
@@ -32,7 +32,7 @@ public class CsrfTokenCookieFilter implements WebFilter {
         Mono<CsrfToken> csrfTokenMono = exchange.getAttribute(CsrfToken.class.getName());
 
         if (csrfTokenMono == null) {
-            log.debug("CsrfTokenMono is null — skipping cookie writing");
+            log.debug("CsrfTokenMono is null | Skipping cookie writing");
             return chain.filter(exchange);
         }
 
@@ -41,7 +41,7 @@ public class CsrfTokenCookieFilter implements WebFilter {
                  * Logs the generated token if csrfTokenMono is not an empty mono (if it contains the csrfToken value)
                  * If csrfToken value is not in the csrfTokenMono that means Mono is empty and doOnNext is skipped and the Mono just pipeline continues without executing doOnNext
                  * */
-                .doOnNext(csrfToken -> log.debug("CsrfToken value: {}", csrfToken.getToken())) // Logs the generated token if
+                .doOnNext(csrfToken -> log.debug("CsrfToken value={}", csrfToken.getToken())) // Logs the generated token if
 
                 /*
                  * Fallback to an alternative Mono if csrfTokenMono is empty (token wasn't generated)

@@ -1,6 +1,6 @@
 package com.project.terravision.auth.service.impl;
 
-import com.project.terravision.auth.config.properties.ApplicationProperties;
+import com.project.terravision.auth.config.properties.LocalizationProperties;
 import com.project.terravision.auth.config.properties.MailProperties;
 import com.project.terravision.auth.enums.EmailVerificationType;
 import com.project.terravision.auth.service.EmailService;
@@ -27,7 +27,7 @@ public class EmailServiceImpl implements EmailService {
     private final JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
 
-    private final ApplicationProperties applicationProperties;
+    private final LocalizationProperties localizationProperties;
     private final MailProperties mailProperties;
 
     @Async
@@ -81,7 +81,7 @@ public class EmailServiceImpl implements EmailService {
             case REGISTRATION_VERIFICATION -> "registration-email-template";
             case RESET_PASSWORD_VERIFICATION -> "reset-password-email-template";
         };
-        lang = applicationProperties.getSupportedLanguages().contains(lang) ? lang : applicationProperties.getFallbackLanguage();
+        lang = localizationProperties.getSupportedLanguages().contains(lang) ? lang : localizationProperties.getFallbackLanguage();
         return lang + "/" + baseTemplateName;
     }
 

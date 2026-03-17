@@ -32,16 +32,11 @@ public class SessionValidationFilter implements WebFilter, Ordered {
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getPath().toString();
 
-        if (SecurityUtils.isPathPublic(path, request.getMethod())) {
-            log.debug("Public path [{}] — skipping session check", path);
-            return chain.filter(exchange);
-        }
+        if (SecurityUtils.isPathPublic(path, request.getMethod())) return handlePublicPath(exchange, chain, path);
 
         String authorizationHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
         if (authorizationHeader == null || !authorizationHeader.startsWith(WebAttributes.BEARER_PREFIX)) {
-            log.debug("Authorization header is null or does not contain Bearer JWT - returning UNAUTHORIZED");
-            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-            return exchange.getResponse().setComplete();
+            return handleAuthorizationHeaderAbsence(exchange);
         }
 
         String token = authorizationHeader.substring(WebAttributes.BEARER_PREFIX.length());
@@ -51,24 +46,11 @@ public class SessionValidationFilter implements WebFilter, Ordered {
                     String userId = jwt.getClaim("userId");
                     String jti = jwt.getId();
 
-                    return reactiveStringRedisTemplate.hasKey("session:" + userId + ":" + jti) // ✅ reactive
-                            .flatMap(isValid -> {
-                                if (!isValid) {
-                                    log.warn("Session not found in Redis for userId={}", userId);
-                                    exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-                                    return exchange.getResponse().setComplete();
-                                }
-
-                                exchange.getAttributes().put("verifiedUserId", userId); // 'verifiedUserId' attribute is used in AccountStatusFilter
-                                log.debug("Session validated for userId={}", userId);
-                                return chain.filter(exchange);
-                            });
+                    return reactiveStringRedisTemplate
+                            .hasKey("session:" + userId + ":" + jti)
+                            .flatMap(isValid -> handleSessionValidation(exchange, chain, isValid, userId));
                 })
-                .onErrorResume(JwtException.class, ex -> {
-                    log.error("Invalid JWT during session check: {}", ex.getMessage());
-                    exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-                    return exchange.getResponse().setComplete();
-                });
+                .onErrorResume(JwtException.class, ex -> handleJwtException(exchange, ex));
     }
 
     @Override
@@ -78,5 +60,38 @@ public class SessionValidationFilter implements WebFilter, Ordered {
          * Ordered.HIGHEST_PRECEDENCE = Integer.MIN_VALUE
          * */
         return Ordered.HIGHEST_PRECEDENCE + 300;
+    }
+
+
+
+    // ------------ private methods ------------
+
+    private Mono<Void> handlePublicPath(ServerWebExchange exchange, WebFilterChain chain, String path) {
+        log.debug("Path [{}] is public | Skipping session check", path);
+        return chain.filter(exchange);
+    }
+
+    private Mono<Void> handleAuthorizationHeaderAbsence(ServerWebExchange exchange) {
+        log.debug("Authorization header is null or does not contain Bearer JWT | Returning with http status={}", HttpStatus.UNAUTHORIZED);
+        exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+        return exchange.getResponse().setComplete();
+    }
+
+    private Mono<Void> handleSessionValidation(ServerWebExchange exchange, WebFilterChain chain, Boolean isValid, String userId) {
+        if (!isValid) {
+            log.warn("Session not found in Redis for userId={}", userId);
+            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+            return exchange.getResponse().setComplete();
+        }
+
+        exchange.getAttributes().put("userId", userId); // 'userID' attribute is used in AccountStatusFilter
+        log.debug("Session validated for userId={}", userId);
+        return chain.filter(exchange);
+    }
+
+    private Mono<Void> handleJwtException(ServerWebExchange exchange, JwtException ex) {
+        log.error("Invalid JWT during session check: {}", ex.getMessage());
+        exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+        return exchange.getResponse().setComplete();
     }
 }

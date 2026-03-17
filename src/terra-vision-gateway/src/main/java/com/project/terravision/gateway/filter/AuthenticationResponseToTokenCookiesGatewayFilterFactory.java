@@ -53,7 +53,7 @@ public class AuthenticationResponseToTokenCookiesGatewayFilterFactory extends Ab
                 .setRewriteFunction(Object.class, Object.class,
                         (exchange, originalBody) -> {
 
-                            // Check if response is successful first
+                            // Checking if response is successful first
                             HttpStatusCode statusCode = exchange.getResponse().getStatusCode();
                             if (statusCode == null || !statusCode.is2xxSuccessful()) {
                                 log.warn("Auth service returned non-2xx status: {}", statusCode);
@@ -63,21 +63,25 @@ public class AuthenticationResponseToTokenCookiesGatewayFilterFactory extends Ab
                             AuthenticationResponse authenticationResponse = objectMapper.convertValue(originalBody, AuthenticationResponse.class);
                             //noinspection ConstantValue
                             if (authenticationResponse == null) {
-                                log.warn("AuthResponse is null — auth service returned non-authenticated response body");
+                                log.warn("Authentication response is null | Auth service returned non-authenticated response body");
                                 return Mono.empty();
                             }
 
                             // Creating cookies from access and refresh tokens and adding generated cookies to the response
                             Map<String, ResponseCookie> generatedCookies = generateCookiesFromAuthenticationResponse(authenticationResponse, config, exchange);
+
+                            // Checking if generated cookies are present
                             if (generatedCookies.isEmpty()) {
                                 log.warn("No cookies generated");
                                 exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
                                 return Mono.empty();
                             }
 
+                            log.debug("Setting generated cookies for http response");
                             setGeneratedCookiesForHttpResponse(exchange.getResponse(), generatedCookies);
 
-                            // Returning sanitized body — only userId and username
+                            log.debug("Converting body to sanitized body");
+                            // Returning sanitized body — only userId, username and email
                             SanitizedAuthenticationResponse sanitized = SanitizedAuthenticationResponse.builder()
                                     .userId(authenticationResponse.getUserId())
                                     .username(authenticationResponse.getUsername())
@@ -89,6 +93,20 @@ public class AuthenticationResponseToTokenCookiesGatewayFilterFactory extends Ab
                         })
         );
     }
+
+    @Data
+    public static class Config {
+        // fallback value can be specified here in there is no value in application.yaml
+        private String domain;
+        private String rootPath;
+        private String refreshPath;
+        private String sameSite;
+        private boolean secure;
+    }
+
+
+
+    // ------------ private methods ------------
 
     private Map<String, ResponseCookie> generateCookiesFromAuthenticationResponse(
             AuthenticationResponse authenticationResponse,
@@ -145,15 +163,5 @@ public class AuthenticationResponseToTokenCookiesGatewayFilterFactory extends Ab
     private void setGeneratedCookiesForHttpResponse(ServerHttpResponse response, Map<String, ResponseCookie> cookies) {
         response.addCookie(cookies.get(WebAttributes.ACCESS_TOKEN_COOKIE));
         response.addCookie(cookies.get(WebAttributes.REFRESH_TOKEN_COOKIE));
-    }
-
-    @Data
-    public static class Config {
-        // fallback value can be specified here in there is no value in application.yaml
-        private String domain;
-        private String rootPath;
-        private String refreshPath;
-        private String sameSite;
-        private boolean secure;
     }
 }

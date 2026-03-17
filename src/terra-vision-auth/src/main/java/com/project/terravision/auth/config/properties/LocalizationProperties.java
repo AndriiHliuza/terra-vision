@@ -10,8 +10,8 @@ import java.util.List;
 @Component
 @Getter
 @Setter
-@ConfigurationProperties(prefix = "application")
-public class ApplicationProperties {
+@ConfigurationProperties(prefix = "application.localization")
+public class LocalizationProperties {
     private List<String> supportedLanguages = List.of("en");
     private String fallbackLanguage;
 }
