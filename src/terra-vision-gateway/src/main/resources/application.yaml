@@ -4,7 +4,7 @@ anchors:
     common-cookie-config: &commonCookieConfig
       domain: localhost
       rootPath: /
-      refreshPath: /api/auth/refresh
+      refreshPath: /api/auth/refresh-token
       sameSite: Lax
       secure: false
 
@@ -50,7 +50,7 @@ spring:
             - id: auth-service-refresh
               uri: http://localhost:8082
               predicates:
-                - Path=/api/auth/refresh
+                - Path=/api/auth/refresh-token
               filters:
                 # RefreshTokenCookieToRequestBodyTransformationGatewayFilterFactory
                 # name: ClearAuthCookiesOnLogoutGatewayFilterFactory without GatewayFilterFactory
@@ -103,4 +103,4 @@ application:
       - http://localhost:5173
   services:
     auth-service:
-      url: http://localhost:8080
+      url: http://localhost:8082

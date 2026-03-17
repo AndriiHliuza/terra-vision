@@ -42,7 +42,7 @@ public class SecurityConfig {
      * 3) SecurityFilterChain filters
      * */
     @Bean
-    public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http, CsrfTokenCookieFilter csrfTokenCookieFilter) {
+    public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
         return http
                 /*
                 * Disabling cors. Instead, using corsWebFilter to manage cors
@@ -62,7 +62,7 @@ public class SecurityConfig {
                 /*
                 * CSRF filter is part if SecurityFilterChain filters
                 * */
-                .addFilterAfter(csrfTokenCookieFilter, SecurityWebFiltersOrder.REACTOR_CONTEXT)
+                .addFilterAfter(new CsrfTokenCookieFilter(), SecurityWebFiltersOrder.REACTOR_CONTEXT)
                 .authorizeExchange(exchange -> exchange
 
                         // <<<<<<<<<<<< Public paths >>>>>>>>>>>>
@@ -92,7 +92,9 @@ public class SecurityConfig {
                                 HttpMethod.GET,
                                 "/api/auth/super-admin/protected"
                         ).access(hasAtLeastPowerLevel(SystemRoleLevel.SUPER_ADMIN))
+
                         .pathMatchers(SecurityPaths.INTERNAL_PATHS).denyAll()
+
                         .anyExchange().authenticated()
                 )
                 .oauth2ResourceServer(oAuth2ResourceServerSpec -> oAuth2ResourceServerSpec
@@ -120,7 +122,6 @@ public class SecurityConfig {
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
-        log.info("In cors filter");
 
         return new CorsWebFilter(source);
     }

@@ -33,7 +33,9 @@ public class GlobalRequestLoggingFilter implements WebFilter, Ordered {
 
         return chain.filter(exchange).then(Mono.fromRunnable(() -> {
             HttpStatusCode statusCode = exchange.getResponse().getStatusCode();
-            if (statusCode != null) logger.info("<<< (Outgoing Response) [{}] Path: {} | Status: {}", method, path, statusCode.value());
+            if (statusCode != null) {
+                logger.info("<<< (Outgoing Response) [{}] Path: {} | Status: {}\n", method, path, statusCode.value());
+            }
         }));
     }
 

@@ -1,6 +1,7 @@
 package com.project.terravision.gateway.filter;
 
 import com.project.terravision.gateway.config.WebAttributes;
+import com.project.terravision.gateway.utils.WebUtils;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -32,7 +33,7 @@ public class ClearAuthCookiesOnLogoutGatewayFilterFactory extends AbstractGatewa
 
                     // Only clear cookies if logout was successful
                     if (status != null && status.is2xxSuccessful()) {
-                        boolean isSecure = config.isSecure() || exchange.getRequest().getURI().getScheme().equalsIgnoreCase("https");
+                        boolean isSecure = config.isSecure() || WebUtils.isRequestViaHttps(exchange);
                         ResponseCookie clearAccessCookie = ResponseCookie
                                 .from(WebAttributes.ACCESS_TOKEN_COOKIE, StringUtils.EMPTY)
                                 .httpOnly(true)
@@ -71,11 +72,12 @@ public class ClearAuthCookiesOnLogoutGatewayFilterFactory extends AbstractGatewa
 
     @Data
     public static class Config {
-        private String domain = "localhost";
-        private String rootPath = "/";
-        private String refreshPath = "/api/auth/refresh";
-        private String sameSite = "Lax";
-        private boolean secure = false;
+        // fallback value can be specified here in there is no value in application.yaml
+        private String domain;
+        private String rootPath;
+        private String refreshPath;
+        private String sameSite;
+        private boolean secure;
     }
 
 }

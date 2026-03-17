@@ -7,4 +7,6 @@ public abstract class WebAttributes {
     public static final String REFRESH_TOKEN_COOKIE = "refreshToken";
 
     public static final String XSRF_TOKEN_COOKIE = "XSRF-TOKEN";
+
+    public static final String HTTPS_SCHEME = "https";
 }

@@ -1,6 +1,5 @@
 package com.project.terravision.gateway.filter;
 
-import com.project.terravision.gateway.config.WebAttributes;
 import com.project.terravision.gateway.enums.AccountStatus;
 import com.project.terravision.gateway.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
@@ -9,12 +8,10 @@ import org.jspecify.annotations.NullMarked;
 import org.springframework.core.Ordered;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.data.redis.core.ReactiveStringRedisTemplate;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
-import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -78,16 +75,18 @@ public class AccountStatusFilter implements WebFilter, Ordered {
     }
 
     private Mono<AccountStatus> fetchFromAuthServiceAndCache(String userId) {
-        log.debug("Account status cache miss for userId={} — fetching from auth microservice", userId);
-        return authWebClient.get()
-                .uri("/api/auth/internal/account-status/{userId}", userId)
-                .retrieve()
-                .bodyToMono(String.class)
-                .map(AccountStatus::valueOf)
-                .flatMap(status -> reactiveStringRedisTemplate.opsForValue()
-                        .set(ACCOUNT_STATUS_PREFIX + userId, status.name())
-                        .thenReturn(status)
-                );
+        return Mono.defer(() -> {
+            log.debug("Account status cache miss for userId={} — fetching from auth microservice", userId);
+            return authWebClient.get()
+                    .uri("/api/auth/internal/account-status/{userId}", userId)
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .map(AccountStatus::valueOf)
+                    .flatMap(status -> reactiveStringRedisTemplate.opsForValue()
+                            .set(ACCOUNT_STATUS_PREFIX + userId, status.name())
+                            .thenReturn(status)
+                    );
+        });
     }
 
     private Mono<Void> rejectRequest(ServerWebExchange exchange, AccountStatus status) {

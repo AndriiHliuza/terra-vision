@@ -70,6 +70,8 @@ public class SecurityConfig {
                                 "/api/auth/resend-verification"
                         ).permitAll()
 
+                        .requestMatchers("/api/auth/internal/**").permitAll()
+
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oAuth2ResourceServerConfigurer -> oAuth2ResourceServerConfigurer

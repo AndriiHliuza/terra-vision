@@ -70,8 +70,8 @@ public class AuthenticationResponseToTokenCookiesGatewayFilterFactory extends Ab
                             // Creating cookies from access and refresh tokens and adding generated cookies to the response
                             Map<String, ResponseCookie> generatedCookies = generateCookiesFromAuthenticationResponse(authenticationResponse, config, exchange);
                             if (generatedCookies.isEmpty()) {
-                                log.warn("No cookies generated — returning 500");
-                                exchange.getResponse().setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
+                                log.warn("No cookies generated");
+                                exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
                                 return Mono.empty();
                             }
 
@@ -149,10 +149,11 @@ public class AuthenticationResponseToTokenCookiesGatewayFilterFactory extends Ab
 
     @Data
     public static class Config {
-        private String domain = "localhost";
-        private String rootPath = "/";
-        private String refreshPath = "/api/auth/refresh"; // default value
-        private String sameSite = "Lax"; // default value
-        private boolean secure = false; // default value
+        // fallback value can be specified here in there is no value in application.yaml
+        private String domain;
+        private String rootPath;
+        private String refreshPath;
+        private String sameSite;
+        private boolean secure;
     }
 }
