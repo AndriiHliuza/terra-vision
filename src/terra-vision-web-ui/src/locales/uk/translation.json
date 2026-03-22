@@ -104,7 +104,6 @@
     "drag-and-drop-section-text-for-active-drag": "Перетягніть зображення чи «.zip» архів...",
     "clear-all-images-btn-text": "Очистити",
     "process-images-btn-text": "Обробити",
-    "view-stats-btn-text": "Детальніше",
     "processing-message-text": {
       "text-1": "Будь ласка, зачекайте, поки ми намагаємось обробити...",
       "text-2": "Це може зайняти декілька секунд..."
@@ -120,10 +119,6 @@
       },
       "data-processing-failed-popup": {
         "title": "Помилка обробки даних",
-        "description": "Будь-ласка спробуйте знову"
-      },
-      "processed-data-loading-failed-popup": {
-        "title": "Помилка завантаження оброблених даних",
         "description": "Будь-ласка спробуйте знову"
       },
       "data-successfully-processed-popup": {

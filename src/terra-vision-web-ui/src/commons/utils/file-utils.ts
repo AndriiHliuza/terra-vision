@@ -1,14 +1,6 @@
 import JSZip from "jszip";
+import type {FileItem} from "../schemas/file-schemas.ts";
 
-/* <<<<<<<<<<<< schemas >>>>>>>>>>>> */
-export type FileItem = {
-    id: string;
-    file: File
-}
-
-
-
-/* <<<<<<<<<<<< functions >>>>>>>>>>>> */
 export function isArchive(file: File): boolean {
     const fileName: string = file.name;
     const fileType: string = file.type;

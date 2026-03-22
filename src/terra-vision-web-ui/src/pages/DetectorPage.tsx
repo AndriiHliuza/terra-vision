@@ -1,46 +1,36 @@
 import "../styles/pages/DetectorPage.css";
 import Header from "../components/Header.tsx";
-import {useCallback, useEffect, useRef, useState} from "react";
-import {type FileRejection, useDropzone} from "react-dropzone";
+import {useEffect, useRef, useState} from "react";
 import {useTranslation} from "react-i18next";
 import {toast} from "react-toastify";
 import PopUp from "../components/PopUp.tsx";
-import downloadIcon from "../assets/download-icon.png";
-import ARCHIVE_IMG from "../assets/archive-icon.png";
-import {Dropdown} from "../components/Dropdown.tsx";
 import {axiosWebClient} from "../configs/axios-web-client.ts";
 import i18n from "../configs/i18n.ts";
 import JSZip from "jszip";
-import {useNavigate} from "react-router-dom";
-import {useScreenWidth} from "../commons/hooks/hooks.ts";
 import {
     blobToFile,
     blobToZip,
-    type FileItem,
     generateArchive,
-    isArchive,
-    isImageByFileName, isImageByFileType
+    isImageByFileName
 } from "../commons/utils/file-utils.ts";
-import {getShortenedString, type StringShorteningRule} from "../commons/utils/string-utils.ts";
-import type {CVModelDescription, CVModelDescriptionResponse} from "../commons/dto/cv-dtos.ts";
+import type {ModelDetails} from "../commons/dto/detector-dtos.ts";
 import LoadingOverlay from "../components/LoadingOverlay.tsx";
-
-const SHORTENING_FILE_NAME_RULES: StringShorteningRule[] = [
-    {maxScreenWidth: 300, startStringLength: 3, endStringLength: 4},
-    {maxScreenWidth: 500, startStringLength: 4, endStringLength: 6},
-    {maxScreenWidth: 9999, startStringLength: 6, endStringLength: 9}, // desktop fallback
-]
+import DetectorDropzone from "../components/detector-page/DetectorDropzone.tsx";
+import ModelSelector from "../components/detector-page/ModelSelector.tsx";
+import UploadedFilesSection from "../components/detector-page/UploadedFilesSection.tsx";
+import ProcessedFilesSection from "../components/detector-page/ProcessedFilesSection.tsx";
+import type {FileItem} from "../commons/schemas/file-schemas.ts";
+import {useAppContext} from "../configs/context/contexts.ts";
 
 function DetectorPage() {
 
     const {t} = useTranslation();
-    const navigate = useNavigate();
-    const screenWidth = useScreenWidth();
+    const { user } = useAppContext();
 
     const [isProcessing, setProcessing] = useState<boolean>(false);
 
-    const [models, setModels] = useState<CVModelDescription[]>([]);
-    const [selectedModel, setSelectedModel] = useState<CVModelDescription | null>();
+    const [models, setModels] = useState<ModelDetails[]>([]);
+    const [selectedModel, setSelectedModel] = useState<ModelDetails | null>();
 
     const [uploadedImages, setUploadedImages] = useState<FileItem[]>([]);
     const [uploadedArchives, setUploadedArchives] = useState<FileItem[]>([]);
@@ -51,23 +41,15 @@ function DetectorPage() {
     const outputSectionRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        /* Getting all schemas */
-        axiosWebClient.get<CVModelDescriptionResponse>("/api/ai/cv/yolo/models/details", {
-            params: {lang: i18n.language}
-        }).then(response => {
-            setModels(response.data.cv_models)
-
-            /* Checking if stored in localstorage model actually exists */
-            const selectedModelId = localStorage.getItem("selectedDetectionModel") ?? "";
-            const selectedModel = response.data.cv_models.find(model => model.id === selectedModelId)
-            setSelectedModel(selectedModel)
-            if (!selectedModel) {
-                localStorage.removeItem("selectedDetectionModel");
-            }
-
-        }).catch(err => {
-            console.log(err);
-        })
+        axiosWebClient
+            .get<ModelDetails[]>("/api/ai/models/details", {params: {lang: i18n.language}})
+            .then(response => {
+                setModels(response.data)
+                const selectedModelId = localStorage.getItem("selectedDetectionModel") ?? "";
+                const selectedModel = response.data.find(model => model.id === selectedModelId)
+                setSelectedModel(selectedModel)
+                if (!selectedModel) localStorage.removeItem("selectedDetectionModel");
+            }).catch(err => console.log(err))
     }, [t]);
 
     useEffect(() => {
@@ -76,86 +58,113 @@ function DetectorPage() {
         }
     }, [processedImages, processedArchives]);
 
-    const removeUploadedImage = (id: string) => {
-        setUploadedImages(prev => prev.filter(image => image.id !== id));
-    };
+    // --- API calls ---
 
-    const removeUploadedArchive = (id: string) => {
-        setUploadedArchives(prev => prev.filter(archive => archive.id !== id));
-    };
+    const send = async (): Promise<void> => {
+        if (!selectedModel) {
+            toast.error(
+                <PopUp
+                    title={t("detector-page.pop-ups.model-not-selected-pop-up.title")}
+                    description={t("detector-page.pop-ups.model-not-selected-pop-up.description")}
+                />
+            );
+            return;
+        }
 
-    const clearUploadedFiles = () => {
-        setUploadedImages([])
-        setUploadedArchives([])
+        setProcessing(true);
+        try {
+            const {allArchives, imagesArchive} = await getArchives();
+            const resultBlob = await sendArchives(selectedModel.id, allArchives);
+            await processResultZip(resultBlob, imagesArchive?.id);
+        } catch (error) {
+            console.error("Failed to process archives or images: " + error);
+            toast.error(
+                <PopUp
+                    title={t("detector-page.pop-ups.data-processing-failed-popup.title")}
+                    description={t("detector-page.pop-ups.data-processing-failed-popup.description")}
+                />
+            );
+        } finally {
+            setProcessing(false);
+        }
     }
 
-    const removeProcessedImage = (id: string) => {
-        setProcessedImages(prev => prev.filter(image => image.id !== id));
-    };
+    async function getArchives(): Promise<{
+        allArchives: File[],
+        imagesArchive: FileItem | null
+    }> {
+        let imagesArchive: FileItem | null = null;
+        if (uploadedImages.length > 0) {
+            const zipBlob: Blob = await generateArchive(uploadedImages);
+            const zipArchiveName = `images-${Date.now()}-${crypto.randomUUID().toString()}-.zip`;
+            const zipArchive: File = blobToZip(zipBlob, zipArchiveName);
+            imagesArchive = {id: zipArchive.name, file: zipArchive}
+        }
 
-    const removeProcessedArchive = (id: string) => {
-        setProcessedArchives(prev => prev.filter(archive => archive.id !== id));
-    };
-
-
-    const clearProcessedFiles = () => {
-        setProcessedImages([])
-        setProcessedArchives([])
+        return {
+            allArchives: [
+                ...uploadedArchives,
+                ...(imagesArchive ? [imagesArchive] : [])]
+                .map(archive => archive.file),
+            imagesArchive: imagesArchive
+        };
     }
 
     async function sendArchives(modelId: string, archives: File[]) {
         const formData = new FormData();
-        formData.append("user_id", "my-random-user-id");
+        if (user) {
+            formData.append("user_id", user.id); // append if user is logged in
+        }
         formData.append("model_id", modelId);
+        formData.append("confidence", "0.25"); // append confidence here
         archives.forEach(archive => formData.append("archives", archive));
-        return await axiosWebClient.post(
-            "/api/ai/cv/yolo/detections",
+        const response = await axiosWebClient.post(
+            "/api/ai/detect",
             formData,
             {
-                headers: {"Content-Type": "multipart/form-data"}
+                headers: {"Content-Type": "multipart/form-data"},
+                responseType: "blob"
             }
         )
+        return response.data;
     }
 
-    async function getProcessedArchive(userId: string, jobId: string) {
-        return await axiosWebClient.get(`/api/ai/cv/yolo/detections/results/${userId}/processed`, {
-            params: {cv_processing_job_timestamp: jobId},
-            responseType: "blob",
-        });
-    }
-
-    async function processResult(outerZip: JSZip, imagesArchiveName: string | undefined) {
+    async function processResultZip(blob: Blob, imagesArchiveName: string | undefined) {
         const extractedArchives: FileItem[] = [];
         const extractedImages: FileItem[] = [];
+
+        const outerZip = await JSZip.loadAsync(blob);
 
         for (const [archiveName, zipEntry] of Object.entries(outerZip.files)) {
             if (zipEntry.dir) continue;
 
-            const innerArchiveBlob = await zipEntry.async('blob');
+            const innerArchiveBlob = await zipEntry.async("blob");
             const innerArchiveFile: File = blobToFile(innerArchiveBlob, archiveName);
 
             extractedArchives.push({
-                id: `${archiveName}-${Date.now()}-${crypto.randomUUID().toString()}`,
+                id: `${archiveName}-${Date.now()}-${crypto.randomUUID()}`,
                 file: innerArchiveFile,
             });
 
-            if (archiveName === imagesArchiveName) {
-                const innerZip = await JSZip.loadAsync(innerArchiveBlob);
-                for (const [fileName, innerZipEntry] of Object.entries(innerZip.files)) {
-                    if (innerZipEntry.dir) continue;
-
-                    if (isImageByFileName(fileName)) {
-                        const imageBlob = await innerZipEntry.async('blob');
-                        const imageFile = blobToFile(imageBlob, fileName);
-
-                        extractedImages.push({
-                            id: `${fileName}-${Date.now()}-${crypto.randomUUID().toString()}`,
-                            file: imageFile,
-                        });
+            // extract images from the archive that matches uploaded images archive
+            if (imagesArchiveName) {
+                if (archiveName === imagesArchiveName) {
+                    const innerZip = await JSZip.loadAsync(innerArchiveBlob);
+                    for (const [fileName, innerZipEntry] of Object.entries(innerZip.files)) {
+                        if (innerZipEntry.dir) continue;
+                        if (isImageByFileName(fileName)) {
+                            const imageBlob = await innerZipEntry.async("blob");
+                            const imageFile = blobToFile(imageBlob, fileName);
+                            extractedImages.push({
+                                id: `${fileName}-${Date.now()}-${crypto.randomUUID()}`,
+                                file: imageFile,
+                            });
+                        }
                     }
                 }
             }
         }
+
         setProcessedArchives(prev => [...prev, ...extractedArchives]);
         setProcessedImages(prev => [...prev, ...extractedImages]);
         toast.success(
@@ -166,238 +175,38 @@ function DetectorPage() {
         );
     }
 
-    async function sendArchivesAndProcessResult(modelId: string, archives: File[], imagesArchiveName: string | undefined) {
-        try {
-            const response = await sendArchives(modelId, archives);
-            const userId = response?.data?.user_id;
-            const jobTimestamp = response?.data?.cv_processing_job_timestamp;
-            if (!userId || !jobTimestamp) {
-                toast.error(
-                    <PopUp
-                        title={t("detector-page.pop-ups.data-processing-failed-popup.title")}
-                        description={t("detector-page.pop-ups.data-processing-failed-popup.description")}
-                    />
-                );
-                return;
-            }
-
-            const processedArchiveResponse = await getProcessedArchive(userId, jobTimestamp);
-            const blob: Blob = processedArchiveResponse?.data;
-            if (!blob) {
-                toast.error(
-                    <PopUp
-                        title={t("detector-page.pop-ups.processed-data-loading-failed-popup.title")}
-                        description={t("detector-page.pop-ups.processed-data-loading-failed-popup.description")}
-                    />
-                );
-                return;
-            }
-
-            const outerZip = await JSZip.loadAsync(blob);
-            await processResult(outerZip, imagesArchiveName);
-        } catch (error) {
-            console.error("Error sending archives and processing result:", error);
-        }
-    }
-
-    async function getArchives(): Promise<{
-        "allArchives": File[],
-        "imagesArchive": FileItem | null
-    }> {
-        let imagesArchive: FileItem | null = null;
-        if (uploadedImages.length > 0) {
-            const zipBlob: Blob = await generateArchive(uploadedImages);
-            const zipArchiveName = `images-${Date.now()}-${crypto.randomUUID().toString()}-.zip`;
-            const zipArchive: File = blobToZip(zipBlob, zipArchiveName);
-            imagesArchive = {
-                id: zipArchive.name,
-                file: zipArchive
-            }
-        }
-
-        return {
-            "allArchives": [
-                ...uploadedArchives,
-                ...(imagesArchive ? [imagesArchive] : [])]
-                .map(archive => archive.file),
-            "imagesArchive": imagesArchive
-        };
-    }
-
-    const send = async (): Promise<void> => {
-        if (selectedModel) {
-            setProcessing(true);
-            try {
-                const {
-                    allArchives: archivesToSend,
-                    imagesArchive: imagesArchive
-                } = await getArchives();
-                await sendArchivesAndProcessResult(selectedModel.id, archivesToSend, imagesArchive?.id)
-            } catch (error) {
-                console.error("Error sending archives and images: " + error);
-            }
-            setProcessing(false);
-        } else {
-            toast.error(
-                <PopUp
-                    title={t("detector-page.pop-ups.model-not-selected-pop-up.title")}
-                    description={t("detector-page.pop-ups.model-not-selected-pop-up.description")}
-                />
-            );
-        }
-    }
-
-    const onFileDrop = useCallback((files: File[]) => {
-
-        const imageFiles: FileItem[] = [];
-        const archiveFiles: FileItem[] = [];
-
-        files.forEach(file => {
-            if (isImageByFileType(file)) {
-                imageFiles.push({
-                    id: `${file.name}-${Date.now()}-${crypto.randomUUID().toString()}-.zip`,
-                    file: file
-                })
-            } else if (isArchive(file)) {
-                archiveFiles.push({
-                    id: `${file.name}-${Date.now()}-${crypto.randomUUID().toString()}-.zip`,
-                    file: file
-                })
-            }
-        })
-
-        setUploadedImages(prev => [...prev, ...imageFiles])
-        setUploadedArchives(prev => [...prev, ...archiveFiles])
-    }, [])
-
-    const onFileDropRejected = useCallback((fileRejections: FileRejection[]) => {
-        fileRejections.forEach((fileRejection) => {
-            const file = fileRejection.file;
-            if (!isImageByFileType(file) || !isArchive(file)) {
-                toast.error(
-                    <PopUp
-                        title={t("detector-page.pop-ups.invalid-file-pop-up.title")}
-                        description={t("detector-page.pop-ups.invalid-file-pop-up.description", {name: file.name})}
-                    />
-                );
-            }
-        })
-    }, [t])
-
-    const {
-        getRootProps,
-        getInputProps,
-        isDragActive
-    } = useDropzone({
-        onDrop: onFileDrop,
-        onDropRejected: onFileDropRejected,
-        accept: {
-            "image/*": [],
-            "application/zip": [],
-            "application/x-zip-compressed": []
-        },
-        multiple: true
-    });
-
-
     return (
         <>
             <Header/>
             <div id="detector-page">
                 <section className="input-section">
                     <h1>{t("detector-page.title")}</h1>
-                    <div className="models-section">
-                        <div className="models-dropdown-container">
-                            <Dropdown
-                                label={selectedModel?.name ? selectedModel.name : t("detector-page.models-dropdown-title")}
-                                items={models.map(model => ({
-                                    id: model.id,
-                                    name: model.name,
-                                }))}
-                                onSelect={model => {
-                                    setSelectedModel(models.find(m => m.id === model.id));
-                                    localStorage.setItem("selectedDetectionModel", model.id);
-                                }}
-                            />
-                        </div>
-                        <div className="model-description">{models
-                            .find(model => model.id === selectedModel?.id)
-                            ?.description ?? t("detector-page.model-description-default-text")
-                        }</div>
-                    </div>
 
-                    {/* Dropzone area */}
-                    <div
-                        {...getRootProps()}
-                        className="dropzone-container"
-                    >
-                        <input
-                            {...getInputProps()}
-                            className="dropzone-input"
-                        />
-                        {isDragActive
-                            ? t("detector-page.drag-and-drop-section-text-for-active-drag")
-                            : t("detector-page.drag-and-drop-section-text-for-not-active-drag")
-                        }
-                    </div>
+                    <ModelSelector
+                        models={models}
+                        selectedModel={selectedModel}
+                        onSelect={model => {
+                            setSelectedModel(model);
+                            localStorage.setItem("selectedDetectionModel", model.id);
+                        }}
+                    />
 
-                    <section className="images-section">
-                        {uploadedImages.map(image => {
-                            const imagePreview = URL.createObjectURL(image.file);
-                            return (
-                                <div
-                                    key={image.id}
-                                    className="image-preview-container"
-                                >
-                                    <button onClick={() => removeUploadedImage(image.id)}>×</button>
-                                    <img
-                                        src={imagePreview}
-                                        alt={image.file.name}
-                                    />
-                                    <div
-                                        className="image-name-overlay">{getShortenedString(image.file.name, screenWidth, SHORTENING_FILE_NAME_RULES)}</div>
-                                </div>
-                            );
-                        })}
-                    </section>
+                    <DetectorDropzone
+                        onImagesDropped={(images) => setUploadedImages(prev => [...prev, ...images])}
+                        onArchivesDropped={(archives) => setUploadedArchives(prev => [...prev, ...archives])}
+                    />
 
-                    <section className="archives-section">
-                        {uploadedArchives.map(archive => {
-                            return (
-                                <div
-                                    key={archive.id}
-                                    className="archive-preview-container"
-                                >
-                                    <button onClick={() => removeUploadedArchive(archive.id)}>×</button>
-                                    <h4>{t("detector-page.archive-item-title").toUpperCase()}</h4>
-                                    <div>{getShortenedString(archive.file.name, screenWidth, SHORTENING_FILE_NAME_RULES)}</div>
-                                    <img src={ARCHIVE_IMG} alt="Archive"/>
-                                </div>
-                            );
-                        })}
-                    </section>
-
-                    {
-                        uploadedImages.length > 0 ||
-                        uploadedArchives.length > 0
-                            ? (
-                                <div className="controls-wrapper">
-                                    <div
-                                        id="clear-all-images-btn"
-                                        onClick={clearUploadedFiles}
-                                    >
-                                        {t("detector-page.clear-all-images-btn-text")}
-                                    </div>
-                                    <div
-                                        id="process-images-btn"
-                                        onClick={send}
-                                    >
-                                        {t("detector-page.process-images-btn-text")}
-                                    </div>
-                                </div>
-                            )
-                            : null
-                    }
+                    <UploadedFilesSection
+                        uploadedImages={uploadedImages}
+                        uploadedArchives={uploadedArchives}
+                        onRemoveImage={id => setUploadedImages(prev => prev.filter(image => image.id !== id))}
+                        onRemoveArchive={id => setUploadedArchives(prev => prev.filter(archive => archive.id !== id))}
+                        onClear={() => {
+                            setUploadedImages([]);
+                            setUploadedArchives([]);
+                        }}
+                        onProcess={send}
+                    />
 
                     {
                         isProcessing
@@ -413,89 +222,17 @@ function DetectorPage() {
                     }
 
                 </section>
-                {
-                    processedImages.length > 0 || processedArchives.length > 0
-                        ? (
-                            <section
-                                ref={outputSectionRef}
-                                className="output-section"
-                            >
-                                <h1>{t("detector-page.processed-files-section.title")}</h1>
-                                <section className="images-section">
-                                    {processedImages.map(image => {
-                                        const imagePreview = URL.createObjectURL(image.file);
-                                        return (
-                                            <div
-                                                key={image.id}
-                                                className="image-preview-container"
-                                            >
-                                                <button onClick={() => removeProcessedImage(image.id)}> ×</button>
-                                                <img
-                                                    src={imagePreview}
-                                                    alt={image.file.name}
-                                                />
-                                                <div
-                                                    className="image-name-overlay">{getShortenedString(image.file.name, screenWidth, SHORTENING_FILE_NAME_RULES)}</div>
-                                                <a
-                                                    href={imagePreview}
-                                                    download={image.file.name} // filename when downloaded
-                                                    className="image-download-btn"
-                                                >
-                                                    <img src={downloadIcon} alt="Download" className="image-download-icon"/>
-                                                </a>
-                                            </div>
-                                        );
-                                    })}
-                                </section>
-
-                                <section className="archives-section">
-                                    {processedArchives.map(archive => {
-                                        const archiveUrl = URL.createObjectURL(archive.file);
-                                        return (
-                                            <div
-                                                key={archive.id}
-                                                className="archive-preview-container"
-                                            >
-                                                <button onClick={() => removeProcessedArchive(archive.id)}>×</button>
-                                                <h4>{t("detector-page.archive-item-title").toUpperCase()}</h4>
-                                                <div>{getShortenedString(archive.file.name, screenWidth, SHORTENING_FILE_NAME_RULES)}</div>
-                                                <a
-                                                    href={archiveUrl}
-                                                    download={archive.file.name} // sets downloaded filename
-                                                    className="archive-download-btn"
-                                                >{t("detector-page.download-archive-btn")}</a>
-                                                <img src={ARCHIVE_IMG} alt="Archive"/>
-                                            </div>
-                                        );
-                                    })}
-                                </section>
-
-                                {
-                                    processedImages.length > 0 ||
-                                    processedArchives.length > 0
-                                        ? (
-                                            <div className="controls-wrapper">
-                                                <div
-                                                    id="clear-all-images-btn"
-                                                    onClick={clearProcessedFiles}
-                                                >
-                                                    {t("detector-page.clear-all-images-btn-text")}
-                                                </div>
-                                                <div
-                                                    id="view-stats-btn"
-                                                    onClick={() => navigate("/hello-world")}
-                                                >
-                                                    {t("detector-page.view-stats-btn-text")}
-                                                </div>
-                                            </div>
-                                        )
-                                        : null
-                                }
-
-                            </section>
-                        )
-                        : null
-                }
+                <ProcessedFilesSection
+                    processedImages={processedImages}
+                    processedArchives={processedArchives}
+                    onRemoveImage={(id) => setProcessedImages(prev => prev.filter(image => image.id !== id))}
+                    onRemoveArchive={(id) => setProcessedArchives(prev => prev.filter(archive => archive.id !== id))}
+                    onClear={() => {
+                        setProcessedImages([]);
+                        setProcessedArchives([]);
+                    }}
+                    sectionRef={outputSectionRef}
+                />
 
             </div>
         </>

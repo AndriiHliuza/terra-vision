@@ -1,13 +1,5 @@
-/* <<<<<<<<<<<< schemas >>>>>>>>>>>> */
-export type StringShorteningRule = {
-    maxScreenWidth: number;
-    startStringLength: number;
-    endStringLength: number;
-};
+import type {StringShorteningRule} from "../schemas/string-schemas.ts";
 
-
-
-/* <<<<<<<<<<<< functions >>>>>>>>>>>> */
 function getStartingAndEndingIndexesForString(
     elementWidth: number,
     rules: StringShorteningRule[]
