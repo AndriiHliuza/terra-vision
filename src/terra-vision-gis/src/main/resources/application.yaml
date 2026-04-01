@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: terra-vision-gis
+
+  config:
+    import: "vault://"
+
+  cloud:
+    vault:
+      uri: http://localhost:8200
+      authentication: token
+      token: ${VAULT_TOKEN:my-root-token}
+      kv:
+        enabled: true
+        backend: secret
+
+server:
+  port: 8083
+
+
+application:
+
+  minio:
+    url: http://localhost:9000
+    access-key: ${TERRA_VISION__MINIO__ROOT_USER}
+    secret-key: ${TERRA_VISION__MINIO__ROOT_PASSWORD}
+    bucket: terra-vision-gis-bucket

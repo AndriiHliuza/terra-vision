@@ -1,0 +1,232 @@
+#map-editor > .map-layer-drop-down-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    width: 100%;
+    height: 70px;
+
+    margin-top: 15px;
+}
+
+#map-editor > .map-layer-drop-down-controls > h2 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    flex: 1;
+    height: 50px;
+
+    border: 2px solid rgba(245, 245, 245, 0.6);
+    border-radius: 10px;
+    margin: 0 10px 0 0;
+}
+
+#map-editor > .map-layer-drop-down-controls > img {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 40px;
+    height: 40px;
+
+    margin-right: 5px;
+
+    padding: 10px;
+
+    border: 2px solid rgba(245, 245, 245, 0.6);
+    border-radius: 50px;
+
+    background: var(--glass-bg-color);
+
+    cursor: pointer;
+
+    transition: all 0.3s ease;
+}
+
+#map-editor > .map-layer-drop-down-controls > img:hover {
+    transform: scale(1.05);
+}
+
+#map-editor > .map-layer-drop-down-controls > img:active {
+    transform: scale(0.9);
+}
+
+#map-editor > .map-layer-drop-down-controls > img.active {
+    transform: rotate(180deg);
+}
+
+#map-editor > .map-layer-drop-down-controls > img.active:hover {
+    transform: rotate(180deg) scale(1.05);
+}
+
+#map-editor > .map-layer-drop-down-controls > img.active:active {
+    transform: rotate(180deg) scale(0.9);
+}
+
+#map-editor > .map-layer-switcher {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+
+    width: 100%;
+    margin-top: 0;
+
+    max-height: 0;
+    opacity: 0;
+
+    transition: all 0.5s ease;
+}
+
+#map-editor > .map-layer-switcher.opened {
+    margin-top: 15px;
+
+    max-height: 2000px;
+    opacity: 1;
+}
+
+#map-editor > .map-layer-switcher > .map-layer {
+    position: relative;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    height: 180px;
+
+    border-radius: 10px;
+
+    overflow: hidden;
+
+    border: 2px solid rgba(0, 0, 0, 0);
+
+    cursor: pointer;
+
+    transition: all 0.3s ease;
+}
+
+#map-editor > .map-layer-switcher > .map-layer::before {
+    content: "";
+    position: absolute;
+    inset: 0; /* top:0 right:0 bottom:0 left:0 */
+
+    background: rgba(0, 0, 0, 0.3);
+
+    border-radius: 0;
+
+    transform: scaleX(0);
+    transition: transform 350ms ease;
+}
+
+#map-editor > .map-layer-switcher > .map-layer:hover::before {
+    transform: scaleX(1);
+    border-radius: 10px;
+}
+
+#map-editor > .map-layer-switcher > .map-layer.active {
+    background: rgba(0, 0, 0, 0.8);
+    text-decoration: underline;
+    border: 2px solid whitesmoke;
+}
+
+#map-editor > .map-layer-switcher > .map-layer > div {
+    position: absolute;
+    inset: 0; /* top:0 right:0 bottom:0 left:0 */
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    height: 100%;
+
+    margin: 0 15px;
+
+    color: silver;
+    font-size: clamp(10px, 8vw, 30px);
+
+    transition: all 0.3s ease;
+}
+
+#map-editor > .map-layer-switcher > .map-layer > img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -5;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 100%;
+    height: auto;
+
+    margin: 0;
+    border-radius: 10px;
+
+    transition: all 0.3s ease;
+}
+
+@media (min-width: 3000px) {
+    #map-editor > .map-layer-switcher {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 1500px) {
+    #map-editor > .map-layer-switcher {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 1000px) {
+    #map-editor > .map-layer-switcher {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 500px) {
+
+    #map-editor > .map-layer-switcher {
+        gap: 20px;
+    }
+
+    #map-editor > .map-layer-switcher > .map-layer {
+        height: 100px;
+    }
+
+}
+
+@media (max-width: 400px) {
+
+    #map-editor > .map-layer-switcher > .map-layer {
+        justify-content: center;
+        height: 70px;
+        background: none;
+    }
+
+}
+
+@media (max-width: 300px) {
+
+    #map-editor > .map-layer-drop-down-controls > h2 {
+        font-size: 20px;
+    }
+
+    #map-editor > .map-layer-switcher > .map-layer > div {
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 250px) {
+
+    #map-editor > .map-layer-drop-down-controls > h2 {
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 200px) {
+
+    #map-editor > .map-layer-drop-down-controls > h2 {
+        font-size: 12px;
+    }
+}

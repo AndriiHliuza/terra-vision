@@ -1,9 +1,9 @@
 import "./App.css";
+import "./styles/components/toasts.css";
 import {RouterProvider} from "react-router-dom";
 import {router} from "./configs/routing/router.tsx";
 import {ToastContainer} from "react-toastify";
 import BackToTopBtn from "./components/BackToTopBtn.tsx";
-import MouseTrail from "./components/graphics/MouseTrail.tsx";
 
 function App() {
     return (
@@ -24,7 +24,6 @@ function App() {
 
             {/* UI elements */}
             <BackToTopBtn />
-            <MouseTrail />
         </>
     )
 }

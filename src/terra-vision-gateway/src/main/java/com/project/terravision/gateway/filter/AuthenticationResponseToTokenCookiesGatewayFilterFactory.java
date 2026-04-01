@@ -2,7 +2,7 @@ package com.project.terravision.gateway.filter;
 
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
-import com.project.terravision.gateway.config.WebAttributes;
+import com.project.terravision.gateway.config.attributes.WebAttributes;
 import com.project.terravision.gateway.dto.AuthenticationResponse;
 import com.project.terravision.gateway.dto.SanitizedAuthenticationResponse;
 import lombok.Data;

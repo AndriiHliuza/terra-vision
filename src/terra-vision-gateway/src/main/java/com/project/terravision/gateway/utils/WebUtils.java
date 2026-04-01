@@ -1,6 +1,6 @@
 package com.project.terravision.gateway.utils;
 
-import com.project.terravision.gateway.config.WebAttributes;
+import com.project.terravision.gateway.config.attributes.WebAttributes;
 import org.springframework.http.HttpCookie;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;

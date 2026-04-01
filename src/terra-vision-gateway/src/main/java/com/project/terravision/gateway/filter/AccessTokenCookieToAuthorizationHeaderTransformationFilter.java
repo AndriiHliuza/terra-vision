@@ -1,6 +1,6 @@
 package com.project.terravision.gateway.filter;
 
-import com.project.terravision.gateway.config.WebAttributes;
+import com.project.terravision.gateway.config.attributes.WebAttributes;
 import com.project.terravision.gateway.utils.SecurityUtils;
 import com.project.terravision.gateway.utils.WebUtils;
 import lombok.RequiredArgsConstructor;

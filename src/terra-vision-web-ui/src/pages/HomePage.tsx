@@ -3,21 +3,21 @@ import {useTranslation} from "react-i18next";
 import Header from "../components/Header.tsx";
 import Footer from "../components/Footer.tsx";
 import {Link, useParams} from "react-router-dom";
-import landmineFieldImg from "../assets/landmines-field.webp";
-import ukraineMapImg from "../assets/ukraine.png";
-import mountainsImg from "../assets/ukraine-mountains.jpg";
-import landmineImg from "../assets/landmine.png";
+import landmineFieldImg from "../assets/background/landmines-field.webp";
+import ukraineMapImg from "../assets/background/ukraine.png";
+import mountainsImg from "../assets/background/ukraine-mountains.jpg";
+import landmineImg from "../assets/background/landmine.png";
 
 function HomePage() {
 
     const {t} = useTranslation();
-    const { lang } = useParams();
+    const {lang} = useParams();
 
     return (
         <>
             <Header/>
-            <main id="home-page">
-                <section className="home-page-leaves-img-section">
+            <main className="home-page">
+                <section className="main-img-section">
                     <h1>TERRA VISION</h1>
                 </section>
                 <section className="data-section">
@@ -32,18 +32,13 @@ function HomePage() {
                             <div className="service-description">
                                 {t("home-page.main.section-1.section-controls.section-description")}
                             </div>
-                            <div className="try-service-section">
-                                <Link
-                                    to={`/${lang}/detector`}
-                                    className="try-service-link"
-                                >
-                                    {t("home-page.main.section.section-controls.try-service-link-text")}
-                                </Link>
-                            </div>
+                            <Link to={`/${lang}/detector`}>
+                                {t("home-page.main.section.section-controls.service-link-text")}
+                            </Link>
                         </div>
                     </div>
                 </section>
-                <section><img src={landmineFieldImg} alt="Landmine Field"/></section>
+                <section className="img-section"><img src={landmineFieldImg} alt="Landmine Field"/></section>
                 <section className="data-section">
                     <div className="section-info section-info-2">
                         <div>
@@ -56,18 +51,13 @@ function HomePage() {
                             <div className="service-description">
                                 {t("home-page.main.section-2.section-controls.section-description")}
                             </div>
-                            <div className="try-service-section">
-                                <Link
-                                    to={`/${lang}/map`}
-                                    className="try-service-link"
-                                >
-                                    {t("home-page.main.section.section-controls.try-service-link-text")}
-                                </Link>
-                            </div>
+                            <Link to={`/${lang}/map`}>
+                                {t("home-page.main.section.section-controls.service-link-text")}
+                            </Link>
                         </div>
                     </div>
                 </section>
-                <section><img src={mountainsImg} alt="Ukraine Mountains"/></section>
+                <section className="img-section"><img src={mountainsImg} alt="Ukraine Mountains"/></section>
             </main>
             <Footer/>
         </>

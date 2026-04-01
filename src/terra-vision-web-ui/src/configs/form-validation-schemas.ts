@@ -34,6 +34,3 @@ export const getRegistrationFormSchema = (t: (key: string) => string) => z.objec
 // ------------ Inferred Types ------------
 export type LoginFormData = z.infer<ReturnType<typeof getLoginFormSchema>>;
 export type RegistrationFormData = z.infer<ReturnType<typeof getRegistrationFormSchema>>;
-
-// ------------ Backend payload type (confirmPassword excluded) ------------
-export type UserCreationRequest = Omit<RegistrationFormData, "confirmPassword">;

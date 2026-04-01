@@ -2,25 +2,33 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
 
 :root {
-    /* CSS variables */
+    /* <<<<<<<<<<<< CSS variables >>>>>>>>>>>> */
+
+    /* ------------ Global styles (CSS variables) ------------ */
     --global-text-color: rgba(255, 255, 255, 0.87);
     --global-bg-color: #242424;
 
-    --border-radius-px: 30px;
-
+    /* ------------ Glass styles (CSS variables) ------------ */
     --glass-bg-color: rgba(255, 255, 255, 0.1);
-    --glass-border-color: rgba(245, 245, 245, 0.1);
-    --glass-stronger-border-color: rgba(245, 245, 245, 0.3);
-    --glass-blur-px: 5px;
-
     --glass-hover-bg-color: rgba(0, 0, 0, 0.5);
 
-    --font-size-xxl: clamp(10px, 8vw, 90px);
+    --glass-border-color: rgba(245, 245, 245, 0.1);
+    --glass-stronger-border-color: rgba(245, 245, 245, 0.3);
+
+    --black-glass-color: rgba(0, 0, 0, 0.6);
+
+    --glass-blur-px: 5px;
+
+    /* ------------ Radius styles (CSS variables) ------------ */
+    --border-radius-px: 30px;
     --button-border-radius: 25px;
 
+    --font-size-xxl: clamp(10px, 8vw, 90px);
+
+    /* ------------ Footer styles (CSS variables) ------------ */
     --footer-bg-color: radial-gradient(circle, rgba(162, 199, 251, 0.4), rgb(208, 223, 253, 0.3));
 
-    /* Main page CSS variables */
+    /* ------------ MainPage styles (CSS variables) ------------ */
     --section-info-1: darkslategrey;
     --section-controls-1: rgba(106, 164, 248, 0.4);
 
@@ -30,15 +38,12 @@
     --section-info-3: #5c8571;
     --section-controls-3: rgb(50, 50, 50);
 
-    /* Map page CSS variables */
+    /* ------------ MapPage styles (CSS variables) ------------ */
     --map-page-text-color: #242424;
     --map-page-glass-border-color: rgba(68, 103, 91, 0.5);
     --map-editor-page-glass-border-color: rgba(223, 187, 251, 0.5);
 
-    --cv-stats-page-text-color: #242424;
-    --cv-stats-page-glass-border-color: rgba(33, 54, 83, 0.45);
-
-    /* Base styles */
+    /* <<<<<<<<<<<< Base styles >>>>>>>>>>>> */
     font-family: "Rubik Distressed", "Poppins", system-ui, Avenir, Helvetica, Arial, sans-serif;
     line-height: 1.5;
     font-weight: 400;

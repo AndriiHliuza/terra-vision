@@ -1,0 +1,109 @@
+.map-position-popup {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    height: 45px;
+    width: 100%;
+
+    gap: 10px;
+
+    overflow: visible;
+}
+
+.map-position-popup.on-add-present {
+    height: 80px;
+}
+
+.map-position-popup > .coordinates {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    height: 100%;
+    width: 200px;
+
+    gap: 10px;
+}
+
+.map-position-popup > .coordinates > .coordinate {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    height: 100%;
+    width: 100%;
+
+    border: 2px solid var(--map-page-glass-border-color);
+    border-radius: 10px;
+
+    font-size: 15px;
+    font-weight: bold;
+
+    cursor: default;
+}
+
+.map-position-popup > .controls {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    height: 100%;
+
+    gap: 10px;
+}
+
+.map-position-popup > .controls > button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    height: 100%;
+    width: 45px;
+
+    background: var(--glass-bg-color);
+
+    border: 2px solid var(--map-page-glass-border-color);
+    border-radius: 50px;
+
+    cursor: pointer;
+
+    transition: all 0.3s ease;
+}
+
+.map-position-popup.on-add-present > .controls > button {
+    height: 38px;
+    width: 38px;
+}
+
+.map-position-popup > .controls > button > img {
+    height: auto;
+    width: 25px;
+
+    transition: all 0.3s ease;
+}
+
+.map-position-popup > .controls > .copy-coordinates-btn.copied {
+    background: lightgrey;
+    cursor: default;
+}
+
+.map-position-popup > .controls > .add-marker-btn:hover,
+.map-position-popup > .controls > .copy-coordinates-btn:not(.copied):hover {
+    transform: scale(1.1);
+}
+
+.map-position-popup > .controls > .add-marker-btn:active,
+.map-position-popup > .controls > .copy-coordinates-btn:not(.copied):active {
+    transform: scale(0.9);
+}
+
+.map-position-popup > .controls > .add-marker-btn:active > img {
+    transform: rotate(90deg);
+}
+
+.map-position-popup > .controls > .copy-coordinates-btn:not(.copied):active > img {
+    transform: scaleX(-1);
+}

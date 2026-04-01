@@ -9,7 +9,7 @@ from service.yolo_service import YOLO_SERVICE
 router = APIRouter()
 
 
-@router.get("/models/details", response_model=list[ModelDetails])
+@router.get("/models", response_model=list[ModelDetails])
 async def get_models(
         lang: str = Header(default=DEFAULT_LANGUAGE, alias="Accept-Language")
 ) -> list[ModelDetails]:

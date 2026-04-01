@@ -17,8 +17,3 @@ a {
     background-color: var(--glass-bg-color);
     color: inherit;
 }
-
-.home-home {
-    height: 2000px;
-    width: 100%;
-}

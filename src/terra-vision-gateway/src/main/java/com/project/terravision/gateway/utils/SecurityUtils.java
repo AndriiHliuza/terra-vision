@@ -14,7 +14,7 @@ public abstract class SecurityUtils {
 
     public static boolean isPathPublic(String path, HttpMethod method) {
 
-        boolean isPathPublicForAnyHttpMethod = Arrays.stream(SecurityPaths.PERMIT_ALL_PATHS)
+        boolean isPathPublicForAnyHttpMethod = Arrays.stream(SecurityPaths.PublicPaths.ALL_HTTP_METHODS_PATHS)
                 .anyMatch(excludedPath -> pathMatcher.match(excludedPath, path));
         if (isPathPublicForAnyHttpMethod) return true;
 

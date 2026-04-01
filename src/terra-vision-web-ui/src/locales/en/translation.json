@@ -16,6 +16,8 @@
       }
     }
   },
+
+
   "forms": {
     "login-form": {
       "errors": {
@@ -31,6 +33,8 @@
       }
     }
   },
+
+
   "login-page": {
     "title": "Login",
     "labels": {
@@ -50,6 +54,8 @@
       "server-error": "SERVER ERROR"
     }
   },
+
+
   "registration-page": {
     "title": "Sign Up",
     "labels": {
@@ -71,11 +77,13 @@
       "server-error": "SERVER ERROR"
     }
   },
+
+
   "home-page": {
     "main": {
       "section": {
         "section-controls": {
-          "try-service-link-text": "Try service"
+          "service-link-text": "Try service"
         }
       },
       "section-1": {
@@ -96,6 +104,8 @@
       }
     }
   },
+
+
   "detector-page": {
     "title": "Detector",
     "models-dropdown-title": "SELECT MODEL",
@@ -132,6 +142,8 @@
     "archive-item-title": "Archive",
     "download-archive-btn": "Download"
   },
+
+
   "admin-page": {
     "dashboard": {
       "tab-name": "Dashboard"
@@ -143,9 +155,13 @@
       }
     }
   },
+
+
   "not-found-page": {
     "description": "The page you are looking for does not exist"
   },
+
+
   "footer": {
     "title": "About",
     "projectName": "Project name",

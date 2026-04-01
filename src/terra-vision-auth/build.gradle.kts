@@ -12,6 +12,7 @@ val postgresVersion: String by project
 val flywayVersion: String by project
 val springBootAopVersion: String by project
 val mapstructVersion: String by project
+val minioVersion: String by project
 
 val springCloudVersion: String by project
 
@@ -64,15 +65,15 @@ dependencies {
 	// --- Thymeleaf ---
 	implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
 
-	// --- Configuration Processor ---
-//	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-
 	// --- Mapstruct ---
 	implementation("org.mapstruct:mapstruct:$mapstructVersion")
 	annotationProcessor("org.mapstruct:mapstruct-processor:$mapstructVersion")
 
 	// --- HashiCorp Vault ---
 	implementation("org.springframework.cloud:spring-cloud-starter-vault-config")
+
+	// --- MinIO ---
+	implementation("io.minio:minio:$minioVersion")
 
 	// --- Lombok ---
 	compileOnly("org.projectlombok:lombok")

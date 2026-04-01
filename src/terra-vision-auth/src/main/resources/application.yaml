@@ -58,6 +58,13 @@ server:
   port: 8082
 
 application:
+
+  minio:
+    url: http://localhost:9000
+    access-key: ${TERRA_VISION__MINIO__ROOT_USER}
+    secret-key: ${TERRA_VISION__MINIO__ROOT_PASSWORD}
+    bucket: terra-vision-auth-bucket
+
   localization:
     supported-languages:
       - en

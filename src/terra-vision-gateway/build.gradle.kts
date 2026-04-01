@@ -35,9 +35,6 @@ dependencies {
 	// --- HashiCorp Vault ---
 	implementation("org.springframework.cloud:spring-cloud-starter-vault-config")
 
-	// --- Configuration Processor ---
-//	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-
 	// --- Lombok ---
 	compileOnly("org.projectlombok:lombok")
 	annotationProcessor("org.projectlombok:lombok")

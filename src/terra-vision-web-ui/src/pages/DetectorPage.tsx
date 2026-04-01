@@ -13,12 +13,12 @@ import {
     generateArchive,
     isImageByFileName
 } from "../commons/utils/file-utils.ts";
-import type {ModelDetails} from "../commons/dto/detector-dtos.ts";
+import type {ModelDetails} from "../commons/schemas/detector-schemas.ts";
 import LoadingOverlay from "../components/LoadingOverlay.tsx";
-import DetectorDropzone from "../components/detector-page/DetectorDropzone.tsx";
-import ModelSelector from "../components/detector-page/ModelSelector.tsx";
-import UploadedFilesSection from "../components/detector-page/UploadedFilesSection.tsx";
-import ProcessedFilesSection from "../components/detector-page/ProcessedFilesSection.tsx";
+import DetectorDropzone from "../components/detector/DetectorDropzone.tsx";
+import ModelSelector from "../components/detector/ModelSelector.tsx";
+import UploadedFilesSection from "../components/detector/UploadedFilesSection.tsx";
+import ProcessedFilesSection from "../components/detector/ProcessedFilesSection.tsx";
 import type {FileItem} from "../commons/schemas/file-schemas.ts";
 import {useAppContext} from "../configs/context/contexts.ts";
 
@@ -42,13 +42,13 @@ function DetectorPage() {
 
     useEffect(() => {
         axiosWebClient
-            .get<ModelDetails[]>("/api/ai/models/details", {params: {lang: i18n.language}})
+            .get<ModelDetails[]>("/api/ai/models", {params: {lang: i18n.language}})
             .then(response => {
                 setModels(response.data)
-                const selectedModelId = localStorage.getItem("selectedDetectionModel") ?? "";
+                const selectedModelId = localStorage.getItem("detection-model") ?? "";
                 const selectedModel = response.data.find(model => model.id === selectedModelId)
                 setSelectedModel(selectedModel)
-                if (!selectedModel) localStorage.removeItem("selectedDetectionModel");
+                if (!selectedModel) localStorage.removeItem("detection-model");
             }).catch(err => console.log(err))
     }, [t]);
 
@@ -178,7 +178,7 @@ function DetectorPage() {
     return (
         <>
             <Header/>
-            <div id="detector-page">
+            <div className="detector-page">
                 <section className="input-section">
                     <h1>{t("detector-page.title")}</h1>
 
@@ -187,7 +187,7 @@ function DetectorPage() {
                         selectedModel={selectedModel}
                         onSelect={model => {
                             setSelectedModel(model);
-                            localStorage.setItem("selectedDetectionModel", model.id);
+                            localStorage.setItem("detection-model", model.id);
                         }}
                     />
 

@@ -1,6 +1,6 @@
 package com.project.terravision.auth.utils;
 
-import com.project.terravision.auth.config.WebAttributes;
+import com.project.terravision.auth.config.attributes.WebAttributes;
 import com.project.terravision.auth.dto.SessionDetails;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpHeaders;

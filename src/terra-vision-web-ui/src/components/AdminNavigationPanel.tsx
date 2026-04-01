@@ -2,7 +2,7 @@ import "../styles/components/AdminNavigationPanel.css";
 import {NavLink, useParams} from "react-router-dom";
 import dashboardIcon from "../assets/dashboard-icon.png";
 import mapEditorIcon from "../assets/map-editor-icon.png";
-import sidebarBtnIcon from "../assets/sidebar-btn.png";
+import sidebarBtnIcon from "../assets/sidebar-btn-img.png";
 import {useEffect, useState} from "react";
 import clsx from "clsx";
 import {useTranslation} from "react-i18next";

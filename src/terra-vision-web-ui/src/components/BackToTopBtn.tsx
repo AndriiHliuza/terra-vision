@@ -1,6 +1,6 @@
 import "../styles/components/BackToTopBtn.css";
 import {useEffect, useState} from "react";
-import backToTopImg from "../assets/back-to-top.png";
+import backToTopImg from "../assets/arrows/up-arrow.png";
 
 
 function BackToTopBtn({ scrollOffset = 1000 }: { scrollOffset?: number }) {

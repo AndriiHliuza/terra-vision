@@ -2,6 +2,7 @@ package com.project.terravision.auth.handlers;
 
 import com.nimbusds.jose.proc.BadJOSEException;
 import com.project.terravision.auth.utils.WebUtils;
+import io.minio.errors.MinioException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -73,7 +74,7 @@ public class GlobalSystemExceptionHandler {
             JwtException.class,
             JwtValidationException.class,
     })
-    public ProblemDetail handleBadJOSEException(@SuppressWarnings("unused") Exception ex, HttpServletRequest request) {
+    public ProblemDetail handleBadJOSEAndJwtExceptions(@SuppressWarnings("unused") Exception ex, HttpServletRequest request) {
         return WebUtils.createProblemDetails(
                 HttpStatus.UNAUTHORIZED,
                 request,

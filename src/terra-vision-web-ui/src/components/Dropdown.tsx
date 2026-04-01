@@ -1,7 +1,7 @@
 import {useState, useRef, useEffect} from "react";
 import "../styles/components/Dropdown.css";
 import MENU_IMG from "../assets/menu.png";
-import DOWN_ARROW from "../assets/down-arrow.png";
+import DOWN_ARROW from "../assets/arrows/down-arrow.png";
 import clsx from "clsx";
 
 type DropdownItem = {

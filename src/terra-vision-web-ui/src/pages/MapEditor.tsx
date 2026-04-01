@@ -2,20 +2,21 @@ import "../styles/pages/MapEditor.css";
 import {
     MapContainer,
     Marker,
-    Popup,
-    Tooltip
+    Popup
 } from "react-leaflet";
-import {useEffect, useRef, useState, type MouseEvent as ReactMouseEvent} from "react";
-import type {MarkerData} from "../commons/schemas/gis-schemas.ts";
-import {stubMarkers} from "../commons/stubs/map-stubs.ts";
-import {MapEventsHandler, MapResizeHandler} from "../components/map-controls/map-controls.ts";
-import MapLayers from "../components/MapLayers.tsx";
+import {useEffect, useState} from "react";
+import type {Coordinates, MarkerData} from "../commons/schemas/gis-schemas.ts";
+import MapLayers from "../components/map/MapLayers.tsx";
 import {useTranslation} from "react-i18next";
-import clsx from "clsx";
-import dropdownBtnImg from "../assets/two-arrows-down.png";
 import {MAP_LAYERS} from "../configs/settings.ts";
 import LoadingOverlay from "../components/LoadingOverlay.tsx";
-import MapPositionDetailsPopup from "../components/MapPositionDetailsPopup.tsx";
+import {useElementHeightResizer} from "../commons/hooks/hooks.ts";
+import {MapResizeHandler} from "../components/map/handlers/MapResizeHandler.tsx";
+import MarkerClusterGroup from "react-leaflet-cluster";
+import {createClusterIcon, markerIcon} from "../components/map/icons/map-icons.tsx";
+import {MapEventsHandler} from "../components/map/handlers/MapEventsHandler.tsx";
+import MapPositionPopupDetails from "../components/map/MapPositionPopupDetails.tsx";
+import MapEditorLayerSwitcher from "../components/map/MapEditorLayerSwitcher.tsx";
 
 function MapEditor() {
 
@@ -23,93 +24,28 @@ function MapEditor() {
 
     const [isMapLoading, setMapLoading] = useState(true);
 
-    const [markers, setMarkers] = useState<MarkerData[]>([]);
+    const [popupPosition, setPopupPosition] = useState<Coordinates | null>(null);
 
-    const [popupPosition, setPopupPosition] = useState<[number, number] | null>(null);
+    const [layer, setLayer] = useState(() => localStorage.getItem("map-layer") || MAP_LAYERS[0].name);
+    const [markers, /*setMarkers*/] = useState<MarkerData[]>([]);
 
-    const [isLayersDropDownListOpen, setLayersDropDownListOpen] = useState(false);
+    const { height, elementRef, onMouseDown } = useElementHeightResizer({storageKey: "adminMapContainerHeight"})
 
-    const MIN_MAP_CONTAINER_HEIGHT = 500;
-    const MAX_MAP_CONTAINER_HEIGHT = 1000;
+    const onLayerSelected = (mapLayer: string) => {
+        setLayer(mapLayer);
+        localStorage.setItem("map-layer", mapLayer);
+    }
 
-    const [mapContainerHeight, setMapContainerHeight] = useState(() => {
-        const storedMapContainerHeight = localStorage.getItem("adminMapContainerHeight");
-        const parsedMapContainerHeight = storedMapContainerHeight ? Number(storedMapContainerHeight) : 900; // default height
-
-        if (Number.isNaN(parsedMapContainerHeight)) return 900;
-
-        return Math.min(
-            Math.max(parsedMapContainerHeight, MIN_MAP_CONTAINER_HEIGHT),
-            MAX_MAP_CONTAINER_HEIGHT
-        );
-    });
-
-    const mapContainerRef = useRef<HTMLDivElement>(null);
-    const isDraggingMapContainerRef = useRef(false);
-    const mapContainerHeightRef = useRef(mapContainerHeight);
-
-    const [selectedLayer, setSelectedLayer] = useState(
-        () => localStorage.getItem("preferredMapLayer") || "OSM Streets"
-    );
-
-    // // ---------- Resize handlers ----------
-    const onMouseDown = (e: ReactMouseEvent<HTMLDivElement>) => {
-        isDraggingMapContainerRef.current = true;
-        e.preventDefault();
-    };
-
-    const onMouseMove = (e: MouseEvent) => {
-        if (!isDraggingMapContainerRef.current) return;
-        const containerTop = mapContainerRef.current?.getBoundingClientRect().top || 0;
-        const newHeight = e.clientY - containerTop;
-        if (newHeight >= MIN_MAP_CONTAINER_HEIGHT && newHeight <= MAX_MAP_CONTAINER_HEIGHT) { // min/max height
-            setMapContainerHeight(newHeight);
-        }
-
-        // ---------- Auto-scroll logic ----------
-        const scrollMargin = 50; // px from viewport edge to start scrolling
-        const scrollSpeed = 10; // px per frame
-
-        if (e.clientY > window.innerHeight - scrollMargin) {
-            // Near bottom, scroll down
-            window.scrollBy({top: scrollSpeed, behavior: "auto"});
-        }
-    };
-
-    const onMouseUp = () => {
-        if (isDraggingMapContainerRef.current) {
-            localStorage.setItem(
-                "adminMapContainerHeight",
-                mapContainerHeightRef.current.toString()
-            );
-        }
-        isDraggingMapContainerRef.current = false;
-    };
-
-    useEffect(() => {
-        localStorage.setItem("preferredMapLayer", selectedLayer);
-    }, [selectedLayer]);
-
-    useEffect(() => {
-        window.addEventListener("mousemove", onMouseMove);
-        window.addEventListener("mouseup", onMouseUp);
-        return () => {
-            window.removeEventListener("mousemove", onMouseMove);
-            window.removeEventListener("mouseup", onMouseUp);
-        };
-    }, []);
-
-    useEffect(() => {
-        mapContainerHeightRef.current = mapContainerHeight;
-    }, [mapContainerHeight]);
-
+    const onAddMarker = () => {
+        console.log("ADD MARKER BUTTON")
+    }
 
     // Stub backend data
     useEffect(() => {
         // Simulate async fetch
         setMapLoading(true)
         const timer = setTimeout(() => {
-            setMarkers(stubMarkers);
+
             setMapLoading(false);
         }, 500);
 
@@ -119,12 +55,12 @@ function MapEditor() {
     /* ---------- MAP EDIT HANDLERS ---------- */
 
     return (
-        <div className="map-editor">
+        <div id="map-editor">
             <h1>{t("admin-page.map-editor.tab-name").toUpperCase()}</h1>
             <div
                 className="map-container"
-                ref={mapContainerRef}
-                style={{height: mapContainerHeight}}
+                ref={elementRef}
+                style={{height: height}}
             >
                 <MapContainer
                     center={[48.4, 31]}
@@ -135,66 +71,45 @@ function MapEditor() {
                     maxBoundsViscosity={1.0}
                     worldCopyJump={true}
                 >
-                    <MapLayers selectedLayer={selectedLayer}/>
+                    <MapLayers layer={layer}/>
 
-                    {/* Render markers */}
-                    {markers.map(marker => (
-                        <Marker key={marker.id} position={marker.position}>
-                            <Tooltip>{marker.tooltip}</Tooltip>
-                            <Popup>{marker.popup}</Popup>
-                        </Marker>
-                    ))}
+                    <MarkerClusterGroup
+                        chunkedLoading
+                        iconCreateFunction={createClusterIcon}
+                        maxClusterRadius={80}
+                        showCoverageOnHover={false}
+                    >
+                        {markers.map(marker => (
+                            <Marker
+                                key={marker.id}
+                                position={marker.position}
+                                icon={markerIcon}
+                            >
+                                <Popup>{marker.title}</Popup>
+                            </Marker>
+                        ))}
+                    </MarkerClusterGroup>
 
-                    {/* ⭐ RIGHT CLICK POPUP */}
                     {popupPosition && (
-                        <Popup
-                            position={popupPosition}
-                        >
-                            <MapPositionDetailsPopup lat={popupPosition[0]} lng={popupPosition[1]}/>
+                        <Popup position={popupPosition}>
+                            <MapPositionPopupDetails
+                                coordinates={popupPosition}
+                                onAddClicked={() => onAddMarker()}
+                            />
                         </Popup>
                     )}
-                    <MapEventsHandler
-                        onRightClick={(lat, lng) => setPopupPosition([lat, lng])}
-                        setPreferredBaseLayer={setSelectedLayer}
-                    />
+
+                    <MapEventsHandler onRightClick={coordinates => setPopupPosition(coordinates)}/>
+
                     <MapResizeHandler/>
                 </MapContainer>
 
                 {/* Draggable resize handle */}
-                <div className="resize-handle" onMouseDown={onMouseDown}>
-                    <hr/>
-                </div>
+                <div className="resize-handle" onMouseDown={onMouseDown}><hr/></div>
 
                 <LoadingOverlay visible={isMapLoading}/>
             </div>
-
-            {/* ✅ External Layer Switcher */}
-            <div
-                className="map-layer-drop-down-controls"
-            >
-                <h2>{t("admin-page.map-editor.layers-section.title")}</h2>
-                <img
-                    src={dropdownBtnImg}
-                    alt="Drop down button"
-                    className={clsx({active: isLayersDropDownListOpen})}
-                    onClick={() => setLayersDropDownListOpen(prev => !prev)}
-                />
-            </div>
-            <div className={clsx("map-layer-switcher", {opened: isLayersDropDownListOpen})}>
-                {MAP_LAYERS.map(layer => (
-                    <div
-                        key={layer.name}
-                        className={clsx("map-layer", {active: layer.name === selectedLayer})}
-                        onClick={() => setSelectedLayer(layer.name)}
-                    >
-                        <div>{layer.name}</div>
-                        <img src={layer.img} alt="Layer Img"/>
-                    </div>
-                ))}
-            </div>
-
-            <div>Controls</div>
-
+            <MapEditorLayerSwitcher selectedLayer={layer} onLayerSelected={onLayerSelected} />
         </div>
 
     )

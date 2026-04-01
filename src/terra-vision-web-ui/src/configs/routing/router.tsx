@@ -5,14 +5,13 @@ import LocalizationRoute from "./LocalizationRoute.tsx";
 import DetectorPage from "../../pages/DetectorPage.tsx";
 import MapPage from "../../pages/MapPage.tsx";
 import PublicOnlyRoute from "./PublicOnlyRoute.tsx";
-import RegistrationPage from "../../pages/RegistrationPage.tsx";
-import LoginPage from "../../pages/LoginPage.tsx";
+import RegistrationPage from "../../pages/auth-pages/RegistrationPage.tsx";
+import LoginPage from "../../pages/auth-pages/LoginPage.tsx";
 import ProtectedRoute from "./ProtectedRoute.tsx";
 import {SystemRoleLevels} from "../../commons/schemas/auth-schemas.ts";
 import AdminPagesLayout from "../../layouts/AdminPagesLayout.tsx";
 import AdminDashboard from "../../pages/AdminDashboard.tsx";
 import MapEditor from "../../pages/MapEditor.tsx";
-import {SimpleChartPage} from "../../components/SimpleChartPage.tsx";
 import NotFoundPage from "../../pages/NotFoundPage.tsx";
 import HomePage from "../../pages/HomePage.tsx";
 
@@ -64,7 +63,6 @@ export const router = createBrowserRouter([
                             }
                         ]
                     },
-                    { path: "charts", element: <SimpleChartPage /> },
                     { path: "*", element: <NotFoundPage /> }
                 ]
             }

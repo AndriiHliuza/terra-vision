@@ -1,0 +1,23 @@
+.copy-coordinates-toast {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    border-radius: 50px;
+    width: 200px;
+
+    color: var(--black-glass-color) !important;
+    border: 2px solid var(--black-glass-color) !important;
+    background: var(--glass-bg-color) !important;
+    backdrop-filter: blur(var(--glass-blur-px)) !important;
+    -webkit-backdrop-filter: blur(var(--glass-blur-px)) !important;
+
+    font-weight: bold;
+}
+
+@media (max-width: 300px) {
+    .copy-coordinates-toast {
+        width: 150px;
+        font-size: 12px;
+    }
+}

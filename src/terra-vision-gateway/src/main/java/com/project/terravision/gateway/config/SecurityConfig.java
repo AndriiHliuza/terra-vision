@@ -66,35 +66,36 @@ public class SecurityConfig {
                 .authorizeExchange(exchange -> exchange
 
                         // <<<<<<<<<<<< Public paths >>>>>>>>>>>>
-                        .pathMatchers(SecurityPaths.PERMIT_ALL_PATHS).permitAll()
-                        .pathMatchers(HttpMethod.GET, SecurityPaths.PERMIT_ALL_GET_PATHS).permitAll()
-                        .pathMatchers(HttpMethod.POST, SecurityPaths.PERMIT_ALL_POST_PATHS).permitAll()
+                        .pathMatchers(SecurityPaths.PublicPaths.ALL_HTTP_METHODS_PATHS).permitAll()
+                        .pathMatchers(HttpMethod.GET, SecurityPaths.PublicPaths.GET_PATHS).permitAll()
+                        .pathMatchers(HttpMethod.POST, SecurityPaths.PublicPaths.POST_PATHS).permitAll()
 
                         // <<<<<<<<<<<< Any authenticated user (power level >= 10) >>>>>>>>>>>>
                         .pathMatchers(
                                 HttpMethod.GET,
-                                "/api/auth/me",
-                                "/api/auth/user/protected"
+                                SecurityPaths.AtLeastUserPowerLevelPaths.GET_PATHS
                         ).access(hasAtLeastPowerLevel(SystemRoleLevel.USER))
                         .pathMatchers(
                                 HttpMethod.POST,
-                                "/api/auth/logout"
+                                SecurityPaths.AtLeastUserPowerLevelPaths.POST_PATHS
                         ).access(hasAtLeastPowerLevel(SystemRoleLevel.USER))
 
                         // <<<<<<<<<<<< Admin and above (power level >= 10000) >>>>>>>>>>>>
                         .pathMatchers(
                                 HttpMethod.GET,
-                                "/api/auth/admin/protected"
+                                SecurityPaths.AtLeastAdminPowerLevelPaths.GET_PATHS
                         ).access(hasAtLeastPowerLevel(SystemRoleLevel.ADMIN))
 
                         // <<<<<<<<<<<< Super Admin and above (power level >= 100000) >>>>>>>>>>>>
                         .pathMatchers(
                                 HttpMethod.GET,
-                                "/api/auth/super-admin/protected"
+                                SecurityPaths.AtLeastSuperAdminPowerLevelPaths.GET_PATHS
                         ).access(hasAtLeastPowerLevel(SystemRoleLevel.SUPER_ADMIN))
 
+                        // <<<<<<<<<<<< Paths for internal use only >>>>>>>>>>>>
                         .pathMatchers(SecurityPaths.INTERNAL_PATHS).denyAll()
 
+                        // <<<<<<<<<<<< All other paths that are not listed above (require authentication) >>>>>>>>>>>>
                         .anyExchange().authenticated()
                 )
                 .oauth2ResourceServer(oAuth2ResourceServerSpec -> oAuth2ResourceServerSpec

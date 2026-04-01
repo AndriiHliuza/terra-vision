@@ -4,7 +4,7 @@ import {SUPPORTED_LANGUAGES} from "../settings.ts";
 import i18n from "../i18n.ts";
 import NotFoundPage from "../../pages/NotFoundPage.tsx";
 
-export default function LocalizationRoute() {
+function LocalizationRoute() {
     const { lang } = useParams();
 
     const isValidLang = lang && SUPPORTED_LANGUAGES.includes(lang);
@@ -21,3 +21,5 @@ export default function LocalizationRoute() {
 
     return <Outlet/>
 }
+
+export default LocalizationRoute;
