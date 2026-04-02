@@ -1,4 +1,6 @@
-/* User props */
+
+/* <<<<<<<<<<<< User & RoleClaim schemas >>>>>>>>>>>> */
+
 export interface User {
     id: string;
     username: string;
@@ -21,14 +23,20 @@ export interface RoleClaim {
     powerLevel: number;
 }
 
+
+
+/* <<<<<<<<<<<< SystemRoleLevels >>>>>>>>>>>> */
+
 export const SystemRoleLevels = {
     GUEST:       0,
     USER:        10,
-    ADMIN:       20,
-    SUPER_ADMIN: 30,
+    ADMIN:       10000,
+    SUPER_ADMIN: 100000,
 } as const;
 
-/* ProtectedRoute props */
+
+
+/* <<<<<<<<<<<< PermissionStrategy >>>>>>>>>>>> */
 
 export const PermissionStrategy = { // ← lives in VALUE space (runtime)
     ALL_OF: 'ALL_OF',
@@ -36,6 +44,10 @@ export const PermissionStrategy = { // ← lives in VALUE space (runtime)
 } as const;
 
 export type PermissionStrategy = typeof PermissionStrategy[keyof typeof PermissionStrategy]; // ← lives in TYPE space (compile time only)
+
+
+
+/* <<<<<<<<<<<< ProtectedRouteProps >>>>>>>>>>>> */
 
 export interface ProtectedRouteProps {
     minPowerLevel?:      number;

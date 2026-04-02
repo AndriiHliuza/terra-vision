@@ -1,4 +1,4 @@
-#map-page > #map-layer-switcher-btn {
+.map-page > .map-layer-switcher-btn {
     position: fixed;
     bottom: 15px;
     left: 15px;
@@ -19,7 +19,7 @@
     transition: all 0.3s ease;
 }
 
-#map-page > #map-layer-switcher-btn:hover {
+.map-page > .map-layer-switcher-btn:hover {
     transform: scale(1.05);
 
     background: var(--glass-hover-bg-color);
@@ -28,7 +28,7 @@
     -webkit-backdrop-filter: blur(var(--glass-blur-px));
 }
 
-#map-page > #map-layer-switcher-btn:active {
+.map-page > .map-layer-switcher-btn:active {
     transform: scale(0.9);
 
     background: var(--glass-hover-bg-color);
@@ -37,7 +37,7 @@
     -webkit-backdrop-filter: blur(var(--glass-blur-px));
 }
 
-#map-page > #map-layer-switcher-btn.active {
+.map-page > .map-layer-switcher-btn.active {
     top: 15px;
     right: 15px;
     z-index: 1500;
@@ -46,7 +46,7 @@
     left: auto;
 }
 
-#map-page > #map-layer-switcher-btn > img {
+.map-page > .map-layer-switcher-btn > img {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -59,11 +59,11 @@
     transition: all 0.3s ease;
 }
 
-#map-page > #map-layer-switcher-btn.active > img {
+.map-page > .map-layer-switcher-btn.active > img {
     transform: rotate(180deg) scale(1.2);
 }
 
-#map-page > #map-layer-switcher-container {
+.map-page > .map-layer-switcher-container {
     position: fixed;
     top: 0;
     bottom: 0;
@@ -83,12 +83,12 @@
     transition: transform 0.3s ease;
 }
 
-#map-page > #map-layer-switcher-container.opened {
+.map-page > .map-layer-switcher-container.opened {
     transform: translateX(0);
 
 }
 
-#map-page > #map-layer-switcher-container > #map-layer-switcher {
+.map-page > .map-layer-switcher-container > .map-layer-switcher {
     position: absolute;
     top: 100px;
 
@@ -100,7 +100,7 @@
     width: 100%;
 }
 
-#map-page > #map-layer-switcher-container > #map-layer-switcher > .map-layer {
+.map-page > .map-layer-switcher-container > .map-layer-switcher > .map-layer {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -120,20 +120,20 @@
     transition: all 0.3s ease, background-color 0.1s ease;
 }
 
-#map-page > #map-layer-switcher-container > #map-layer-switcher > .map-layer:hover {
+.map-page > .map-layer-switcher-container > .map-layer-switcher > .map-layer:hover {
     transform: scale(1.05);
     background: rgba(0, 0, 0, 0.85);
 }
 
-#map-page > #map-layer-switcher-container > #map-layer-switcher > .map-layer:active {
+.map-page > .map-layer-switcher-container > .map-layer-switcher > .map-layer:active {
     transform: scale(0.9);
 }
 
-#map-page > #map-layer-switcher-container > #map-layer-switcher > .map-layer.active {
+.map-page > .map-layer-switcher-container > .map-layer-switcher > .map-layer.active {
     text-decoration: underline;
 }
 
-#map-page > #map-layer-switcher-container > #map-layer-switcher > .map-layer > div {
+.map-page > .map-layer-switcher-container > .map-layer-switcher > .map-layer > div {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -145,7 +145,7 @@
     transition: all 0.3s ease;
 }
 
-#map-page > #map-layer-switcher-container > #map-layer-switcher > .map-layer > img {
+.map-page > .map-layer-switcher-container > .map-layer-switcher > .map-layer > img {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -160,7 +160,7 @@
 }
 
 @media (max-width: 400px) {
-    #map-page > #map-layer-switcher-container > #map-layer-switcher > .map-layer {
+    .map-page > .map-layer-switcher-container > .map-layer-switcher > .map-layer {
         flex-direction: column;
         justify-content: flex-start;
         align-items: center;
@@ -169,12 +169,12 @@
         height: 250px;
     }
 
-    #map-page > #map-layer-switcher-container > #map-layer-switcher > .map-layer > div {
+    .map-page > .map-layer-switcher-container > .map-layer-switcher > .map-layer > div {
         height: 40px;
         padding: 10px 0;
     }
 
-    #map-page > #map-layer-switcher-container > #map-layer-switcher > .map-layer > img {
+    .map-page > .map-layer-switcher-container > .map-layer-switcher > .map-layer > img {
         margin: 10px 10px 15px 10px;
         border-radius: 15px;
     }
@@ -182,11 +182,11 @@
 
 @media (max-width: 250px) {
 
-    #map-page > #map-layer-switcher-container > #map-layer-switcher > .map-layer {
+    .map-page > .map-layer-switcher-container > .map-layer-switcher > .map-layer {
         height: 200px;
     }
 
-    #map-page > #map-layer-switcher-container > #map-layer-switcher > .map-layer > img {
+    .map-page > .map-layer-switcher-container > .map-layer-switcher > .map-layer > img {
         width: 100px;
         height: 100px;
     }

@@ -19,7 +19,7 @@ function MapEditorLayerSwitcher({selectedLayer, onLayerSelected}: MapEditorLayer
             <div
                 className="map-layer-drop-down-controls"
             >
-                <h2>{t("admin-page.map-editor.layers-section.title")}</h2>
+                <h2>{t("admin-pages.map-editor.layers-section.title")}</h2>
                 <img
                     src={dropdownBtnImg}
                     alt="Drop down button"

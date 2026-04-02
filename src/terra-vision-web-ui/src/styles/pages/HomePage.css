@@ -1,12 +1,12 @@
 /* Main */
 .home-page {
-    width: 100%;
-
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+
     flex: 1;
+    width: 100%;
 }
 
 .home-page > .main-img-section {
@@ -21,15 +21,15 @@
 }
 
 .home-page > .main-img-section > h1 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
     height: 100%;
     width: 0;
 
     margin: 0;
     padding: 0;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
 
     line-height: 1.2;
     overflow: hidden;
@@ -43,22 +43,21 @@
 }
 
 .home-page > section {
-    height: 500px;
-    width: 100%;
-
     display: flex;
     justify-content: center;
     align-items: center;
+
+    height: 500px;
+    width: 100%;
 }
 
 .home-page > .data-section > div {
-    height: 100%;
-
     display: flex;
     justify-content: center;
     align-items: center;
 
     flex: 1;
+    height: 100%;
 }
 
 .home-page .section-info-1 {
@@ -78,13 +77,13 @@
 }
 
 .home-page .section-info > div, .home-page .section-controls > div {
-    height: 95%;
-    width: 95%;
-
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
     align-items: center;
+
+    height: 95%;
+    width: 95%;
 
     border: 1px solid var(--glass-border-color);
     border-radius: var(--border-radius-px);
@@ -113,8 +112,6 @@
     justify-content: center;
     align-items: center;
 
-    font-size: 20px;
-
     width: 70%;
     height: 300px;
 
@@ -124,14 +121,16 @@
     border-radius: 20px;
 
     background: rgba(0, 0, 0, 0.1);
+
+    font-size: 20px;
 }
 
 .home-page .section-controls > div > a {
-    margin: 0 10px;
-
     display: flex;
     justify-content: center;
     align-items: center;
+
+    margin: 0 10px;
 
     word-spacing: 5px;
     text-decoration: underline;

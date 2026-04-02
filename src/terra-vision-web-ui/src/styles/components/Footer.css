@@ -1,23 +1,22 @@
 footer {
-    height: 200px;
-    width: 100%;
-
     display: flex;
     justify-content: center;
     align-items: center;
+
+    height: 200px;
+    width: 100%;
 
     background: var(--footer-bg-color);
 }
 
 footer > section {
-    height: 100%;
-
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
 
     flex: 1;
+    height: 100%;
 }
 
 footer > section > .footer-section-info {

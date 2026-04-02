@@ -1,5 +1,6 @@
 
 /* <<<<<<<<<<<< Model DTOs >>>>>>>>>>>> */
+
 export type ModelDetails = {
     id: string;
     name: string;
@@ -7,7 +8,9 @@ export type ModelDetails = {
 }
 
 
+
 /* <<<<<<<<<<<< Object detection statistics DTOs >>>>>>>>>>>> */
+
 export interface ImageStats {
     filename: string;
     num_detections: number;

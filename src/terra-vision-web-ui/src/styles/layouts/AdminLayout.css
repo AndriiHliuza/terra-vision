@@ -54,23 +54,6 @@
     overflow: hidden;
 }
 
-/*.admin-layout-content-container > .admin-layout-content > section > .admin-layout-content-item {*/
-/*    display: flex;*/
-/*    justify-content: center;*/
-/*    align-items: center;*/
-
-/*    height: 500px;*/
-/*    width: 100%;*/
-
-/*    margin: 5px;*/
-
-/*    background: slateblue;*/
-
-/*    border: 2px solid var(--glass-border-color);*/
-/*    border-radius: 15px;*/
-/*}*/
-
-
 .admin-nav-container.collapsed ~ .admin-layout-content-container > .admin-layout-content {
     margin-left: 110px;
 }

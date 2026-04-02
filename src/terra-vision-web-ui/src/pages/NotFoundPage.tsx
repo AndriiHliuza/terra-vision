@@ -6,7 +6,7 @@ import i18n from "../configs/i18n.ts";
 
 function NotFoundPage() {
     return (
-        <main id="not-found-page">
+        <main className="not-found-page">
             <NavLink to={`/${i18n.language}`}>
                 <img src={leftArrowIcon} alt="Back to Home Button"/>
             </NavLink>

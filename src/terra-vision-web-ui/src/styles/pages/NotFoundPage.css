@@ -1,16 +1,17 @@
-#not-found-page {
+.not-found-page {
     width: 100%;
 
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+
     flex: 1;
 
     background-image: url("/src/assets/background/leaves-bg.jpg");
 }
 
-#not-found-page > a {
+.not-found-page > a {
     position: fixed;
     z-index: 1000;
     top: 15px;
@@ -29,7 +30,7 @@
     transition: transform 1s ease;
 }
 
-#not-found-page > a > img {
+.not-found-page > a > img {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -42,15 +43,15 @@
     transition: transform 0.3s ease;
 }
 
-#not-found-page > a > img:hover {
+.not-found-page > a > img:hover {
     transform: scale(1.15);
 }
 
-#not-found-page > a > img:active {
+.not-found-page > a > img:active {
     transform: scale(0.75);
 }
 
-#not-found-page > img {
+.not-found-page > img {
     height: auto;
     width: 80%;
 
@@ -60,7 +61,7 @@
     transition: transform 1s ease;
 }
 
-#not-found-page > span {
+.not-found-page > span {
     margin: 20px;
     padding: 20px;
 

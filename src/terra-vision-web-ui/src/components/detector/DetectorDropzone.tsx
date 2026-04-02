@@ -1,11 +1,11 @@
-import "../../styles/components/detector/DetectorDropzone.css";
 import {useTranslation} from "react-i18next";
 import {useCallback} from "react";
-import {isArchive, isImageByFileType} from "../../commons/utils/file-utils.ts";
 import {type FileRejection, useDropzone} from "react-dropzone";
 import {toast} from "react-toastify";
-import PopUp from "../PopUp.tsx";
+import "../../styles/components/detector/DetectorDropzone.css";
 import type {FileItem} from "../../commons/schemas/file-schemas.ts";
+import {isArchive, isImageByFileType} from "../../commons/utils/file-utils.ts";
+import PopUp from "../PopUp.tsx";
 
 interface DetectorDropzoneProps {
     onImagesDropped: (images: FileItem[]) => void;

@@ -1,5 +1,5 @@
 export type StringShorteningRule = {
-    maxScreenWidth: number;
+    maxElementWidth: number; // DOM (HTML) element width
     startStringLength: number;
     endStringLength: number;
 };

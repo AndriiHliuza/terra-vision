@@ -96,7 +96,7 @@ function LoginPage() {
                     <Link
                         to={`/${lang}/renew`}
                         className="forgot-password-link"
-                    >{t("login-page.forgot-password-message")}</Link>
+                    >{t("login-page.forgot-password-link")}</Link>
                     {errors.root && (
                         <div className="root-error-section">
                             <hr className="form-divider" />

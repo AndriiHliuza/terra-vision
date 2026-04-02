@@ -1,10 +1,15 @@
 {
+
+  "<<<<<<<<<<<< JSON-COMMENT: Header & Footer >>>>>>>>>>>>": "",
+
   "header": {
     "home": "Головна",
     "detector": "Детектор",
     "map": "Карта",
+
     "login": "Увійти",
     "account": "Акаунт",
+
     "languages": {
       "en": {
         "fullName": "Англійська",
@@ -17,6 +22,15 @@
     }
   },
 
+  "footer": {
+    "title": "Детальніше",
+    "projectName": "Назва проекту",
+    "developedBy": "Розробник"
+  },
+
+
+
+  "<<<<<<<<<<<< JSON-COMMENT: Forms >>>>>>>>>>>>": "",
 
   "forms": {
     "login-form": {
@@ -34,7 +48,6 @@
     }
   },
 
-
   "login-page": {
     "title": "Увійти в систему",
     "labels": {
@@ -42,7 +55,7 @@
       "password": "Пароль"
     },
 
-    "forgot-password-message": "Забули пароль?",
+    "forgot-password-link": "Забули пароль?",
 
     "submit-btn": "Увійти",
 
@@ -54,7 +67,6 @@
       "server-error": "ПОМИЛКА СЕРВЕРУ"
     }
   },
-
 
   "registration-page": {
     "title": "Зареєструватись",
@@ -79,11 +91,14 @@
   },
 
 
+
+  "<<<<<<<<<<<< JSON-COMMENT: HomePage >>>>>>>>>>>>": "",
+
   "home-page": {
     "main": {
       "section": {
         "section-controls": {
-          "service-link-text": "Скористатись сервісом"
+          "service-link": "Скористатись сервісом"
         }
       },
       "section-1": {
@@ -106,14 +121,17 @@
   },
 
 
+
+  "<<<<<<<<<<<< JSON-COMMENT: DetectorPage >>>>>>>>>>>>": "",
+
   "detector-page": {
     "title": "Детектор",
     "models-dropdown-title": "ОБРАТИ МОДЕЛЬ",
     "model-description-default-text": "Модель не обрано",
     "drag-and-drop-section-text-for-not-active-drag": "Натисніть або перетягніть зображення чи «.zip» архів",
     "drag-and-drop-section-text-for-active-drag": "Перетягніть зображення чи «.zip» архів...",
-    "clear-all-images-btn-text": "Очистити",
-    "process-images-btn-text": "Обробити",
+    "clear-all-images-btn": "Очистити",
+    "process-images-btn": "Обробити",
     "processing-message-text": {
       "text-1": "Будь ласка, зачекайте, поки ми намагаємось обробити...",
       "text-2": "Це може зайняти декілька секунд..."
@@ -142,7 +160,12 @@
     "archive-item-title": "Архів",
     "download-archive-btn": "Завантажити"
   },
-  "admin-page": {
+
+
+
+  "<<<<<<<<<<<< JSON-COMMENT: AdminPages >>>>>>>>>>>>": "",
+
+  "admin-pages": {
     "dashboard": {
       "tab-name": "Інформаційна панель"
     },
@@ -152,18 +175,6 @@
         "title": "Шари"
       }
     }
-  },
-
-
-  "not-found-page": {
-    "description": "Сторінки, яку ви шукаєте, не існує"
-  },
-
-
-  "footer": {
-    "title": "Детальніше",
-    "projectName": "Назва проекту",
-    "developedBy": "Розробник"
   }
 }
 

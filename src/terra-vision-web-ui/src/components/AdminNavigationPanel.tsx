@@ -23,8 +23,8 @@ function AdminNavigationPanel() {
     });
 
     const links = [
-        {to: `/${lang}/admin/dashboard`, label: t("admin-page.dashboard.tab-name"), icon: dashboardIcon},
-        {to: `/${lang}/admin/map-editor`, label: t("admin-page.map-editor.tab-name"), icon: mapEditorIcon}
+        {to: `/${lang}/admin/dashboard`, label: t("admin-pages.dashboard.tab-name"), icon: dashboardIcon},
+        {to: `/${lang}/admin/map-editor`, label: t("admin-pages.map-editor.tab-name"), icon: mapEditorIcon}
     ];
 
     const handleNavPanelCollapse = () => {

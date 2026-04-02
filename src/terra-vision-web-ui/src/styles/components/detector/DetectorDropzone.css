@@ -3,20 +3,19 @@
     justify-content: center;
     align-items: center;
 
-    width: 90%;
     height: 300px;
+    width: 90%;
 
     margin-top: 30px;
     margin-bottom: 30px;
     padding: 5px;
 
     background: var(--glass-bg-color);
+    backdrop-filter: blur(var(--glass-blur-px));
+    -webkit-backdrop-filter: blur(var(--glass-blur-px));
 
     border: 2px solid var(--glass-border-color);
     border-radius: var(--border-radius-px);
-
-    backdrop-filter: blur(var(--glass-blur-px));
-    -webkit-backdrop-filter: blur(var(--glass-blur-px));
 
     cursor: pointer;
 
@@ -33,14 +32,13 @@
 }
 
 .detector-page > .input-section > .dropzone-container:hover {
+    background-color: var(--glass-hover-bg-color);
     box-shadow: 0 0 8px #3c3c3c, 0 0 16px #3c3c3c;
     text-shadow: 0 0 8px whitesmoke, 0 0 16px whitesmoke;
 
-    transform: scale(1.02);
-
     border: 2px solid var(--glass-stronger-border-color);
 
-    background-color: var(--glass-hover-bg-color);
+    transform: scale(1.02);
 }
 
 .detector-page > .input-section > .dropzone-container:active {

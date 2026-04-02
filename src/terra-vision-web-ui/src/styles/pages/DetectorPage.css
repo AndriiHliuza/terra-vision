@@ -309,8 +309,8 @@
     align-items: center;
 }
 
-.detector-page > section #clear-all-images-btn,
-.detector-page > section #process-images-btn {
+.detector-page > section .clear-all-images-btn,
+.detector-page > section .process-images-btn {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -334,20 +334,20 @@
     transition: all 0.3s ease;
 }
 
-.detector-page > section #clear-all-images-btn::selection,
-.detector-page > section #process-images-btn::selection {
+.detector-page > section .clear-all-images-btn::selection,
+.detector-page > section .process-images-btn::selection {
     background: transparent;
 }
 
-.detector-page > section #clear-all-images-btn:hover,
-.detector-page > section #process-images-btn:hover {
+.detector-page > section .clear-all-images-btn:hover,
+.detector-page > section .process-images-btn:hover {
     background: var(--glass-hover-bg-color);
     transform: scale(1.1);
     width: 200px;
 }
 
-.detector-page > section #clear-all-images-btn:active,
-.detector-page > section #process-images-btn:active {
+.detector-page > section .clear-all-images-btn:active,
+.detector-page > section .process-images-btn:active {
     transform: scale(0.9);
 }
 
@@ -475,8 +475,8 @@
 }
 
 @media (max-width: 200px) {
-    .detector-page > section #clear-all-images-btn,
-    .detector-page > section #process-images-btn {
+    .detector-page > section .clear-all-images-btn,
+    .detector-page > section .process-images-btn {
         width: 120px;
     }
 

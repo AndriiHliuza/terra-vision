@@ -1,13 +1,13 @@
 import L from "leaflet";
-import locationMarker from "../../../assets/location-marker.png";
 import {renderToStaticMarkup} from "react-dom/server";
+import locationMarker from "../../../assets/location-marker.png";
 import {ClusterIcon} from "./ClusterIcon.tsx";
 
 export const markerIcon = new L.Icon({
     iconUrl: locationMarker,
     iconSize: [30, 30],   // Total size of the marker
     iconAnchor: [15, 30], // The point that touches the map (center)
-    popupAnchor: [0, -30],
+    popupAnchor: [0, -30], // The point where popup appears when clicking on marker
 });
 
 export const createClusterIcon = (cluster: { getChildCount: () => number }) => {

@@ -47,7 +47,7 @@ function MapPage() {
 
     return (
         <>
-            <div id="map-page">
+            <div className="map-page">
                 <Header/>
                 <MapContainer
                     center={[48.4, 31]}

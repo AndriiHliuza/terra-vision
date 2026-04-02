@@ -33,7 +33,7 @@ function HomePage() {
                                 {t("home-page.main.section-1.section-controls.section-description")}
                             </div>
                             <Link to={`/${lang}/detector`}>
-                                {t("home-page.main.section.section-controls.service-link-text")}
+                                {t("home-page.main.section.section-controls.service-link")}
                             </Link>
                         </div>
                     </div>
@@ -52,7 +52,7 @@ function HomePage() {
                                 {t("home-page.main.section-2.section-controls.section-description")}
                             </div>
                             <Link to={`/${lang}/map`}>
-                                {t("home-page.main.section.section-controls.service-link-text")}
+                                {t("home-page.main.section.section-controls.service-link")}
                             </Link>
                         </div>
                     </div>

@@ -1,10 +1,15 @@
 {
+
+  "<<<<<<<<<<<< JSON-COMMENT: Header & Footer >>>>>>>>>>>>": "",
+
   "header": {
     "home": "Home",
     "detector": "Detector",
     "map": "Map",
+
     "login": "Login",
     "account": "Account",
+
     "languages": {
       "en": {
         "fullName": "English",
@@ -17,6 +22,15 @@
     }
   },
 
+  "footer": {
+    "title": "About",
+    "projectName": "Project name",
+    "developedBy": "Developed by"
+  },
+
+
+
+  "<<<<<<<<<<<< JSON-COMMENT: Forms >>>>>>>>>>>>": "",
 
   "forms": {
     "login-form": {
@@ -34,7 +48,6 @@
     }
   },
 
-
   "login-page": {
     "title": "Login",
     "labels": {
@@ -42,7 +55,7 @@
       "password": "Password"
     },
 
-    "forgot-password-message": "Forgot password?",
+    "forgot-password-link": "Forgot password?",
 
     "submit-btn": "Submit",
 
@@ -54,7 +67,6 @@
       "server-error": "SERVER ERROR"
     }
   },
-
 
   "registration-page": {
     "title": "Sign Up",
@@ -79,11 +91,14 @@
   },
 
 
+
+  "<<<<<<<<<<<< JSON-COMMENT: HomePage >>>>>>>>>>>>": "",
+
   "home-page": {
     "main": {
       "section": {
         "section-controls": {
-          "service-link-text": "Try service"
+          "service-link": "Try service"
         }
       },
       "section-1": {
@@ -106,14 +121,17 @@
   },
 
 
+
+  "<<<<<<<<<<<< JSON-COMMENT: DetectorPage >>>>>>>>>>>>": "",
+
   "detector-page": {
     "title": "Detector",
     "models-dropdown-title": "SELECT MODEL",
     "model-description-default-text": "No model selected",
     "drag-and-drop-section-text-for-not-active-drag": "Click or Drag & Drop images or «.zip» archives here",
     "drag-and-drop-section-text-for-active-drag": "Drop images or «.zip» archives here...",
-    "clear-all-images-btn-text": "Clear",
-    "process-images-btn-text": "Process",
+    "clear-all-images-btn": "Clear",
+    "process-images-btn": "Process",
     "processing-message-text": {
       "text-1": "Please wait while we try to process...",
       "text-2": "This may take a few seconds..."
@@ -144,7 +162,9 @@
   },
 
 
-  "admin-page": {
+  "<<<<<<<<<<<< JSON-COMMENT: AdminPages >>>>>>>>>>>>": "",
+
+  "admin-pages": {
     "dashboard": {
       "tab-name": "Dashboard"
     },
@@ -154,17 +174,5 @@
         "title": "Layers"
       }
     }
-  },
-
-
-  "not-found-page": {
-    "description": "The page you are looking for does not exist"
-  },
-
-
-  "footer": {
-    "title": "About",
-    "projectName": "Project name",
-    "developedBy": "Developed by"
   }
 }

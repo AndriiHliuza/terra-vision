@@ -21,15 +21,13 @@ function MapPageLayerSwitcher({selectedLayer, onLayerSelected}: MapPageLayerSwit
 
     return (
         <>
-            <button
-                id="map-layer-switcher-btn"
-                className={clsx({active: isLayersMenuOpen})}
+            <button className={clsx("map-layer-switcher-btn", {active: isLayersMenuOpen})}
                 onClick={() => setLayersMenuOpen(prev => !prev)}
             >
                 <img src={isLayersMenuOpen ? mapLayersCloseBtnImg : mapLayersOpenBtnImg} alt="Layers"/>
             </button>
-            <div id="map-layer-switcher-container" className={clsx({opened: isLayersMenuOpen})}>
-                <div id="map-layer-switcher">
+            <div className={clsx("map-layer-switcher-container", {opened: isLayersMenuOpen})}>
+                <div className="map-layer-switcher">
                     {MAP_LAYERS.map(layer => (
                         <div
                             key={layer.name}

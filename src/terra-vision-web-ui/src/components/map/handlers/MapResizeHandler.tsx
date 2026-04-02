@@ -5,12 +5,9 @@ export function MapResizeHandler() {
     const map = useMap();
 
     useEffect(() => {
-        const container = map.getContainer();
+        const container: HTMLElement = map.getContainer();
 
-        const observer = new ResizeObserver(() => {
-            map.invalidateSize();
-        });
-
+        const observer = new ResizeObserver(() => map.invalidateSize());
         observer.observe(container);
 
         return () => observer.disconnect();

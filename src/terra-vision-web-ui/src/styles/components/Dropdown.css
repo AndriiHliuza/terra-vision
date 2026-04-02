@@ -45,12 +45,12 @@
     position: absolute;
     left: 5px;
 
-    width: auto;
-    height: 80%;
-
     display: flex;
     justify-content: center;
     align-items: center;
+
+    width: auto;
+    height: 80%;
 
     transition: all 0.3s ease;
 }

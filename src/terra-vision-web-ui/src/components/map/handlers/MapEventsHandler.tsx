@@ -1,15 +1,14 @@
 import {useMapEvents} from "react-leaflet";
+import type {LeafletMouseEvent} from "leaflet";
 import type {Coordinates} from "../../../commons/schemas/gis-schemas.ts";
 
-type MapEventsHandlerProps = {
+export function MapEventsHandler({ onRightClick }: {
     onRightClick: (coordinates: Coordinates) => void;
-}
-
-export function MapEventsHandler({ onRightClick }: MapEventsHandlerProps) {
+}) {
     useMapEvents({
-        contextmenu: (e) => onRightClick({
-            lat: e.latlng.lat,
-            lng: e.latlng.lng
+        contextmenu: (event: LeafletMouseEvent) => onRightClick({
+            lat: event.latlng.lat,
+            lng: event.latlng.lng
         }),
     });
 

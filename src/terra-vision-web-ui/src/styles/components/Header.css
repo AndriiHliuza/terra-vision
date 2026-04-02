@@ -26,12 +26,12 @@ header > .logo {
     top: 15px;
     left: 15px;
 
-    height: 70px;
-    width: 70px;
-
     display: flex;
     justify-content: center;
     align-items: center;
+
+    height: 70px;
+    width: 70px;
 
     border-radius: 50px;
 
@@ -67,11 +67,11 @@ header nav {
     top: 15px;
     left: 100px;
 
-    height: 70px;
-
     display: flex;
     justify-content: flex-start;
     align-items: center;
+
+    height: 70px;
 
     border: 2px solid var(--glass-border-color);
     border-radius: var(--border-radius-px);
@@ -84,23 +84,23 @@ header nav {
 }
 
 header nav > .nav-menu-item {
-    height: 100%;
-    width: 100px;
-
     display: flex;
     justify-content: center;
     align-items: center;
+
+    height: 100%;
+    width: 100px;
 
     border-radius: var(--border-radius-px);
 }
 
 header nav > .nav-menu-item > a {
-    height: 100%;
-    width: 100%;
-
     display: flex;
     justify-content: center;
     align-items: center;
+
+    height: 100%;
+    width: 100%;
 
     border-radius: var(--border-radius-px);
 
@@ -153,12 +153,12 @@ header .auth-controls {
 }
 
 header .auth-controls > a {
-    height: 100%;
-    width: 100%;
-
     display: flex;
     justify-content: center;
     align-items: center;
+
+    height: 100%;
+    width: 100%;
 
     background: var(--glass-bg-color);
 
@@ -199,12 +199,12 @@ header .language-controls-wrapper {
 }
 
 header .language-controls {
-    height: 100%;
-    width: 100%;
-
     display: flex;
     justify-content: center;
     align-items: center;
+
+    height: 100%;
+    width: 100%;
 
     background: var(--glass-bg-color);
 
@@ -224,15 +224,15 @@ header .language-controls:hover {
 }
 
 header .language-controls > .language-info {
-    height: 50px;
-    width: 55px;
-
-    margin-right: 5px;
-
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+
+    height: 50px;
+    width: 55px;
+
+    margin-right: 5px;
 
     border: 2px solid rgba(255, 255, 255, 0.2);
     border-radius: 15px;
@@ -280,15 +280,15 @@ header .language-dropdown-menu-wrapper {
 }
 
 header .language-dropdown-menu {
-    width: 200px;
-
-    margin: 95px 15px 0 0;
-    padding: 0 0 5px 0;
-
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+
+    width: 200px;
+
+    margin: 95px 15px 0 0;
+    padding: 0 0 5px 0;
 
     list-style: none;
 
@@ -296,21 +296,23 @@ header .language-dropdown-menu {
     pointer-events: auto;
 
     transition: all 0.3s ease;
+    opacity: 0;
 }
 
 header .language-dropdown-menu.open {
+    opacity: 1;
     transform: translateX(0);
 }
 
 header .language-dropdown-menu > li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
     height: 40px;
     width: 100%;
 
     margin-bottom: 5px;
-
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
 
     background: var(--glass-bg-color);
 
@@ -369,12 +371,12 @@ header .language-dropdown-menu > li > img {
         top: 15px;
         right: 15px;
 
-        height: 70px;
-        width: 80px;
-
         display: flex;
         justify-content: center;
         align-items: center;
+
+        height: 70px;
+        width: 80px;
 
         background: var(--glass-bg-color);
 
@@ -441,15 +443,15 @@ header .language-dropdown-menu > li > img {
     header .header-controls {
         position: static;
 
-        width: 80%;
-
-        margin-top: 100px;
-        padding-bottom: 10px;
-
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
         align-items: center;
+
+        width: 80%;
+
+        margin-top: 100px;
+        padding-bottom: 10px;
 
         opacity: 0;
         pointer-events: none;
@@ -467,25 +469,25 @@ header .language-dropdown-menu > li > img {
     header nav {
         position: static;
 
-        height: auto;
-        width: 100%;
-
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
         align-items: center;
 
+        height: auto;
+        width: 100%;
+
         pointer-events: inherit;
     }
 
     header nav > .nav-menu-item {
-        height: 50px;
-        width: 100%;
-
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
+
+        height: 50px;
+        width: 100%;
     }
 
     header nav > .nav-menu-item > a:hover {
@@ -560,16 +562,16 @@ header .language-dropdown-menu > li > img {
     }
 
     header .language-controls > .language-info {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+
         height: 35px;
         width: 100px;
 
         margin-right: 15px;
         margin-left: 15px;
-
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-        align-items: center;
 
         border: 2px solid rgba(255, 255, 255, 0.2);
         border-radius: 15px;
@@ -591,14 +593,14 @@ header .language-dropdown-menu > li > img {
         left: auto;
         right: auto;
 
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+
         width: 100%;
         max-height: 0;
 
         padding: 0 10px;
-
-        display: flex;
-        justify-content: center;
-        align-items: flex-start;
 
         overflow: hidden;
         opacity: 0;
@@ -647,44 +649,44 @@ header .language-dropdown-menu > li > img {
 
 
 /* ------------ MapPage Header styles ------------ */
-#map-page > header nav {
+.map-page > header nav {
     border: 2px solid var(--map-page-glass-border-color);
 }
 
-#map-page > header nav > .nav-menu-item > a:hover {
+.map-page > header nav > .nav-menu-item > a:hover {
     border: 2px solid var(--map-page-glass-border-color);
 }
 
-#map-page > header nav > .nav-menu-item > a.active {
+.map-page > header nav > .nav-menu-item > a.active {
     border: 2px solid var(--map-page-glass-border-color);
 }
 
-#map-page > header nav > .nav-menu-item > hr {
+.map-page > header nav > .nav-menu-item > hr {
     border: 1px solid var(--map-page-glass-border-color);
 }
 
-#map-page > header .auth-controls > a {
+.map-page > header .auth-controls > a {
     border: 2px solid var(--map-page-glass-border-color);
 }
 
-#map-page > header .language-controls {
+.map-page > header .language-controls {
     border: 2px solid var(--map-page-glass-border-color);
 }
 
-#map-page > header .language-controls > .language-info {
+.map-page > header .language-controls > .language-info {
     border: 2px solid var(--map-page-glass-border-color);
 }
 
-#map-page > header .language-dropdown-menu > li {
+.map-page > header .language-dropdown-menu > li {
     border: 2px solid var(--map-page-glass-border-color);
 }
 
 @media (max-width: 768px) {
-    #map-page > header nav > .nav-menu-item > a.active {
+    .map-page > header nav > .nav-menu-item > a.active {
         border: none;
     }
 
-    #map-page > header > .burger-btn {
+    .map-page > header > .burger-btn {
         border: 2px solid var(--map-page-glass-border-color);
     }
 }

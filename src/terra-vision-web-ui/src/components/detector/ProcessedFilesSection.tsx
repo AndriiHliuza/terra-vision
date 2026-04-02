@@ -8,9 +8,9 @@ import type {FileItem} from "../../commons/schemas/file-schemas.ts";
 import type {StringShorteningRule} from "../../commons/schemas/string-schemas.ts";
 
 const SHORTENING_FILE_NAME_RULES: StringShorteningRule[] = [
-    {maxScreenWidth: 300, startStringLength: 3, endStringLength: 4},
-    {maxScreenWidth: 500, startStringLength: 4, endStringLength: 6},
-    {maxScreenWidth: 9999, startStringLength: 6, endStringLength: 9}, // desktop fallback
+    {maxElementWidth: 300, startStringLength: 3, endStringLength: 4},
+    {maxElementWidth: 500, startStringLength: 4, endStringLength: 6},
+    {maxElementWidth: 9999, startStringLength: 6, endStringLength: 9}, // desktop fallback
 ]
 
 interface ProcessedFilesSectionProps {
@@ -80,8 +80,8 @@ function ProcessedFilesSection({
             </section>
 
             <div className="controls-wrapper">
-                <div id="clear-all-images-btn" onClick={onClear}>
-                    {t("detector-page.clear-all-images-btn-text")}
+                <div className="clear-all-images-btn" onClick={onClear}>
+                    {t("detector-page.clear-all-images-btn")}
                 </div>
             </div>
 
