@@ -1,146 +1,238 @@
-import {type Dispatch, type SetStateAction, useEffect} from "react";
+import {type Dispatch, type SetStateAction, useEffect, useRef} from "react";
 import {useMap} from "react-leaflet";
 import type {Feature} from "geojson";
 import L from "leaflet";
+import {markerIcon} from "./icons/map-icons.tsx";
+import {DEFAULT_FEATURE_STYLE, type FeatureLayer} from "../../commons/schemas/gis-schemas.ts";
+
+
+
+
 
 interface GeoManHandlerProps {
+    geoFeatures: Feature[];
     setGeoFeatures: Dispatch<SetStateAction<Feature[]>>;
-    onLayerClick: (feature: Feature, latlng: L.LatLng, layer: L.Layer) => void;
-    borderColor: string;
-    fillColor: string;
-    fillOpacity: number;
-    borderWeight: number;
+    onGeoFeatureClick: (feature: Feature, latlng: L.LatLng) => void;
+    borderColor?: string;
+    fillColor?: string;
+    fillOpacity?: number;
+    borderWeight?: number;
 }
 
 const GeoManHandler = ({
+                           geoFeatures,
                            setGeoFeatures,
-                           onLayerClick,
-                           borderColor,
-                           fillColor,
-                           fillOpacity,
-                           borderWeight
+                           onGeoFeatureClick,
+                           borderColor = DEFAULT_FEATURE_STYLE.borderColor,
+                           fillColor = DEFAULT_FEATURE_STYLE.fillColor,
+                           fillOpacity = DEFAULT_FEATURE_STYLE.fillOpacity,
+                           borderWeight = DEFAULT_FEATURE_STYLE.borderWeight
                        }: GeoManHandlerProps) => {
     const map = useMap();
+    const isInitialLoadComplete = useRef<boolean>(false);
 
     useEffect(() => {
         if (!map) return;
+
+        map.eachLayer((layer: FeatureLayer) => {
+            const geoJson = layer.featureId
+                ? geoFeatures.find(f => f.properties?.id === layer.featureId)
+                : undefined;
+
+            if (layer instanceof L.Polygon || layer instanceof L.Circle) {
+                if (!geoJson) {
+                    map.removeLayer(layer);
+                    return;
+                }
+
+                const geoJsonProperties = geoJson.properties;
+                if (geoJsonProperties) {
+                    const pathLayer = layer as L.Path;
+                    pathLayer.setStyle({
+                        color: geoJsonProperties?.borderColor || borderColor,
+                        fillColor: geoJsonProperties?.fillColor || fillColor,
+                        fillOpacity: geoJsonProperties?.fillOpacity || fillOpacity,
+                        weight: geoJsonProperties?.borderWeight || borderWeight
+                    });
+
+                    if (layer instanceof L.Circle && geoJsonProperties.radius) {
+                        layer.setRadius(geoJsonProperties.radius);
+                    }
+                }
+            }
+        });
+
+        map.pm.setGlobalOptions({
+            allowSelfIntersection: false,
+            snappable: true,
+            snapDistance: 20,
+            markerStyle: {icon: markerIcon},
+            templineStyle: {color: borderColor, weight: borderWeight},
+            hintlineStyle: {color: borderColor, weight: borderWeight, dashArray: [5, 5]}
+        });
 
         map.pm.setPathOptions({
             color: borderColor,
             fillColor: fillColor,
             fillOpacity: fillOpacity,
             weight: borderWeight,
-        })
+        });
 
         map.pm.addControls({
             position: "topright",
-            drawMarker: false,
-            drawPolyline: false,
+
+            drawMarker: true,
+            drawCircle: true,
+            drawPolygon: true,
             drawRectangle: false,
             drawCircleMarker: false,
+            drawPolyline: false,
             drawText: false,
-            drawPolygon: true,
-            drawCircle: true,
+
             editMode: true,
             cutPolygon: false,
-            removalMode: true,
+            dragMode: false,
+            rotateMode: false,
+            removalMode: false,
         });
 
-        map.pm.setGlobalOptions({
-            allowSelfIntersection: false, // Prevents "illegal" polygons
-            snappable: true,              // Helps align minefield borders perfectly
-            snapDistance: 20,
-            templineStyle: {
-                color: borderColor,
-                weight: borderWeight,
-            },
-            hintlineStyle: {
-                color: borderColor,
-                weight: borderWeight,
-                dashArray: [5, 5]
-            }
-        });
+        // ── Initial hydration from backend data ────────────────────────────────
+        if (!isInitialLoadComplete.current && geoFeatures.length > 0) {
+            geoFeatures.forEach((feature: Feature) => {
+                const type = feature.properties?.type;
+                if (type === "marker") return;
 
-        // 3. HANDLE CREATION
+                const featureId = feature.properties?.id as string;
+
+                const leafletLayer = L.geoJSON(feature, {
+                    style: {
+                        color: feature.properties?.borderColor || borderColor,
+                        fillColor: feature.properties?.fillColor || fillColor,
+                        fillOpacity: feature.properties?.fillOpacity || fillOpacity,
+                        weight: feature.properties?.borderWeight || borderWeight
+                    },
+                    pointToLayer: (_, latlng) => {
+                        if (type === "circle") return L.circle(latlng, {radius: feature.properties?.radius});
+                        return L.layerGroup();
+                    }
+                });
+
+                leafletLayer.eachLayer(layer => {
+                    (layer as FeatureLayer).featureId = featureId;
+
+                    layer.on("click", (event: L.LeafletMouseEvent) => {
+                        L.DomEvent.stopPropagation(event);
+                        onGeoFeatureClick(feature, event.latlng);
+                    });
+
+                    layer.on("pm:update", () => {
+                        let updatedGeoJson: Feature;
+
+                        if (layer instanceof L.Circle) {
+                            updatedGeoJson = layer.toGeoJSON() as Feature;
+                            updatedGeoJson.properties = {...feature.properties, radius: layer.getRadius()};
+                        } else if (layer instanceof L.Polygon) {
+                            updatedGeoJson = layer.toGeoJSON() as Feature;
+                            updatedGeoJson.properties = {...feature.properties};
+                        } else return;
+
+                        updatedGeoJson.properties = {
+                            ...updatedGeoJson.properties,
+                            isModified: true,
+                            lastModified: new Date().toISOString()
+                        };
+
+                        setGeoFeatures(prev =>
+                            prev.map(f => f.properties?.id === featureId ? updatedGeoJson : f)
+                        );
+                    });
+
+                    layer.addTo(map);
+                });
+            });
+
+            isInitialLoadComplete.current = true;
+        }
+
+        // ── New shape created by user ──────────────────────────────────────────
         map.on("pm:create", (e) => {
             const {shape, layer} = e;
-            const layerId = L.Util.stamp(layer);
-            const polyLayer = layer as L.Polygon | L.Circle;
-            const geoJson = polyLayer.toGeoJSON() as Feature;
 
-            const visualProperties = {
-                id: layerId,
-                borderColor: borderColor,
-                fillColor: fillColor,
-                fillOpacity: fillOpacity,
-                borderWeight: borderWeight,
+            const featureId = crypto.randomUUID();
+            (layer as FeatureLayer).featureId = featureId;
+
+            let geoJson: Feature;
+
+            const baseProps = {
+                id: featureId,
+
+                borderColor,
+                fillColor,
+                fillOpacity,
+                borderWeight,
+
+                isCreated: true,
+                createdAt: new Date().toISOString()
             };
 
-            if (shape === "Circle") {
+            if (shape === "Marker") {
+                geoJson = (layer as L.Marker).toGeoJSON() as Feature;
+                geoJson.properties = {...baseProps, type: "marker"};
+                layer.remove();
+            } else if (shape === "Circle") {
                 const circle = layer as L.Circle;
-                geoJson.properties = {
-                    ...geoJson.properties,
-                    ...visualProperties,
-                    type: "circle",
-                    radius: circle.getRadius()
-                };
+                geoJson = circle.toGeoJSON() as Feature;
+                geoJson.properties = {...baseProps, type: "circle", radius: circle.getRadius()};
             } else if (shape === "Polygon") {
-                geoJson.properties = {
-                    ...geoJson.properties,
-                    ...visualProperties,
-                    type: "polygon"
-                };
-            }
+                geoJson = (layer as L.Polygon).toGeoJSON() as Feature;
+                geoJson.properties = {...baseProps, type: "polygon"};
+            } else return;
 
-            geoJson.properties = {...geoJson.properties, id: layerId};
             setGeoFeatures(prev => [...prev, geoJson]);
 
-            console.log("Created GeoJson:", geoJson);
-            console.log("Created GIS Object. ID:", layerId);
-
             layer.on("pm:update", () => {
-                const updatedGeoJson = polyLayer.toGeoJSON() as Feature;
+                let updatedGeoJson: Feature;
 
                 if (layer instanceof L.Circle) {
-                    updatedGeoJson.properties = {
-                        ...geoJson.properties,
-                        radius: layer.getRadius()
-                    };
-                } else {
-                    updatedGeoJson.properties = {
-                        ...geoJson.properties
-                    };
-                }
+                    const circle = layer as L.Circle;
+                    updatedGeoJson = circle.toGeoJSON() as Feature;
+                    updatedGeoJson.properties = {...geoJson.properties, radius: circle.getRadius()};
+                } else if (layer instanceof L.Polygon) {
+                    updatedGeoJson = (layer as L.Polygon).toGeoJSON() as Feature;
+                    updatedGeoJson.properties = {...geoJson.properties};
+                } else return;
+
+                updatedGeoJson.properties = {
+                    ...updatedGeoJson.properties,
+                    isModified: true,
+                    lastModified: new Date().toISOString()
+                };
 
                 setGeoFeatures(prev =>
-                    prev.map(feature => feature.properties?.id === layerId ? updatedGeoJson : feature)
+                    prev.map(f => f.properties?.id === featureId ? updatedGeoJson : f)
                 );
-                console.log("Edited GeoJson:", updatedGeoJson);
-                console.log("Edited GIS Object. ID:", layerId);
             });
 
             layer.on("click", (event) => {
-                // Prevent the map click handler from firing (bubbling)
                 L.DomEvent.stopPropagation(event);
-
-                onLayerClick(geoJson, event.latlng, layer)
+                onGeoFeatureClick(geoJson, event.latlng);
             });
-        });
-
-        // 4. HANDLE REMOVAL
-        map.on("pm:remove", (e) => {
-            const layerId = L.Util.stamp(e.layer);
-            setGeoFeatures(prev =>
-                prev.filter(f => f.properties?.id !== layerId));
-            console.log("Deleted GIS Object. ID:", layerId);
         });
 
         return () => {
             map.pm.removeControls();
             map.off("pm:create");
-            map.off("pm:remove");
         };
-    }, [map, setGeoFeatures, onLayerClick, borderColor, borderWeight, fillColor, fillOpacity]);
+    }, [
+        map,
+        onGeoFeatureClick,
+        geoFeatures,
+        setGeoFeatures,
+        borderColor,
+        borderWeight,
+        fillColor,
+        fillOpacity
+    ]);
 
     return null;
 };

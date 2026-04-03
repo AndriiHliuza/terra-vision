@@ -1,26 +1,13 @@
-import "../../styles/components/map/MapPositionDetailsPopup.css";
+import "../../styles/components/map/MapPositionPopupDetails.css";
 import {useState} from "react";
 import copyBtnImg from "../../assets/copy-btn-img.png";
-import addBtnImg from "../../assets/plus.png";
 import clsx from "clsx";
-import {useMap} from "react-leaflet";
 import {Slide, toast} from "react-toastify";
 import type {Coordinates} from "../../commons/schemas/gis-schemas.ts";
 
-interface MapPositionDetailsProps {
-    coordinates: Coordinates;
-    onAddClicked?: () => void;
-}
+function MapPositionPopupDetails({coordinates}: { coordinates: Coordinates }) {
 
-function MapPositionPopupDetails({coordinates, onAddClicked}: MapPositionDetailsProps) {
-
-    const map = useMap();
     const [copied, setCopied] = useState(false);
-
-    const handleAddMarkerBtnClicked = () => {
-        map.closePopup();
-        if (onAddClicked) { onAddClicked(); }
-    }
 
     const handleCopy = async () => {
         const text = `${coordinates.lat.toFixed(6)}, ${coordinates.lng.toFixed(6)}`;
@@ -40,9 +27,7 @@ function MapPositionPopupDetails({coordinates, onAddClicked}: MapPositionDetails
     };
 
     return (
-        <div className={clsx("map-position-popup" , {
-            "on-add-present": onAddClicked
-        })}>
+        <div className="map-position-popup">
             <div className="coordinates">
                 <div className="coordinate">
                     <div>Lat</div>
@@ -54,18 +39,6 @@ function MapPositionPopupDetails({coordinates, onAddClicked}: MapPositionDetails
                 </div>
             </div>
             <div className="controls">
-                {onAddClicked && (
-                    <>
-                        <button
-                            className="add-marker-btn"
-                            onClick={handleAddMarkerBtnClicked}
-                            title="Add marker"
-                        >
-                            <img src={addBtnImg} alt="Add"/>
-                        </button>
-                    </>
-                )}
-
                 <button
                     className={clsx("copy-coordinates-btn", {"copied": copied})}
                     onClick={handleCopy}

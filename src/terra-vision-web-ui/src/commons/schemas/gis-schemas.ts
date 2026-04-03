@@ -1,3 +1,5 @@
+import L from "leaflet";
+
 export type MarkerData = {
     id: string;
     position: [number, number];
@@ -8,4 +10,15 @@ export type MarkerData = {
 export interface Coordinates {
     lat: number;
     lng: number;
+}
+
+export const DEFAULT_FEATURE_STYLE = {
+    borderColor: "#3388ff",
+    fillColor: "#3388ff",
+    fillOpacity: 0.5,
+    borderWeight: 3
+};
+
+export interface FeatureLayer extends L.Layer {
+    featureId?: string;
 }

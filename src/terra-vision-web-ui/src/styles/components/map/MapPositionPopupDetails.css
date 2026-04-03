@@ -11,10 +11,6 @@
     overflow: visible;
 }
 
-.map-position-popup.on-add-present {
-    height: 80px;
-}
-
 .map-position-popup > .coordinates {
     display: flex;
     justify-content: center;
@@ -73,9 +69,17 @@
     transition: all 0.3s ease;
 }
 
-.map-position-popup.on-add-present > .controls > button {
-    height: 38px;
-    width: 38px;
+.map-position-popup > .controls > button.copied {
+    background: lightgrey;
+    cursor: default;
+}
+
+.map-position-popup > .controls > button:not(.copied):hover {
+    transform: scale(1.1);
+}
+
+.map-position-popup > .controls > button:not(.copied):active {
+    transform: scale(0.9);
 }
 
 .map-position-popup > .controls > button > img {
@@ -85,25 +89,6 @@
     transition: all 0.3s ease;
 }
 
-.map-position-popup > .controls > .copy-coordinates-btn.copied {
-    background: lightgrey;
-    cursor: default;
-}
-
-.map-position-popup > .controls > .add-marker-btn:hover,
-.map-position-popup > .controls > .copy-coordinates-btn:not(.copied):hover {
-    transform: scale(1.1);
-}
-
-.map-position-popup > .controls > .add-marker-btn:active,
-.map-position-popup > .controls > .copy-coordinates-btn:not(.copied):active {
-    transform: scale(0.9);
-}
-
-.map-position-popup > .controls > .add-marker-btn:active > img {
-    transform: rotate(90deg);
-}
-
-.map-position-popup > .controls > .copy-coordinates-btn:not(.copied):active > img {
+.map-position-popup > .controls > button:not(.copied):active > img {
     transform: scaleX(-1);
 }

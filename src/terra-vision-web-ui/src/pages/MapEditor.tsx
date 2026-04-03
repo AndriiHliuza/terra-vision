@@ -1,12 +1,11 @@
 import "../styles/pages/MapEditor.css";
 import {
-    FeatureGroup,
     MapContainer,
     Marker,
     Popup
 } from "react-leaflet";
 import {useEffect, useState} from "react";
-import type {Coordinates, MarkerData} from "../commons/schemas/gis-schemas.ts";
+import {type Coordinates, DEFAULT_FEATURE_STYLE} from "../commons/schemas/gis-schemas.ts";
 import MapLayers from "../components/map/MapLayers.tsx";
 import {useTranslation} from "react-i18next";
 import {MAP_LAYERS} from "../configs/settings.ts";
@@ -18,11 +17,11 @@ import {createClusterIcon, markerIcon} from "../components/map/icons/map-icons.t
 import {MapEventsHandler} from "../components/map/handlers/MapEventsHandler.tsx";
 import MapPositionPopupDetails from "../components/map/MapPositionPopupDetails.tsx";
 import MapEditorLayerSwitcher from "../components/map/MapEditorLayerSwitcher.tsx";
-import {EditControl} from "react-leaflet-draw";
 import L from "leaflet";
-import type {Feature} from "geojson";
+import type {Feature, Point} from "geojson";
 import GeoManHandler from "../components/map/GeoManHandler.tsx";
-import MapZonePopup from "../components/map/MapZonePopup.tsx";
+import GeoFeaturePopupDetails from "../components/map/GeoFeaturePopupDetails.tsx";
+import {fetchStubMapFeatures} from "../commons/stubs/geo-stub.ts";
 
 
 function MapEditor() {
@@ -31,126 +30,64 @@ function MapEditor() {
 
     const [isMapLoading, setMapLoading] = useState(true);
 
-    const [popupPosition, setPopupPosition] = useState<Coordinates | null>(null);
+    const [positionPopupDetails, setPositionPopupDetails] = useState<Coordinates | null>(null);
 
     const [layer, setLayer] = useState(() => localStorage.getItem("map-layer") || MAP_LAYERS[0].name);
-    const [markers, setMarkers] = useState<MarkerData[]>([]);
+
     const [geoFeatures, setGeoFeatures] = useState<Feature[]>([]);
-    const [layerPopup, setLayerPopup] = useState<{
+    const [geoFeaturePopupDetails, setGeoFeaturePopupDetails] = useState<{
         feature: Feature;
         latlng: L.LatLng;
-        layer: L.Layer;
     } | null>(null);
 
-    const [borderColor, setBorderColor] = useState("#ff0000");
-    const [fillColor, setFillColor] = useState("#ff4444");
-    const [fillOpacity, setFillOpacity] = useState(0.4);
-    const [borderWeight, setBorderWeight] = useState(3);
+    const [borderColor, setBorderColor] = useState(DEFAULT_FEATURE_STYLE.borderColor);
+    const [fillColor, setFillColor] = useState(DEFAULT_FEATURE_STYLE.fillColor);
+    const [fillOpacity, setFillOpacity] = useState(DEFAULT_FEATURE_STYLE.fillOpacity);
+    const [borderWeight, setBorderWeight] = useState(DEFAULT_FEATURE_STYLE.borderWeight);
 
-    const { height, elementRef, onMouseDown } = useElementHeightResizer({storageKey: "adminMapContainerHeight"})
+    const {height, elementRef, onMouseDown} = useElementHeightResizer({storageKey: "adminMapContainerHeight"})
 
     const onLayerSelected = (mapLayer: string) => {
         setLayer(mapLayer);
         localStorage.setItem("map-layer", mapLayer);
     }
 
-    const onAddMarker = () => {
-        console.log("ADD MARKER BUTTON")
-    }
+    const handleViewGeoFeatureDetails = (id: string) => {
+        console.log(`handleViewGeoFeatureDetails: ${id}`);
 
-    const handleViewLayerDetails = (id: string | number) => {
-        console.log(`[NAVIGATE] Showing full details for Zone: ${id}`);
+        const geoFeature = geoFeatures.find(f => f.properties?.id === id);
 
-        // Find the feature in our state for full data access
-        const zoneData = geoFeatures.find(f => f.properties?.id === id);
-        alert(`Navigating to accounting details for ID: ${id}\nType: ${zoneData?.properties?.type}`);
-
-        // Close the map popup
-        setLayerPopup(null);
+        setGeoFeaturePopupDetails(null);
     };
+
+    const handleDeleteGeoFeature = (id: string) => {
+        console.log(`handleDeleteGeoFeature: ${id}`);
+        setGeoFeatures((prev) => prev.filter((feature) => feature.properties?.id !== id));
+    }
 
     // Stub backend data
     useEffect(() => {
         // Simulate async fetch
-        setMapLoading(true)
-        const timer = setTimeout(() => {
+        const loadInitialData = async () => {
+            setMapLoading(true);
+            try {
+                // Simulated backend call
+                const data = await fetchStubMapFeatures();
 
-            setMapLoading(false);
-        }, 500);
-
-        return () => clearTimeout(timer);
+                // This will trigger the GeoManHandler hydration
+                setGeoFeatures(data);
+            } catch (error) {
+                console.error("Stub loading error:", error);
+            } finally {
+                setMapLoading(false);
+            }
+        };
+        loadInitialData();
     }, []);
 
-    // const onShapeCreated = (e: L.DrawEvents.Created) => {
-    //     const { layerType, layer } = e;
-    //     const drawnLayer = layer as L.Polygon | L.Circle;
-    //     const geoJson = drawnLayer.toGeoJSON() as Feature;
-    //
-    //     const layerId = L.Util.stamp(layer);
-    //
-    //     if (layerType === "circle") {
-    //         const circle = layer as L.Circle;
-    //         geoJson.properties = {
-    //             ...geoJson.properties,
-    //             radius: circle.getRadius(),
-    //             type: "circle"
-    //         };
-    //     } else {
-    //         geoJson.properties = { ...geoJson.properties, type: "polygon" };
-    //     }
-    //
-    //     geoJson.properties = { ...geoJson.properties, id: layerId };
-    //     console.log("New Feature Created:", geoJson);
-    //     console.log("New GIS Object Created. ID:", layerId);
-    // };
-    //
-    // const onShapeEdited = (e: L.DrawEvents.Edited) => {
-    //     const editedLayers = e.layers;
-    //     editedLayers.eachLayer((layer) => {
-    //         const polyLayer = layer as L.Polygon | L.Circle;
-    //         const layerId = L.Util.stamp(layer);
-    //         const updatedGeoJson = polyLayer.toGeoJSON() as Feature;
-    //
-    //         // Update radius if it was a circle that moved/resized
-    //         if (layer instanceof L.Circle) {
-    //             updatedGeoJson.properties = {
-    //                 ...updatedGeoJson.properties,
-    //                 radius: layer.getRadius(), // Only Circles have this method!
-    //                 type: "circle",
-    //                 id: layerId
-    //             };
-    //         } else {
-    //             // If it's not a Circle, it's a Polygon in our restricted setup
-    //             updatedGeoJson.properties = {
-    //                 ...updatedGeoJson.properties,
-    //                 type: "polygon",
-    //                 id: layerId
-    //             };
-    //         }
-    //
-    //         setGeoFeatures((prev) =>
-    //             prev.map(feature => feature.properties?.id === layerId ? updatedGeoJson : feature)
-    //         );
-    //
-    //         console.log("Edited GIS Object:", layerId);
-    //         console.log("Feature Edited:", updatedGeoJson);
-    //         // Logic to update state/backend would go here
-    //     });
-    // };
-    //
-    // const onShapeDeleted = (e: L.DrawEvents.Deleted) => {
-    //     const deletedLayers = e.layers;
-    //     deletedLayers.eachLayer((layer) => {
-    //         const layerId = L.Util.stamp(layer);
-    //
-    //         setGeoFeatures((prev) =>
-    //             prev.filter(feature => feature.properties?.id !== layerId)
-    //         );
-    //         console.log("Deleted GIS Object:", layerId);
-    //     });
-    // };
-
-    /* ---------- MAP EDIT HANDLERS ---------- */
+    useEffect(() => {
+        console.log(geoFeatures)
+    }, [geoFeatures]);
 
     return (
         <div className="map-editor">
@@ -172,36 +109,20 @@ function MapEditor() {
                     <MapLayers layer={layer}/>
 
                     <GeoManHandler
+                        geoFeatures={geoFeatures}
                         setGeoFeatures={setGeoFeatures}
-                        onLayerClick={(feature, latlng, layer) => setLayerPopup({
-                            feature, latlng, layer
+                        onGeoFeatureClick={(
+                            feature,
+                            latlng
+                        ) => setGeoFeaturePopupDetails({
+                            feature,
+                            latlng
                         })}
                         borderColor={borderColor}
                         fillColor={fillColor}
                         fillOpacity={fillOpacity}
                         borderWeight={borderWeight}
                     />
-                    {/*<FeatureGroup>*/}
-                    {/*    <EditControl*/}
-                    {/*        position="topright"*/}
-                    {/*        onCreated={onShapeCreated}*/}
-                    {/*        onEdited={onShapeEdited}*/}
-                    {/*        onDeleted={onShapeDeleted}*/}
-                    {/*        draw={{*/}
-                    {/*            polyline: false,*/}
-                    {/*            rectangle: false,*/}
-                    {/*            marker: false,*/}
-                    {/*            circlemarker: false,*/}
-                    {/*            polygon: {*/}
-                    {/*                allowIntersection: false,*/}
-                    {/*                shapeOptions: { color: "#ff7800" }*/}
-                    {/*            },*/}
-                    {/*            circle: {*/}
-                    {/*                shapeOptions: { color: "#ff4444" }*/}
-                    {/*            }*/}
-                    {/*        }}*/}
-                    {/*    />*/}
-                    {/*</FeatureGroup>*/}
 
                     <MarkerClusterGroup
                         chunkedLoading
@@ -209,46 +130,67 @@ function MapEditor() {
                         maxClusterRadius={80}
                         showCoverageOnHover={false}
                     >
-                        {markers.map(marker => (
-                            <Marker
-                                key={marker.id}
-                                position={marker.position}
-                                icon={markerIcon}
-                            >
-                                <Popup>{marker.title}</Popup>
-                            </Marker>
-                        ))}
+                        {geoFeatures
+                            .filter(feature => feature.properties?.type === 'marker')
+                            .map(feature => {
+                                const pointGeometry = feature.geometry as Point;
+
+                                const position: [number, number] = [
+                                    pointGeometry.coordinates[1],
+                                    pointGeometry.coordinates[0]
+                                ]
+                                return (
+                                    <Marker
+                                        key={feature.properties?.id}
+                                        position={position}
+                                        icon={markerIcon}
+                                        eventHandlers={{
+                                            add: (e) => {
+                                                const marker = e.target;
+                                                marker.options.pmIgnore = true; // Tell Geoman Edit Mode to skip this
+                                            },
+                                            click: event => setGeoFeaturePopupDetails({
+                                                feature: feature,
+                                                latlng: event.latlng
+                                            })
+                                        }}
+                                    >
+                                        <Popup>{feature.properties?.id}</Popup>
+                                    </Marker>
+                                )
+                            })
+                        }
                     </MarkerClusterGroup>
 
-                    {popupPosition && (
-                        <Popup position={popupPosition}>
-                            <MapPositionPopupDetails
-                                coordinates={popupPosition}
-                                onAddClicked={() => onAddMarker()}
+                    {positionPopupDetails && (
+                        <Popup position={positionPopupDetails}>
+                            <MapPositionPopupDetails coordinates={positionPopupDetails} />
+                        </Popup>
+                    )}
+
+                    {geoFeaturePopupDetails && (
+                        <Popup position={geoFeaturePopupDetails.latlng}>
+                            <GeoFeaturePopupDetails
+                                feature={geoFeaturePopupDetails.feature}
+                                onViewDetails={handleViewGeoFeatureDetails}
+                                onDeleteZone={handleDeleteGeoFeature}
                             />
                         </Popup>
                     )}
 
-                    {layerPopup && (
-                        <Popup position={layerPopup.latlng}>
-                            <MapZonePopup
-                                feature={layerPopup.feature}
-                                onViewDetails={handleViewLayerDetails}
-                            />
-                        </Popup>
-                    )}
-
-                    <MapEventsHandler onRightClick={coordinates => setPopupPosition(coordinates)}/>
+                    <MapEventsHandler onRightClick={coordinates => setPositionPopupDetails(coordinates)}/>
 
                     <MapResizeHandler/>
                 </MapContainer>
 
                 {/* Draggable resize handle */}
-                <div className="resize-handle" onMouseDown={onMouseDown}><hr/></div>
+                <div className="resize-handle" onMouseDown={onMouseDown}>
+                    <hr/>
+                </div>
 
                 <LoadingOverlay visible={isMapLoading}/>
             </div>
-            <MapEditorLayerSwitcher selectedLayer={layer} onLayerSelected={onLayerSelected} />
+            <MapEditorLayerSwitcher selectedLayer={layer} onLayerSelected={onLayerSelected}/>
         </div>
 
     )
