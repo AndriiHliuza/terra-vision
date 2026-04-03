@@ -1,3 +1,60 @@
+/* ------------ Leaflet controls ------------ */
+
+.leaflet-pm-toolbar {
+    background: var(--glass-bg-color);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+}
+
+.leaflet-pm-toolbar > .button-container {
+    background: transparent;
+}
+
+.leaflet-pm-toolbar > .button-container > .leaflet-buttons-control-button {
+    width: 35px;
+    height: 35px;
+    background: transparent;
+}
+
+.leaflet-pm-actions-container {
+    height: 45px;
+    margin-right: 5px;
+
+    border: 1px solid white;
+    border-radius: 15px;
+
+    transform: translateY(-6px);
+    background: rgb(92, 133, 113, 0.4);
+}
+
+.leaflet-pm-actions-container > .leaflet-pm-action {
+    margin-right: 10px;
+
+    border: 1px solid lightblue;
+    border-radius: 10px !important;
+    background: cornflowerblue !important;
+
+    font-weight: bold;
+    color: white;
+
+    transform: translateY(7px);
+
+    transition: transform 0.3s ease;
+}
+
+.leaflet-pm-actions-container > .leaflet-pm-action:first-child {
+    margin-left: 10px;
+}
+
+.leaflet-pm-actions-container > .leaflet-pm-action:hover {
+    background: var(--black-glass-color) !important;
+    transform: scale(1.1) translateY(7px);
+}
+
+
+
+/* ------------ MapEditor ------------ */
+
 .map-editor {
     display: flex;
     flex-direction: column;

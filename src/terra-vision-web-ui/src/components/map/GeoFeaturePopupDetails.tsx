@@ -24,6 +24,7 @@ const GeoFeaturePopupDetails = ({
         onDeleteGeoFeature(id);
         map.closePopup();
     };
+
     return (
         <div style={{ minWidth: "160px" }}>
             <h4 style={{ margin: "0 0 8px 0", color: borderColor }}>

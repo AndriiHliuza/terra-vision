@@ -23,15 +23,10 @@ import GeoManHandler from "../components/map/GeoManHandler.tsx";
 import GeoFeaturePopupDetails from "../components/map/GeoFeaturePopupDetails.tsx";
 import {fetchStubMapFeatures} from "../commons/stubs/geo-stub.ts";
 
-
 function MapEditor() {
 
     const {t} = useTranslation();
-
     const [isMapLoading, setMapLoading] = useState(true);
-
-    const [positionPopupDetails, setPositionPopupDetails] = useState<Coordinates | null>(null);
-
     const [layer, setLayer] = useState(() => localStorage.getItem("map-layer") || MAP_LAYERS[0].name);
 
     const [geoFeatures, setGeoFeatures] = useState<Feature[]>([]);
@@ -39,6 +34,7 @@ function MapEditor() {
         feature: Feature;
         latlng: L.LatLng;
     } | null>(null);
+    const [positionPopupDetails, setPositionPopupDetails] = useState<Coordinates | null>(null);
 
     const [borderColor, setBorderColor] = useState(DEFAULT_FEATURE_STYLE.borderColor);
     const [fillColor, setFillColor] = useState(DEFAULT_FEATURE_STYLE.fillColor);
@@ -145,10 +141,6 @@ function MapEditor() {
                                         position={position}
                                         icon={markerIcon}
                                         eventHandlers={{
-                                            add: (e) => {
-                                                const marker = e.target;
-                                                marker.options.pmIgnore = true; // Tell Geoman Edit Mode to skip this
-                                            },
                                             click: event => setGeoFeaturePopupDetails({
                                                 feature: feature,
                                                 latlng: event.latlng
@@ -164,7 +156,7 @@ function MapEditor() {
 
                     {positionPopupDetails && (
                         <Popup position={positionPopupDetails}>
-                            <MapPositionPopupDetails coordinates={positionPopupDetails} />
+                            <MapPositionPopupDetails coordinates={positionPopupDetails}/>
                         </Popup>
                     )}
 
@@ -172,8 +164,8 @@ function MapEditor() {
                         <Popup position={geoFeaturePopupDetails.latlng}>
                             <GeoFeaturePopupDetails
                                 feature={geoFeaturePopupDetails.feature}
-                                onViewDetails={handleViewGeoFeatureDetails}
-                                onDeleteZone={handleDeleteGeoFeature}
+                                onViewGeoFeatureDetails={handleViewGeoFeatureDetails}
+                                onDeleteGeoFeature={handleDeleteGeoFeature}
                             />
                         </Popup>
                     )}
