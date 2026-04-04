@@ -693,35 +693,42 @@ header .language-dropdown-menu > li > img {
 
 /* ------------ Admin Layout Header styles ------------ */
 .admin-layout > header nav {
-    border: 2px solid var(--map-editor-page-glass-border-color);
+    border: 2px solid var(--admin-pages-glass-border-color);
+}
+
+.admin-layout > header nav > .nav-menu-item > a {
+    color: var(--admin-pages-text-color);
 }
 
 .admin-layout > header nav > .nav-menu-item > a:hover {
-    border: 2px solid var(--map-editor-page-glass-border-color);
+    color: #453f6c;
+    border: 2px solid var(--admin-pages-glass-border-color);
 }
 
 .admin-layout > header nav > .nav-menu-item > a.active {
-    border: 2px solid var(--map-editor-page-glass-border-color);
+    border: 2px solid var(--admin-pages-glass-border-color);
 }
 
 .admin-layout > header nav > .nav-menu-item > hr {
-    border: 1px solid var(--map-editor-page-glass-border-color);
+    border: 1px solid var(--admin-pages-glass-border-color);
 }
 
 .admin-layout > header .auth-controls > a {
-    border: 2px solid var(--map-editor-page-glass-border-color);
+    color: var(--admin-pages-text-color);
+    border: 2px solid var(--admin-pages-glass-border-color);
 }
 
 .admin-layout > header .language-controls {
-    border: 2px solid var(--map-editor-page-glass-border-color);
+    border: 2px solid var(--admin-pages-glass-border-color);
 }
 
 .admin-layout > header .language-controls > .language-info {
-    border: 2px solid var(--map-editor-page-glass-border-color);
+    color: var(--admin-pages-text-color);
+    border: 2px solid var(--admin-pages-glass-border-color);
 }
 
 .admin-layout > header .language-dropdown-menu > li {
-    border: 2px solid var(--map-editor-page-glass-border-color);
+    border: 2px solid var(--admin-pages-glass-border-color);
 }
 
 @media (max-width: 768px) {
@@ -730,6 +737,6 @@ header .language-dropdown-menu > li > img {
     }
 
     .admin-layout > header > .burger-btn {
-        border: 2px solid var(--map-editor-page-glass-border-color);
+        border: 2px solid var(--admin-pages-glass-border-color);
     }
 }

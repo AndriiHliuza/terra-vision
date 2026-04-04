@@ -1,5 +1,14 @@
+import "../../styles/components/map/GeoFeaturePopupDetails.css";
 import type { Feature } from "geojson";
 import {useMap} from "react-leaflet";
+import area from "@turf/area";
+import infoBtnImg from "../../assets/info-btn-img.png";
+import deleteBtnImg from "../../assets/delete-btn-img.png";
+import moveLayerDownBtnImg from "../../assets/move-layer-down-btn-img.png";
+import moveLayerUpBtnImg from "../../assets/move-layer-up-btn-img.png";
+import L from "leaflet";
+import type {FeatureLayer} from "../../commons/schemas/gis-schemas.ts";
+import {toast} from "react-toastify";
 
 interface GeoFeaturePopupDetailsProps {
     feature: Feature;
@@ -14,10 +23,11 @@ const GeoFeaturePopupDetails = ({
 }: GeoFeaturePopupDetailsProps) => {
 
     const map = useMap();
-    const { id, type, radius, borderColor } = feature.properties || {};
+    const { id, type, radius, borderColor, title, details } = feature.properties || {};
 
     const handleViewDetails = () => {
-        onViewGeoFeatureDetails(id);
+        onViewGeoFeatureDetails(id)
+        map.closePopup();
     }
 
     const handleDelete = () => {
@@ -25,37 +35,103 @@ const GeoFeaturePopupDetails = ({
         map.closePopup();
     };
 
+    const handleSendToBack = () => {
+        map.eachLayer((layer: FeatureLayer) => {
+            if (layer.featureId === id) {
+                (layer as L.Path).bringToBack();
+            }
+        });
+        map.closePopup();
+        toast.info("Layer moved down", {
+            position: "bottom-left",
+            autoClose: 3000,
+            theme: "dark"
+        });
+    };
+
+    const handleBringToFront = () => {
+        map.eachLayer((layer: FeatureLayer) => {
+            if (layer.featureId === id) {
+                (layer as L.Path).bringToFront();
+            }
+        });
+        map.closePopup();
+        toast.info("Layer moved up", {
+            position: "bottom-left",
+            autoClose: 3000,
+            theme: "dark"
+        });
+    };
+
+    const formatRadius = (m: number): string => {
+        if (m >= 1000) return `${(m / 1000).toLocaleString(undefined, { maximumFractionDigits: 2 })} km`;
+        return `${m.toLocaleString(undefined, { maximumFractionDigits: 1 })} m`;
+    };
+
+    const formatArea = (m2: number): string => {
+        if (m2 >= 1_000_000) return `${(m2 / 1_000_000).toLocaleString(undefined, { maximumFractionDigits: 2 })} km²`;
+        return `${m2.toLocaleString(undefined, { maximumFractionDigits: 1 })} m²`;
+    };
+
+    const getArea = () => {
+        if (type === "circle" && radius) return formatArea(Math.PI * Math.pow(radius, 2));
+        if (feature.geometry.type === "Polygon") return formatArea(area(feature));
+
+        return null;
+    };
+
+    const areaValue = getArea();
+
     return (
-        <div style={{ minWidth: "160px" }}>
-            <h4 style={{ margin: "0 0 8px 0", color: borderColor }}>
-                {type === "circle" ? "📍 Explosive Item" : "🚧 Hazard Zone"}
+        <div className="geofeature-popup">
+            <h4 style={{ color: borderColor }}>
+                {
+                    type === "marker" ?
+                        `📍 ${title ?? "Explosive Item"}` :
+                        `🚧 ${title ?? "Hazard Zone"}`
+                }
             </h4>
-            <div style={{ fontSize: "12px", marginBottom: "10px" }}>
-                <p style={{ margin: "2px 0" }}><strong>ID:</strong> {id}</p>
-                <p style={{ margin: "2px 0" }}><strong>Type:</strong> {type}</p>
-                {radius && (
-                    <p style={{ margin: "2px 0" }}>
-                        <strong>Radius:</strong> {radius.toFixed(2)}m
-                    </p>
+            <p>{details || "No description provided."}</p>
+            {radius && (
+                <p><strong>Radius:</strong> {formatRadius(radius)}</p>
+            )}
+            {areaValue && (
+                <p><strong>Area:</strong> {areaValue}</p>
+            )}
+
+            <div className="controls">
+                <div>
+                    <img src={infoBtnImg}
+                         alt="Info button"
+                         onClick={handleViewDetails}
+                    />
+                </div>
+
+                <div>
+                    <img src={deleteBtnImg}
+                         alt="Delete button"
+                         onClick={handleDelete}
+                    />
+                </div>
+
+                {type !== "marker" && (
+                    <div>
+                        <img src={moveLayerDownBtnImg}
+                             alt="Send to back button"
+                             onClick={handleSendToBack}
+                        />
+                    </div>
+                )}
+
+                {type !== "marker" && (
+                    <div>
+                        <img src={moveLayerUpBtnImg}
+                             alt="Bring to front button"
+                             onClick={handleBringToFront}
+                        />
+                    </div>
                 )}
             </div>
-
-            <button
-                onClick={handleDelete}
-                style={{
-                    width: "100%",
-                    padding: "8px",
-                    backgroundColor: "#2196F3", // Professional Blue
-                    color: "white",
-                    border: "none",
-                    borderRadius: "4px",
-                    cursor: "pointer",
-                    fontWeight: "bold",
-                    transition: "background 0.2s"
-                }}
-            >
-                DELETE
-            </button>
         </div>
     );
 };

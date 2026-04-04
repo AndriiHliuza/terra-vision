@@ -2,7 +2,7 @@ import "../styles/pages/MapPage.css";
 import {
     MapContainer,
     Marker,
-    Popup
+    Popup, ZoomControl
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import Header from "../components/Header.tsx";
@@ -85,7 +85,7 @@ function MapPage() {
                     )}
 
                     <MapEventsHandler onRightClick={coordinates => setPopupPosition(coordinates)}/>
-
+                    <ZoomControl position="bottomright" />
                 </MapContainer>
                 <MapPageLayerSwitcher selectedLayer={layer} onLayerSelected={onLayerSelected}/>
                 <Outlet/>

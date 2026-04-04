@@ -242,7 +242,7 @@
 }
 
 .admin-nav-container.collapsed > nav > .admin-nav-item.active-admin-nav-item {
-    border: 2px solid var(--map-editor-page-glass-border-color);
+    border: 2px solid var(--admin-pages-glass-border-color);
 }
 
 .admin-nav-container.collapsed  > nav > .admin-nav-item > img {

@@ -22,3 +22,10 @@ export const DEFAULT_FEATURE_STYLE = {
 export interface FeatureLayer extends L.Layer {
     featureId?: string;
 }
+
+export interface GeoFeatureStyle {
+    borderColor: string;
+    fillColor: string;
+    fillOpacity: number;
+    borderWeight: number;
+}

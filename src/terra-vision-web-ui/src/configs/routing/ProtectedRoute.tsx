@@ -15,14 +15,14 @@ function ProtectedRoute({
 
     const loginPath = redirectToIfNotAuthenticated ?? `/${lang}/login`;
 
-    // if (!isAuthenticated) {
-    //     const isAdminPath = location.pathname.startsWith(`/${lang}/admin`);
-    //     if (isAdminPath) return <NotFoundPage />
-    //     return <Navigate to={loginPath} replace/>;
-    // }
-    // if (!hasMinPowerLevel(minPowerLevel)) return <NotFoundPage />;
-    // if (requiredRole && !hasRole(requiredRole)) return <NotFoundPage />;
-    // if (!hasPermissions(requiredPermissions, permissionStrategy)) return <NotFoundPage />;
+    if (!isAuthenticated) {
+        const isAdminPath = location.pathname.startsWith(`/${lang}/admin`);
+        if (isAdminPath) return <NotFoundPage />
+        return <Navigate to={loginPath} replace/>;
+    }
+    if (!hasMinPowerLevel(minPowerLevel)) return <NotFoundPage />;
+    if (requiredRole && !hasRole(requiredRole)) return <NotFoundPage />;
+    if (!hasPermissions(requiredPermissions, permissionStrategy)) return <NotFoundPage />;
 
     return <Outlet/>;
 }

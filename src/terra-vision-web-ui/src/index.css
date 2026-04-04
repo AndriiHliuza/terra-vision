@@ -41,7 +41,10 @@
     /* ------------ MapPage styles (CSS variables) ------------ */
     --map-page-text-color: #242424;
     --map-page-glass-border-color: rgba(68, 103, 91, 0.5);
-    --map-editor-page-glass-border-color: rgba(223, 187, 251, 0.5);
+
+    /* ------------ AdminLayout pages styles (CSS variables) ------------ */
+    --admin-pages-text-color: rgb(174 174 174);
+    --admin-pages-glass-border-color: rgba(223, 187, 251, 0.5);
 
     /* <<<<<<<<<<<< Base styles >>>>>>>>>>>> */
     font-family: "Rubik Distressed", "Poppins", system-ui, Avenir, Helvetica, Arial, sans-serif;
