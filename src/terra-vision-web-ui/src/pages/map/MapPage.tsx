@@ -1,22 +1,22 @@
-import "../styles/pages/MapPage.css";
+import "../../styles/pages/map/MapPage.css";
 import {
     MapContainer,
     Marker,
     Popup, ZoomControl
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import Header from "../components/Header.tsx";
+import Header from "../../components/Header.tsx";
 import {useEffect, useState} from "react";
-import type {Coordinates, MarkerData} from "../commons/schemas/gis-schemas.ts";
-import MapLayers from "../components/map/MapLayers.tsx";
+import type {Coordinates, MarkerData} from "../../commons/schemas/gis-schemas.ts";
+import MapLayers from "../../components/map/MapLayers.tsx";
 import {Outlet} from "react-router-dom";
-import MapPositionPopupDetails from "../components/map/MapPositionPopupDetails.tsx";
-import {MAP_LAYERS} from "../configs/settings.ts";
-import LoadingOverlay from "../components/LoadingOverlay.tsx";
-import MapPageLayerSwitcher from "../components/map/MapPageLayerSwitcher.tsx";
-import {MapEventsHandler} from "../components/map/handlers/MapEventsHandler.tsx";
+import MapPositionPopupDetails from "../../components/map/popups/MapPositionPopupDetails.tsx";
+import {MAP_LAYERS} from "../../configs/settings.ts";
+import LoadingOverlay from "../../components/LoadingOverlay.tsx";
+import MapPageLayerSwitcher from "../../components/map/layer-switchers/MapPageLayerSwitcher.tsx";
+import {MapEventsHandler} from "../../components/map/handlers/MapEventsHandler.tsx";
 import MarkerClusterGroup from "react-leaflet-cluster";
-import {createClusterIcon, markerIcon} from "../components/map/icons/map-icons.tsx";
+import {createClusterIcon, markerIcon} from "../../components/map/icons/map-icons.tsx";
 
 
 function MapPage() {

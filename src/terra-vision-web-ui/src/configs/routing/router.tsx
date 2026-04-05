@@ -3,7 +3,7 @@ import ApplicationContextProvider from "../context/ApplicationContextProvider.ts
 import i18n from "../i18n.ts";
 import LocalizationRoute from "./LocalizationRoute.tsx";
 import DetectorPage from "../../pages/DetectorPage.tsx";
-import MapPage from "../../pages/MapPage.tsx";
+import MapPage from "../../pages/map/MapPage.tsx";
 import PublicOnlyRoute from "./PublicOnlyRoute.tsx";
 import RegistrationPage from "../../pages/auth-pages/RegistrationPage.tsx";
 import LoginPage from "../../pages/auth-pages/LoginPage.tsx";
@@ -11,7 +11,7 @@ import ProtectedRoute from "./ProtectedRoute.tsx";
 import {SystemRoleLevels} from "../../commons/schemas/auth-schemas.ts";
 import AdminPagesLayout from "../../layouts/AdminPagesLayout.tsx";
 import AdminDashboard from "../../pages/AdminDashboard.tsx";
-import MapEditor from "../../pages/MapEditor.tsx";
+import MapEditor from "../../pages/map/MapEditor.tsx";
 import NotFoundPage from "../../pages/NotFoundPage.tsx";
 import HomePage from "../../pages/HomePage.tsx";
 

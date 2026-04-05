@@ -1,8 +1,8 @@
-import "../../styles/components/map/MapPageLayerSwitcher.css";
+import "../../../styles/components/map/layer-switchers/MapPageLayerSwitcher.css";
 import clsx from "clsx";
-import mapLayersCloseBtnImg from "../../assets/cross.png";
-import mapLayersOpenBtnImg from "../../assets/layers.png";
-import {MAP_LAYERS} from "../../configs/settings.ts";
+import mapLayersCloseBtnImg from "../../../assets/cross.png";
+import mapLayersOpenBtnImg from "../../../assets/layers.png";
+import {MAP_LAYERS} from "../../../configs/settings.ts";
 import {useState} from "react";
 
 interface MapPageLayerSwitcherProps {

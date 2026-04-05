@@ -1,7 +1,7 @@
-import "../../styles/components/map/MapEditorLayerSwitcher.css";
+import "../../../styles/components/map/layer-switchers/MapEditorLayerSwitcher.css";
 import {useState} from "react";
-import dropdownBtnImg from "../../assets/arrows/double-down-arrow-2.png";
-import {MAP_LAYERS} from "../../configs/settings.ts";
+import dropdownBtnImg from "../../../assets/arrows/double-down-arrow-2.png";
+import {MAP_LAYERS} from "../../../configs/settings.ts";
 import clsx from "clsx";
 import {t} from "i18next";
 

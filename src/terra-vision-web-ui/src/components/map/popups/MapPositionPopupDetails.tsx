@@ -1,9 +1,9 @@
-import "../../styles/components/map/MapPositionPopupDetails.css";
+import "../../../styles/components/map/popups/MapPositionPopupDetails.css";
 import {useState} from "react";
-import copyBtnImg from "../../assets/copy-btn-img.png";
+import copyBtnImg from "../../../assets/copy-btn-img.png";
 import clsx from "clsx";
 import {Slide, toast} from "react-toastify";
-import type {Coordinates} from "../../commons/schemas/gis-schemas.ts";
+import type {Coordinates} from "../../../commons/schemas/gis-schemas.ts";
 
 function MapPositionPopupDetails({coordinates}: { coordinates: Coordinates }) {
 
@@ -40,7 +40,7 @@ function MapPositionPopupDetails({coordinates}: { coordinates: Coordinates }) {
             </div>
             <div className="controls">
                 <button
-                    className={clsx("copy-coordinates-btn", {"copied": copied})}
+                    className={clsx({"copied": copied})}
                     onClick={handleCopy}
                     disabled={copied}
                     title="Copy coordinates"
