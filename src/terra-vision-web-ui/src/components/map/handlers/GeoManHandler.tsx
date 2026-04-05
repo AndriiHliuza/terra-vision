@@ -95,6 +95,9 @@ const GeoManHandler = ({
         event: LeafletMouseEvent,
         feature: Feature
     ) => {
+
+        if (map.pm.globalCutModeEnabled()) return;
+
         /*
         * It prevents the click event from reaching parent elements after your layer handles it.
         * Without it, clicking a shape would trigger:
@@ -109,7 +112,7 @@ const GeoManHandler = ({
             f => f.properties?.id === feature.properties?.id
         ) ?? feature;
         onGeoFeatureClick(currentFeature, event.latlng);
-    }, [onGeoFeatureClick])
+    }, [map, onGeoFeatureClick])
 
     const onPmCreate = useCallback((e: { shape: string; layer: L.Layer }) => {
         const {shape, layer} = e;
@@ -181,6 +184,90 @@ const GeoManHandler = ({
 
     }, [borderColor, borderWeight, fillColor, fillOpacity, onLayerClick, onLayerUpdate, setGeoFeatures])
 
+    const onPmCut = useCallback((e: { layer: L.Layer; originalLayer: L.Layer }) => {
+        const {layer, originalLayer} = e;
+
+        const originalId = (originalLayer as FeatureLayer).featureId;
+        if (!originalId) return;
+
+        const original = geoFeaturesRef.current.find(f => f.properties?.id === originalId);
+        if (!original) return;
+
+        const attachListeners = (l: L.Layer, id: string, feature: Feature) => {
+            l.on("pm:update", () => onLayerUpdate(id, l, feature));
+            l.on("pm:dragend", () => onLayerUpdate(id, l, feature));
+            l.on("pm:rotateend", () => onLayerUpdate(id, l, feature));
+            l.on("click", (event: L.LeafletMouseEvent) => onLayerClick(event, feature));
+        };
+        const geoJson = (layer as L.Polygon).toGeoJSON() as Feature;
+        if (geoJson.geometry.type === "MultiPolygon") {
+            const coords = geoJson.geometry.coordinates; // This is an array of islands
+            const newFeatures: Feature[] = [];
+
+            // Remove the single MultiPolygon layer Geoman just added
+            map.removeLayer(layer);
+
+            // Create a separate Polygon for each island
+            coords.forEach((islandCoords) => {
+                const newId = crypto.randomUUID();
+
+                // Create a new independent Leaflet Polygon for this island
+                const latLngs = L.GeoJSON.coordsToLatLngs(islandCoords, 1) as L.LatLng[][] | L.LatLng[];
+                const subLayer = L.polygon(latLngs, {
+                    color: original.properties?.borderColor ?? borderColor,
+                    weight: original.properties?.borderWeight ?? borderWeight,
+                    fillColor: original.properties?.fillColor ?? fillColor,
+                    fillOpacity: original.properties?.fillOpacity ?? fillOpacity
+                });
+                (subLayer as FeatureLayer).featureId = newId;
+                subLayer.addTo(map);
+
+                const newFeature: Feature = {
+                    type: "Feature",
+                    geometry: {
+                        type: "Polygon",
+                        coordinates: islandCoords
+                    },
+                    properties: {
+                        ...original.properties,
+                        id: newId,
+                        type: "polygon",
+                        isCreated: true,
+                        createdAt: new Date().toISOString(),
+                        isModified: false,
+                        lastModified: null
+                    }
+                };
+
+                attachListeners(subLayer, newId, newFeature);
+                newFeatures.push(newFeature);
+            });
+
+            // Remove original, add the two new pieces
+            setGeoFeatures(prev => [
+                ...prev.filter(f => f.properties?.id !== originalId),
+                ...newFeatures
+            ]);
+        } else {
+            // Single resulting shape — update original feature with new geometry
+            (layer as FeatureLayer).featureId = originalId;
+
+            const updatedFeature = (layer as L.Polygon).toGeoJSON() as Feature;
+            updatedFeature.properties = {
+                ...original.properties,
+                type: "polygon",
+                isModified: true,
+                lastModified: new Date().toISOString()
+            };
+
+            attachListeners(layer, originalId, updatedFeature);
+
+            setGeoFeatures(prev =>
+                prev.map(f => f.properties?.id === originalId ? updatedFeature : f)
+            );
+        }
+    }, [map, onLayerClick, onLayerUpdate, setGeoFeatures]);
+
     const onLayerAdd = useCallback((e: L.LayerEvent) => {
         if (e.layer instanceof L.Marker) {
             if (e.layer.options.pmIgnore !== false) {
@@ -225,7 +312,7 @@ const GeoManHandler = ({
             color: borderColor,
             weight: safeBorderWeight,
             fillColor: fillColor,
-            fillOpacity: safeFillOpacity,
+            fillOpacity: safeFillOpacity
         });
 
         map.pm.addControls({
@@ -242,19 +329,21 @@ const GeoManHandler = ({
             editMode: true,
             dragMode: true,
             rotateMode: true,
-            cutPolygon: false,
-            removalMode: false,
+            cutPolygon: true,
+            removalMode: false
         });
 
         map.on("pm:create", onPmCreate)
+        map.on("pm:cut", onPmCut);
         map.on("layeradd", onLayerAdd)
 
         return () => {
             map.pm.removeControls();
             map.off("pm:create");
+            map.off("pm:cut");
             map.off("layeradd");
         };
-    }, [map, borderColor, borderWeight, fillColor, fillOpacity, onLayerAdd, onPmCreate])
+    }, [map, borderColor, borderWeight, fillColor, fillOpacity, onLayerAdd, onPmCreate, onPmCut])
 
 
     useEffect(() => {
@@ -324,6 +413,8 @@ const GeoManHandler = ({
                 : undefined;
 
             if (layer instanceof L.Polygon || layer instanceof L.Circle) {
+                if (layer.pm?.enabled()) return;
+
                 if (!feature) {
                     map.removeLayer(layer);
                     return;

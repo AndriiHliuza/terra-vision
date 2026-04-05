@@ -21,6 +21,7 @@ export const DEFAULT_FEATURE_STYLE = {
 
 export interface FeatureLayer extends L.Layer {
     featureId?: string;
+    pm?: { enabled: () => boolean }
 }
 
 export interface GeoFeatureStyle {

@@ -167,7 +167,7 @@ function MapEditorStylePanel({
 
             {selectedGeoFeature && (
                 <button className="deselect-btn" onClick={onDeselectGeoFeature}>
-                    ✕ Stop editing this shape
+                    ✕ Stop editing
                 </button>
             )}
         </div>
