@@ -11,6 +11,9 @@ import type {FeatureLayer} from "../../../commons/schemas/gis-schemas.ts";
 import {toast} from "react-toastify";
 import type {Dispatch, SetStateAction} from "react";
 import Swal from "sweetalert2";
+import {useAppContext} from "../../../configs/context/contexts.ts";
+import {SystemRoleLevels} from "../../../commons/schemas/auth-schemas.ts";
+import {useNavigate, useParams} from "react-router-dom";
 
 interface GeoFeaturePopupDetailsProps {
     feature: Feature;
@@ -22,11 +25,21 @@ const GeoFeaturePopupDetails = ({
                                     setGeoFeatures,
                                 }: GeoFeaturePopupDetailsProps) => {
 
+    const { hasMinPowerLevel } = useAppContext();
+    const navigate = useNavigate();
+    const {lang} = useParams();
     const map = useMap();
     const {id, type, radius, borderColor, title, details} = feature.properties || {};
 
     const handleViewDetails = () => {
-        // navigate to view window
+        if (feature.properties?.id) {
+            if (hasMinPowerLevel(SystemRoleLevels.ADMIN)) {
+                navigate(`/${lang}/admin/map-editor/${feature.properties.id}`)
+            } else {
+                navigate(`/${lang}/map/${feature.properties.id}`)
+            }
+        }
+
         map.closePopup();
     }
 
@@ -122,12 +135,14 @@ const GeoFeaturePopupDetails = ({
                     />
                 </div>
 
-                <div>
-                    <img src={deleteBtnImg}
-                         alt="Delete button"
-                         onClick={handleDelete}
-                    />
-                </div>
+                {hasMinPowerLevel(SystemRoleLevels.ADMIN) && (
+                    <div>
+                        <img src={deleteBtnImg}
+                             alt="Delete button"
+                             onClick={handleDelete}
+                        />
+                    </div>
+                )}
 
                 {type !== "marker" && (
                     <div>

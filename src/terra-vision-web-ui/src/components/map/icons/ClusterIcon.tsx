@@ -1,4 +1,4 @@
-import locationMarker from "../../../assets/location-marker.png";
+import locationMarker from "../../../assets/cluster-marker.png";
 
 export function ClusterIcon({count}: { count: number }) {
     return (

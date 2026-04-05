@@ -47,6 +47,13 @@
     color: #ccc;
 }
 
+.map-editor > .style-panel .picker-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px; /* Space between swatch and text input */
+}
+
 .map-editor > .style-panel .picker-container {
     position: relative;
     margin-right: 2px;
@@ -68,6 +75,29 @@
     transform: scale(1.05);
     border-color: #fff;
     box-shadow: 0 0 10px rgba(255,255,255,0.2);
+}
+
+.map-editor > .style-panel .hex-text-input {
+    width: 85px;
+
+    padding: 6px 8px;
+
+    border: 1px solid #3d3d3d;
+    border-radius: 4px;
+
+    color: #ffffff;
+    background: #1e1e1e;
+
+    font-family: 'Monaco', 'Consolas', monospace;
+    font-size: 0.8rem;
+
+    text-transform: uppercase;
+
+    outline: none;
+}
+
+.map-editor > .style-panel .hex-text-input:focus {
+    border-color: #7600ff; /* Highlights when user is typing */
 }
 
 /* --- Popover for HexColorPicker --- */
@@ -157,4 +187,18 @@
 .map-editor > .style-panel .deselect-btn:hover {
     background: rgba(231, 76, 60, 0.2);
     border-color: #e74c3c;
+}
+
+@media (max-width: 350px) {
+    .map-editor > .style-panel .picker-row {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+        gap: 12px; /* Space between swatch and text input */
+    }
+
+    .map-editor > .style-panel .hex-text-input {
+        width: 50px;
+    }
 }

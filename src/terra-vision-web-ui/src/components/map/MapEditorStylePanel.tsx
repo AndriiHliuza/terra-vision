@@ -1,9 +1,9 @@
 import "../../styles/components/map/MapEditorStylePanel.css";
 import {type Dispatch, type SetStateAction, useCallback, useState} from "react";
 import type {GeoFeatureStyle} from "../../commons/schemas/gis-schemas.ts";
-import {HexColorPicker} from "react-colorful";
+import {HexColorInput, HexColorPicker} from "react-colorful";
 import type {Feature} from "geojson";
-import {getSafeBorderWeightAndFillOpacity} from "../../commons/utils/style-utils.ts";
+import {getSafeBorderWeightAndFillOpacity, getSafeFillOpacityForMarker} from "../../commons/utils/style-utils.ts";
 
 interface MapEditorStylePanelProps {
     // Default style — used for new shapes
@@ -27,14 +27,13 @@ function MapEditorStylePanel({
     const closePickers = useCallback(() => setActivePicker(null), []);
 
     const isMarkerSelected = selectedGeoFeature?.properties?.type === "marker";
-    const geoFeatureToChange = isMarkerSelected ? null : selectedGeoFeature;
 
-    const activeStyle: GeoFeatureStyle = geoFeatureToChange?.properties
+    const activeStyle: GeoFeatureStyle = selectedGeoFeature?.properties
         ? {
-            borderColor: geoFeatureToChange.properties.borderColor ?? style.borderColor,
-            fillColor: geoFeatureToChange.properties.fillColor ?? style.fillColor,
-            fillOpacity: geoFeatureToChange.properties.fillOpacity ?? style.fillOpacity,
-            borderWeight: geoFeatureToChange.properties.borderWeight ?? style.borderWeight,
+            borderColor: selectedGeoFeature.properties.borderColor ?? style.borderColor,
+            fillColor: selectedGeoFeature.properties.fillColor ?? style.fillColor,
+            fillOpacity: selectedGeoFeature.properties.fillOpacity ?? style.fillOpacity,
+            borderWeight: selectedGeoFeature.properties.borderWeight ?? style.borderWeight,
         }
         : style;
 
@@ -51,7 +50,7 @@ function MapEditorStylePanel({
             ? updatedGeoFeatureStyle.fillOpacity
             : activeStyle.fillOpacity;
 
-        const { safeBorderWeight, safeFillOpacity } = getSafeBorderWeightAndFillOpacity(
+        const {safeBorderWeight, safeFillOpacity} = getSafeBorderWeightAndFillOpacity(
             borderWeight,
             fillOpacity,
             origin
@@ -59,12 +58,17 @@ function MapEditorStylePanel({
 
         updatedGeoFeatureStyle = {
             ...updatedGeoFeatureStyle,
-            borderWeight: safeBorderWeight,
-            fillOpacity: safeFillOpacity
-        }
+            ...(isMarkerSelected ? {} : {borderWeight: safeBorderWeight}), // ← skip borderWeight for markers
+            ...(isMarkerSelected ? {fillOpacity: getSafeFillOpacityForMarker(fillOpacity)} : {fillOpacity: safeFillOpacity})
+        };
 
-        if (geoFeatureToChange?.properties?.id) {
-            onUpdateGeoFeatureStyle(geoFeatureToChange.properties.id, updatedGeoFeatureStyle);
+        if (selectedGeoFeature?.properties?.id) {
+            const updatedProps = {
+                ...updatedGeoFeatureStyle,
+                isModified: true,
+                lastModified: new Date().toISOString()
+            }
+            onUpdateGeoFeatureStyle(selectedGeoFeature.properties.id, updatedProps);
         } else {
             setStyle(prev => ({...prev, ...updatedGeoFeatureStyle}));
         }
@@ -75,8 +79,8 @@ function MapEditorStylePanel({
             <h2>LAYER STYLING</h2>
 
             <p className="style-context">
-                {geoFeatureToChange
-                    ? `Editing: ${geoFeatureToChange.properties?.title ?? geoFeatureToChange.properties?.id}`
+                {selectedGeoFeature
+                    ? `Editing: ${selectedGeoFeature.properties?.title ?? selectedGeoFeature.properties?.id}`
                     : "Default style for new shapes"
                 }
             </p>
@@ -84,42 +88,58 @@ function MapEditorStylePanel({
             {/* Border Color */}
             <div className="style-group">
                 <label>Border</label>
-                <div className="picker-container">
-                    <div
-                        className="color-swatch"
-                        style={{backgroundColor: activeStyle.borderColor}}
-                        onClick={() => setActivePicker("border")}
+                <div className="picker-row">
+                    <div className="picker-container">
+                        <div
+                            className="color-swatch"
+                            style={{backgroundColor: activeStyle.borderColor}}
+                            onClick={() => setActivePicker("border")}
+                        />
+                        {activePicker === "border" && (
+                            <div className="popover">
+                                <div className="popover-overlay" onClick={closePickers}/>
+                                <HexColorPicker
+                                    color={activeStyle.borderColor}
+                                    onChange={(color) => updateStyle({borderColor: color})}
+                                />
+                            </div>
+                        )}
+                    </div>
+                    <HexColorInput
+                        className="hex-text-input"
+                        color={activeStyle.borderColor}
+                        onChange={(color) => updateStyle({borderColor: color})}
+                        prefixed // Automatically adds/handles the #
                     />
-                    {activePicker === "border" && (
-                        <div className="popover">
-                            <div className="popover-overlay" onClick={closePickers}/>
-                            <HexColorPicker
-                                color={activeStyle.borderColor}
-                                onChange={(color) => updateStyle({borderColor: color})}
-                            />
-                        </div>
-                    )}
                 </div>
             </div>
 
             {/* Fill Color */}
             <div className="style-group">
                 <label>Fill</label>
-                <div className="picker-container">
-                    <div
-                        className="color-swatch"
-                        style={{backgroundColor: activeStyle.fillColor}}
-                        onClick={() => setActivePicker("fill")}
+                <div className="picker-row">
+                    <div className="picker-container">
+                        <div
+                            className="color-swatch"
+                            style={{backgroundColor: activeStyle.fillColor}}
+                            onClick={() => setActivePicker("fill")}
+                        />
+                        {activePicker === "fill" && (
+                            <div className="popover">
+                                <div className="popover-overlay" onClick={closePickers}/>
+                                <HexColorPicker
+                                    color={activeStyle.fillColor}
+                                    onChange={(color) => updateStyle({fillColor: color})}
+                                />
+                            </div>
+                        )}
+                    </div>
+                    <HexColorInput
+                        className="hex-text-input"
+                        color={activeStyle.fillColor}
+                        onChange={(color) => updateStyle({fillColor: color})}
+                        prefixed
                     />
-                    {activePicker === "fill" && (
-                        <div className="popover">
-                            <div className="popover-overlay" onClick={closePickers}/>
-                            <HexColorPicker
-                                color={activeStyle.fillColor}
-                                onChange={(color) => updateStyle({fillColor: color})}
-                            />
-                        </div>
-                    )}
                 </div>
             </div>
 
@@ -134,16 +154,18 @@ function MapEditorStylePanel({
             </div>
 
             {/* Border Weight */}
-            <div className="style-group">
-                <label>Weight ({activeStyle.borderWeight}px)</label>
-                <input
-                    type="range" min="0" max="12" step="1"
-                    value={activeStyle.borderWeight}
-                    onChange={(e) => updateStyle({borderWeight: parseInt(e.target.value)}, "weight")}
-                />
-            </div>
+            {!isMarkerSelected && (
+                <div className="style-group">
+                    <label>Weight ({activeStyle.borderWeight}px)</label>
+                    <input
+                        type="range" min="0" max="12" step="1"
+                        value={activeStyle.borderWeight}
+                        onChange={(e) => updateStyle({borderWeight: parseInt(e.target.value)}, "weight")}
+                    />
+                </div>
+            )}
 
-            {geoFeatureToChange && (
+            {selectedGeoFeature && (
                 <button className="deselect-btn" onClick={onDeselectGeoFeature}>
                     ✕ Stop editing this shape
                 </button>

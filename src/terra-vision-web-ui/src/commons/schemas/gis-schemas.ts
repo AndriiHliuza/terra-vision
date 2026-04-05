@@ -13,7 +13,7 @@ export interface Coordinates {
 }
 
 export const DEFAULT_FEATURE_STYLE = {
-    borderColor: "#3388ff",
+    borderColor: "#3F51B5",
     fillColor: "#3388ff",
     fillOpacity: 0.5,
     borderWeight: 3

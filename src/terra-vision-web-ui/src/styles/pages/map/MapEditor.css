@@ -193,7 +193,7 @@
 .map-editor > .map-container > .save-features-btn {
     position: absolute;
     z-index: 1000;
-    top: 245px;
+    top: 246px;
     right: 10px;
 
     display: flex;

@@ -15,10 +15,10 @@ import {MapEventsHandler} from "../../components/map/handlers/MapEventsHandler.t
 import MapPositionPopupDetails from "../../components/map/popups/MapPositionPopupDetails.tsx";
 import MapEditorLayerSwitcher from "../../components/map/layer-switchers/MapEditorLayerSwitcher.tsx";
 import L from "leaflet";
-import type {Feature} from "geojson";
+import type {Feature, FeatureCollection} from "geojson";
 import GeoManHandler from "../../components/map/handlers/GeoManHandler.tsx";
 import GeoFeaturePopupDetails from "../../components/map/popups/GeoFeaturePopupDetails.tsx";
-import {fetchStubMapFeatures} from "../../commons/stubs/geo-stub.ts";
+import {fetchStubMapData} from "../../commons/stubs/geo-stub.ts";
 import {toast} from "react-toastify";
 import saveBtnImg from "../../assets/save-btn-img.png";
 import Swal from "sweetalert2";
@@ -146,8 +146,8 @@ function MapEditor() {
     // Stub backend data
     useEffect(() => {
         // Simulate async fetch
-        fetchStubMapFeatures()
-            .then(data => setGeoFeatures(data))
+        fetchStubMapData()
+            .then((collection: FeatureCollection) => setGeoFeatures(collection.features))
             .catch(error => console.error("Stub loading error:", error))
             .finally(() => setMapLoading(false))
     }, []);
@@ -187,6 +187,7 @@ function MapEditor() {
 
                     {positionPopupDetails && (
                         <Popup
+                            key={`pos-${positionPopupDetails.lat}-${positionPopupDetails.lng}`}
                             position={positionPopupDetails}
                         >
                             <MapPositionPopupDetails coordinates={positionPopupDetails}/>
@@ -196,7 +197,13 @@ function MapEditor() {
                     {geoFeaturePopupDetails && (
                         <Popup
                             key={`${geoFeaturePopupDetails.feature.properties?.id}-${geoFeaturePopupDetails.timestamp}`}
-                            position={geoFeaturePopupDetails.latlng}>
+                            position={geoFeaturePopupDetails.latlng}
+                            eventHandlers={{
+                                remove: () => {
+                                    setSelectedGeoFeature(null)
+                                }
+                            }}
+                        >
                             <GeoFeaturePopupDetails
                                 feature={geoFeaturePopupDetails.feature}
                                 setGeoFeatures={setGeoFeatures}

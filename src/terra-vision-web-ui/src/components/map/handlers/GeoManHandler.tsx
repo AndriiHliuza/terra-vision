@@ -2,9 +2,9 @@ import {type Dispatch, type SetStateAction, useCallback, useEffect, useRef} from
 import {useMap} from "react-leaflet";
 import type {Feature, Point} from "geojson";
 import L, {type LeafletMouseEvent} from "leaflet";
-import {createClusterIcon, markerIcon} from "../icons/map-icons.tsx";
+import {createClusterIcon, createMarkerIcon} from "../icons/map-icons.tsx";
 import {DEFAULT_FEATURE_STYLE, type FeatureLayer} from "../../../commons/schemas/gis-schemas.ts";
-import {getSafeBorderWeightAndFillOpacity} from "../../../commons/utils/style-utils.ts";
+import {getSafeBorderWeightAndFillOpacity, getSafeFillOpacityForMarker} from "../../../commons/utils/style-utils.ts";
 import "leaflet.markercluster";
 
 
@@ -65,7 +65,7 @@ const GeoManHandler = ({
         if (layer instanceof L.Marker) {
             const marker = layer as L.Marker;
             updatedFeature = marker.toGeoJSON() as Feature;
-            updatedFeature.properties = { ...feature.properties };
+            updatedFeature.properties = {...feature.properties};
         } else if (layer instanceof L.Circle) {
             const circle = layer as L.Circle;
             updatedFeature = circle.toGeoJSON() as Feature;
@@ -117,7 +117,7 @@ const GeoManHandler = ({
         const featureId = crypto.randomUUID();
         (layer as FeatureLayer).featureId = featureId;
 
-        const { safeBorderWeight, safeFillOpacity } = getSafeBorderWeightAndFillOpacity(borderWeight, fillOpacity);
+        const {safeBorderWeight, safeFillOpacity} = getSafeBorderWeightAndFillOpacity(borderWeight, fillOpacity);
 
         let feature: Feature | null = null;
 
@@ -138,8 +138,25 @@ const GeoManHandler = ({
             layer.options.pmIgnore = false;
 
             const marker = layer as L.Marker;
+            marker.setIcon(createMarkerIcon(
+                fillColor,
+                borderColor,
+                getSafeFillOpacityForMarker(fillOpacity)
+            ))
             feature = marker.toGeoJSON() as Feature;
-            feature.properties = {...baseProps};
+
+            feature.properties = {
+                id: featureId,
+                type: "marker",
+
+                borderColor: borderColor,
+                fillColor: fillColor,
+                fillOpacity: getSafeFillOpacityForMarker(fillOpacity),
+                // no borderWeight
+
+                isCreated: true,
+                createdAt: new Date().toISOString()
+            };
 
             layer.remove();
             clusterGroupRef.current.addLayer(layer);
@@ -168,7 +185,7 @@ const GeoManHandler = ({
         if (e.layer instanceof L.Marker) {
             if (e.layer.options.pmIgnore !== false) {
                 e.layer.options.pmIgnore = true;
-                if (e.layer.pm) e.layer.pm.setOptions({ draggable: false })
+                if (e.layer.pm) e.layer.pm.setOptions({draggable: false})
             }
         }
     }, [])
@@ -176,13 +193,19 @@ const GeoManHandler = ({
     useEffect(() => {
         if (!map) return;
 
-        const { safeBorderWeight, safeFillOpacity } = getSafeBorderWeightAndFillOpacity(borderWeight, fillOpacity);
+        const {safeBorderWeight, safeFillOpacity} = getSafeBorderWeightAndFillOpacity(borderWeight, fillOpacity);
 
         map.pm.setGlobalOptions({
             allowSelfIntersection: false,
             snappable: true,
             snapDistance: 20,
-            markerStyle: {icon: markerIcon},
+            markerStyle: {
+                icon: createMarkerIcon(
+                    fillColor,
+                    borderColor,
+                    getSafeFillOpacityForMarker(fillOpacity)
+                )
+            },
             templineStyle: {
                 color: borderColor,
                 weight: safeBorderWeight,
@@ -245,7 +268,10 @@ const GeoManHandler = ({
                 const point = feature.geometry as Point;
                 const layer = L.marker(
                     [point.coordinates[1], point.coordinates[0]],
-                    {icon: markerIcon, pmIgnore: false}
+                    {
+                        icon: createMarkerIcon(feature.properties?.fillColor, feature.properties?.borderColor, feature.properties?.fillOpacity),
+                        pmIgnore: false
+                    }
                 );
 
                 (layer as FeatureLayer).featureId = featureId;
@@ -255,7 +281,7 @@ const GeoManHandler = ({
 
                 clusterGroupRef.current.addLayer(layer);
             } else {
-                const { safeBorderWeight, safeFillOpacity } = getSafeBorderWeightAndFillOpacity(
+                const {safeBorderWeight, safeFillOpacity} = getSafeBorderWeightAndFillOpacity(
                     feature.properties?.borderWeight ?? DEFAULT_FEATURE_STYLE.borderWeight,
                     feature.properties?.fillOpacity ?? DEFAULT_FEATURE_STYLE.fillOpacity
                 );
@@ -286,7 +312,7 @@ const GeoManHandler = ({
         });
 
         isInitialLoadComplete.current = true;
-    }, [borderColor, borderWeight, fillColor, fillOpacity, geoFeatures, map, onLayerClick, onLayerUpdate])
+    }, [geoFeatures, map, onLayerClick, onLayerUpdate])
 
 
     useEffect(() => {
@@ -304,7 +330,7 @@ const GeoManHandler = ({
                 }
 
                 if (feature.properties) {
-                    const { safeBorderWeight, safeFillOpacity } = getSafeBorderWeightAndFillOpacity(
+                    const {safeBorderWeight, safeFillOpacity} = getSafeBorderWeightAndFillOpacity(
                         feature.properties?.borderWeight ?? DEFAULT_FEATURE_STYLE.borderWeight,
                         feature.properties?.fillOpacity ?? DEFAULT_FEATURE_STYLE.fillOpacity
                     );
@@ -326,12 +352,18 @@ const GeoManHandler = ({
 
         clusterGroupRef.current.eachLayer((layer: L.Layer) => {
             const featureLayer = layer as FeatureLayer;
-            const exists = geoFeatures.some(f => f.properties?.id === featureLayer.featureId)
-            if (!exists) {
+            const feature = geoFeatures.find(f => f.properties?.id === featureLayer.featureId)
+            if (!feature) {
                 clusterGroupRef.current.removeLayer(layer);
+                return;
             }
+            (layer as L.Marker).setIcon(createMarkerIcon(
+                feature.properties?.fillColor,
+                feature.properties?.borderColor,
+                getSafeFillOpacityForMarker(feature.properties?.fillOpacity)
+            ));
         })
-    }, [borderColor, borderWeight, fillColor, fillOpacity, geoFeatures, map]);
+    }, [geoFeatures, map]);
 
     return null;
 };
