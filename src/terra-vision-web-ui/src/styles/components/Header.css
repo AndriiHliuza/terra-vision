@@ -186,6 +186,11 @@ header .auth-controls > a > img {
     width: auto;
 }
 
+header .auth-controls > a > span {
+    display: none;
+}
+
+
 header .language-controls-wrapper {
     position: fixed;
     z-index: 1000;
@@ -538,6 +543,10 @@ header .language-dropdown-menu > li > img {
 
     header .auth-controls > a > img {
         display: none;
+    }
+
+    header .auth-controls > a > span {
+        display: block;
     }
 
     header .language-controls-wrapper {

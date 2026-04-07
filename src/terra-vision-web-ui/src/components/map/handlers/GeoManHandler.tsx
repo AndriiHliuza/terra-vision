@@ -155,7 +155,7 @@ const GeoManHandler = ({
                 borderColor: borderColor,
                 fillColor: fillColor,
                 fillOpacity: getSafeFillOpacityForMarker(fillOpacity),
-                // no borderWeight
+                // no borderWeight for marker
 
                 isCreated: true,
                 createdAt: new Date().toISOString()
@@ -231,6 +231,7 @@ const GeoManHandler = ({
                     properties: {
                         ...original.properties,
                         id: newId,
+                        parentId: originalId,
                         type: "polygon",
                         isCreated: true,
                         createdAt: new Date().toISOString(),
@@ -266,7 +267,7 @@ const GeoManHandler = ({
                 prev.map(f => f.properties?.id === originalId ? updatedFeature : f)
             );
         }
-    }, [map, onLayerClick, onLayerUpdate, setGeoFeatures]);
+    }, [borderColor, borderWeight, fillColor, fillOpacity, map, onLayerClick, onLayerUpdate, setGeoFeatures]);
 
     const onLayerAdd = useCallback((e: L.LayerEvent) => {
         if (e.layer instanceof L.Marker) {
@@ -358,7 +359,10 @@ const GeoManHandler = ({
                 const layer = L.marker(
                     [point.coordinates[1], point.coordinates[0]],
                     {
-                        icon: createMarkerIcon(feature.properties?.fillColor, feature.properties?.borderColor, feature.properties?.fillOpacity),
+                        icon: createMarkerIcon(
+                            feature.properties?.fillColor ?? fillColor,
+                            feature.properties?.borderColor ?? borderColor,
+                            getSafeFillOpacityForMarker(feature.properties?.fillOpacity ?? fillOpacity)),
                         pmIgnore: false
                     }
                 );
@@ -371,15 +375,15 @@ const GeoManHandler = ({
                 clusterGroupRef.current.addLayer(layer);
             } else {
                 const {safeBorderWeight, safeFillOpacity} = getSafeBorderWeightAndFillOpacity(
-                    feature.properties?.borderWeight ?? DEFAULT_FEATURE_STYLE.borderWeight,
-                    feature.properties?.fillOpacity ?? DEFAULT_FEATURE_STYLE.fillOpacity
+                    feature.properties?.borderWeight ?? borderWeight,
+                    feature.properties?.fillOpacity ?? fillOpacity
                 );
 
                 const leafletLayer = L.geoJSON(feature, {
                     style: {
-                        color: feature.properties?.borderColor ?? DEFAULT_FEATURE_STYLE.borderColor,
+                        color: feature.properties?.borderColor ?? borderColor,
                         weight: safeBorderWeight,
-                        fillColor: feature.properties?.fillColor || DEFAULT_FEATURE_STYLE.fillColor,
+                        fillColor: feature.properties?.fillColor ?? fillColor,
                         fillOpacity: safeFillOpacity
                     },
                     pointToLayer: (_, latlng) => {
@@ -401,7 +405,7 @@ const GeoManHandler = ({
         });
 
         isInitialLoadComplete.current = true;
-    }, [geoFeatures, map, onLayerClick, onLayerUpdate])
+    }, [borderColor, borderWeight, fillColor, fillOpacity, geoFeatures, map, onLayerClick, onLayerUpdate])
 
 
     useEffect(() => {
@@ -422,15 +426,15 @@ const GeoManHandler = ({
 
                 if (feature.properties) {
                     const {safeBorderWeight, safeFillOpacity} = getSafeBorderWeightAndFillOpacity(
-                        feature.properties?.borderWeight ?? DEFAULT_FEATURE_STYLE.borderWeight,
-                        feature.properties?.fillOpacity ?? DEFAULT_FEATURE_STYLE.fillOpacity
+                        feature.properties?.borderWeight ?? borderWeight,
+                        feature.properties?.fillOpacity ?? fillOpacity
                     );
 
                     const pathLayer = layer as L.Path;
                     pathLayer.setStyle({
-                        color: feature.properties?.borderColor ?? DEFAULT_FEATURE_STYLE.borderColor,
+                        color: feature.properties?.borderColor ?? borderColor,
                         weight: safeBorderWeight,
-                        fillColor: feature.properties?.fillColor ?? DEFAULT_FEATURE_STYLE.fillColor,
+                        fillColor: feature.properties?.fillColor ?? fillColor,
                         fillOpacity: safeFillOpacity
                     });
 
@@ -449,12 +453,12 @@ const GeoManHandler = ({
                 return;
             }
             (layer as L.Marker).setIcon(createMarkerIcon(
-                feature.properties?.fillColor,
-                feature.properties?.borderColor,
-                getSafeFillOpacityForMarker(feature.properties?.fillOpacity)
+                feature.properties?.fillColor ?? fillColor,
+                feature.properties?.borderColor ?? borderColor,
+                getSafeFillOpacityForMarker(feature.properties?.fillOpacity ?? fillOpacity),
             ));
         })
-    }, [geoFeatures, map]);
+    }, [borderColor, borderWeight, fillColor, fillOpacity, geoFeatures, map]);
 
     return null;
 };

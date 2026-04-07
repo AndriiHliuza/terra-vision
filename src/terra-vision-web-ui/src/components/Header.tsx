@@ -208,7 +208,7 @@ function Header({scrollOffset = 1000}: { scrollOffset?: number }) {
                                 {isAuthenticated ? (
                                     <>
                                         <img src={profileImage} alt="Profile Image"/>
-                                        {t("header.account")}
+                                        <span>{t("header.account")}</span>
                                     </>
                                 ) : (
                                     <>{t("header.login")}</>

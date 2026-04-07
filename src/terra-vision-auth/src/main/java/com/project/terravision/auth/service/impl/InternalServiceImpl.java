@@ -4,7 +4,7 @@ import com.project.terravision.auth.enums.AccountStatus;
 import com.project.terravision.auth.exceptions.user.UserNotFoundException;
 import com.project.terravision.auth.model.User;
 import com.project.terravision.auth.repository.UserRepository;
-import com.project.terravision.auth.service.AccountStatusCacheService;
+import com.project.terravision.auth.service.CacheService;
 import com.project.terravision.auth.service.InternalService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,7 @@ import java.util.UUID;
 public class InternalServiceImpl implements InternalService {
 
     private final UserRepository userRepository;
-    private final AccountStatusCacheService accountStatusCacheService;
+    private final CacheService<UUID, AccountStatus> cacheService;
 
     @Override
     public AccountStatus getAccountStatus(String userId) {
@@ -26,7 +26,7 @@ public class InternalServiceImpl implements InternalService {
                 () -> new UserNotFoundException("User with id=%s not found".formatted(userId))
         );
 
-        accountStatusCacheService.cacheAccountStatus(user.getId(), user.getAccountStatus());
+        cacheService.cache(user.getId(), user.getAccountStatus());
         return user.getAccountStatus();
     }
 }

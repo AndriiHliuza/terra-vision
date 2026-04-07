@@ -1,0 +1,1 @@
+CREATE DATABASE terra_vision_gis_db;

@@ -11,9 +11,8 @@ import type {FeatureLayer} from "../../../commons/schemas/gis-schemas.ts";
 import {toast} from "react-toastify";
 import type {Dispatch, SetStateAction} from "react";
 import Swal from "sweetalert2";
-import {useAppContext} from "../../../configs/context/contexts.ts";
-import {SystemRoleLevels} from "../../../commons/schemas/auth-schemas.ts";
-import {useNavigate, useParams} from "react-router-dom";
+import {useLocation, useNavigate, useParams} from "react-router-dom";
+import {useTranslation} from "react-i18next";
 
 interface GeoFeaturePopupDetailsProps {
     feature: Feature;
@@ -25,15 +24,18 @@ const GeoFeaturePopupDetails = ({
                                     setGeoFeatures,
                                 }: GeoFeaturePopupDetailsProps) => {
 
-    const { hasMinPowerLevel } = useAppContext();
+    const {t} = useTranslation();
+    const location = useLocation();
     const navigate = useNavigate();
     const {lang} = useParams();
     const map = useMap();
     const {id, type, radius, borderColor, title, details} = feature.properties || {};
 
+    const isMapEditorRoute = location.pathname === `/${lang}/admin/map-editor`;
+
     const handleViewDetails = () => {
         if (feature.properties?.id) {
-            if (hasMinPowerLevel(SystemRoleLevels.ADMIN)) {
+            if (isMapEditorRoute) {
                 navigate(`/${lang}/admin/map-editor/${feature.properties.id}`)
             } else {
                 navigate(`/${lang}/map/${feature.properties.id}`)
@@ -45,19 +47,38 @@ const GeoFeaturePopupDetails = ({
 
     const handleDelete = async () => {
         const confirmationResult = await Swal.fire({
-            title: "Are you sure?",
-            text: `You are about to delete the selected element.`,
+            title: t("pop-ups.delete-geofeature-confirmation-pop-up.title"),
+            text: t("pop-ups.delete-geofeature-confirmation-pop-up.description"),
             icon: "info",
             showCancelButton: true,
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Yes",
-            cancelButtonText: "No",
+            confirmButtonText: t("pop-ups.confirmation-pop-up.confirm-btn-text"),
+            cancelButtonText: t("pop-ups.confirmation-pop-up.cancel-btn-text"),
             background: "#1a1a1e",
             color: "#fff",
             backdrop: "rgba(0, 0, 0, 0.5)",
         })
         if (!confirmationResult.isConfirmed) return;
+
+        // perform delete here
+        const performDelete = async () => {
+
+        }
+
+        await toast.promise(
+            performDelete(),
+            {
+                pending: t("pop-ups.perform-geofeture-deletion-pop-up.pending-text"),
+                success: t("pop-ups.perform-geofeture-deletion-pop-up.success-text"),
+                error: t("pop-ups.perform-geofeture-deletion-pop-up.error-text")
+            },
+            {
+                position: "bottom-left",
+                theme: "dark"
+            }
+        );
+
         setGeoFeatures((prev) => prev.filter((feature) => feature.properties?.id !== id));
         map.closePopup();
     };
@@ -69,7 +90,7 @@ const GeoFeaturePopupDetails = ({
             }
         });
         map.closePopup();
-        toast.info("Layer moved down", {
+        toast.info(t("pop-ups.map-layer-moved-down-pop-up.title"), {
             position: "bottom-left",
             autoClose: 3000,
             theme: "dark"
@@ -83,7 +104,7 @@ const GeoFeaturePopupDetails = ({
             }
         });
         map.closePopup();
-        toast.info("Layer moved up", {
+        toast.info(t("pop-ups.map-layer-moved-up-pop-up.title"), {
             position: "bottom-left",
             autoClose: 3000,
             theme: "dark"
@@ -114,17 +135,17 @@ const GeoFeaturePopupDetails = ({
             <h4 style={{color: borderColor}}>
                 {
                     type === "marker" ?
-                        `📍 ${title ?? "Hazard Item"}` :
-                        `🚧 ${title ?? "Hazard Zone"}`
+                        ` ${title ?? t("pop-ups.geofeature-pop-up.item-title")}` :
+                        ` ${title ?? t("pop-ups.geofeature-pop-up.zone-title")}`
                 }
             </h4>
             <p><strong>ID:</strong> {feature.properties?.id}</p>
-            <p>{details || "No description provided."}</p>
+            <p>{details || t("pop-ups.geofeature-pop-up.details")}</p>
             {radius && (
-                <p><strong>Radius:</strong> {formatRadius(radius)}</p>
+                <p><strong>{t("pop-ups.geofeature-pop-up.radius")}:</strong> {formatRadius(radius)}</p>
             )}
             {areaValue && (
-                <p><strong>Area:</strong> {areaValue}</p>
+                <p><strong>{t("pop-ups.geofeature-pop-up.area")}:</strong> {areaValue}</p>
             )}
 
             <div className="controls">
@@ -135,7 +156,7 @@ const GeoFeaturePopupDetails = ({
                     />
                 </div>
 
-                {hasMinPowerLevel(SystemRoleLevels.ADMIN) && (
+                {isMapEditorRoute && (
                     <div>
                         <img src={deleteBtnImg}
                              alt="Delete button"

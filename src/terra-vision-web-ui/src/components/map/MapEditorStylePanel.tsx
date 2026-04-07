@@ -4,6 +4,7 @@ import type {GeoFeatureStyle} from "../../commons/schemas/gis-schemas.ts";
 import {HexColorInput, HexColorPicker} from "react-colorful";
 import type {Feature} from "geojson";
 import {getSafeBorderWeightAndFillOpacity, getSafeFillOpacityForMarker} from "../../commons/utils/style-utils.ts";
+import {useTranslation} from "react-i18next";
 
 interface MapEditorStylePanelProps {
     // Default style — used for new shapes
@@ -23,6 +24,9 @@ function MapEditorStylePanel({
                                  onUpdateGeoFeatureStyle,
                                  onDeselectGeoFeature,
                              }: MapEditorStylePanelProps) {
+
+    const {t} = useTranslation();
+
     const [activePicker, setActivePicker] = useState<"border" | "fill" | null>(null);
     const closePickers = useCallback(() => setActivePicker(null), []);
 
@@ -76,18 +80,18 @@ function MapEditorStylePanel({
 
     return (
         <div className="style-panel">
-            <h2>LAYER STYLING</h2>
+            <h2>{t("admin-pages.map-editor.styling-section.title")}</h2>
 
             <p className="style-context">
                 {selectedGeoFeature
-                    ? `Editing: ${selectedGeoFeature.properties?.title ?? selectedGeoFeature.properties?.id}`
+                    ? `${t("admin-pages.map-editor.styling-section.editing-text")}: ${selectedGeoFeature.properties?.title ?? selectedGeoFeature.properties?.id}`
                     : "Default style for new shapes"
                 }
             </p>
 
             {/* Border Color */}
             <div className="style-group">
-                <label>Border</label>
+                <label>{t("admin-pages.map-editor.styling-section.border-style-text")}</label>
                 <div className="picker-row">
                     <div className="picker-container">
                         <div
@@ -116,7 +120,7 @@ function MapEditorStylePanel({
 
             {/* Fill Color */}
             <div className="style-group">
-                <label>Fill</label>
+                <label>{t("admin-pages.map-editor.styling-section.fill-style-text")}</label>
                 <div className="picker-row">
                     <div className="picker-container">
                         <div
@@ -145,7 +149,7 @@ function MapEditorStylePanel({
 
             {/* Opacity */}
             <div className="style-group">
-                <label>Opacity ({Math.round(activeStyle.fillOpacity * 100)}%)</label>
+                <label>{t("admin-pages.map-editor.styling-section.opacity-style-text")} ({Math.round(activeStyle.fillOpacity * 100)}%)</label>
                 <input
                     type="range" min="0" max="1" step="0.05"
                     value={activeStyle.fillOpacity}
@@ -156,7 +160,7 @@ function MapEditorStylePanel({
             {/* Border Weight */}
             {!isMarkerSelected && (
                 <div className="style-group">
-                    <label>Weight ({activeStyle.borderWeight}px)</label>
+                    <label>{t("admin-pages.map-editor.styling-section.weight-style-text")} ({activeStyle.borderWeight}px)</label>
                     <input
                         type="range" min="0" max="12" step="1"
                         value={activeStyle.borderWeight}
@@ -167,7 +171,7 @@ function MapEditorStylePanel({
 
             {selectedGeoFeature && (
                 <button className="deselect-btn" onClick={onDeselectGeoFeature}>
-                    ✕ Stop editing
+                    {t("admin-pages.map-editor.styling-section.stop-editing-btn-text")}
                 </button>
             )}
         </div>

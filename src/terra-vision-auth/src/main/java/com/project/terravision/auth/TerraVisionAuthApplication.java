@@ -1,15 +1,13 @@
 package com.project.terravision.auth;
 
+import com.project.terravision.auth.config.TimeZoneConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import java.util.TimeZone;
 
 @SpringBootApplication
 public class TerraVisionAuthApplication {
 
-	static {
-		TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-	}
+	static { TimeZoneConfig.configure(); }
 
 	public static void main(String[] args) {
 		SpringApplication.run(TerraVisionAuthApplication.class, args);

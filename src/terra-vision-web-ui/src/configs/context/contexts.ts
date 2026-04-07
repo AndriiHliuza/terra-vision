@@ -3,9 +3,7 @@ import type {PermissionStrategy, User} from "../../commons/schemas/auth-schemas.
 import type {LoginFormData} from "../form-validation-schemas.ts";
 
 export type ApplicationContextData = {
-    loading: boolean;
-    loadingBackground: string | undefined;
-    setLoadingLayout: (loading: boolean, background?: string) => void;
+    isLoadingUser: boolean;
 
     user: User | null;
     isAuthenticated:  boolean;

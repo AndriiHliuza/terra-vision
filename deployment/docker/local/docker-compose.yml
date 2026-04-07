@@ -43,7 +43,6 @@ services:
         environment:
             POSTGRES_USER: ${TERRA_VISION__POSTGRES__USER}
             POSTGRES_PASSWORD: ${TERRA_VISION__POSTGRES__PASSWORD}
-            POSTGRES_DB: ${TERRA_VISION__POSTGRES__DB} # default db
         ports:
             - '5432:5432'
         volumes:
@@ -53,10 +52,28 @@ services:
             - terra-vision-network
 
 
+    # ------------ Postgis ------------
+    terra-vision__postgis:
+        image: postgis/postgis:17-3.5
+        container_name: terra-vision__postgis
+        restart: unless-stopped
+        environment:
+            POSTGRES_USER: ${TERRA_VISION__POSTGIS__USER}
+            POSTGRES_PASSWORD: ${TERRA_VISION__POSTGIS__PASSWORD}
+        ports:
+            - '5433:5432'
+        volumes:
+            - terra-vision__postgis__data-volume:/var/lib/postgresql/data
+            - ./postgis/initdb:/docker-entrypoint-initdb.d:ro
+        networks:
+            - terra-vision-network
+
+
     # ------------ Minio ------------
     terra-vision__minio:
         image: minio/minio:RELEASE.2025-09-07T16-13-09Z
         container_name: terra-vision__minio
+        hostname: terra-vision-minio
         restart: unless-stopped
         ports:
             - "9000:9000"
@@ -67,6 +84,27 @@ services:
         volumes:
             - terra-vision__minio__data-volume:/data
         command: server /data --console-address ":9001"
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+            interval: 5s
+            timeout: 5s
+            retries: 5
+        networks:
+            - terra-vision-network
+
+    terra-vision__minio-init:
+        image: minio/mc:RELEASE.2025-08-13T08-35-41Z
+        container_name: terra-vision__minio-init
+        restart: no
+        depends_on:
+            terra-vision__minio:
+                condition: service_healthy
+        environment:
+            TERRA_VISION__MINIO__ROOT_USER: ${TERRA_VISION__MINIO__ROOT_USER}
+            TERRA_VISION__MINIO__ROOT_PASSWORD: ${TERRA_VISION__MINIO__ROOT_PASSWORD}
+        volumes:
+            - ./minio/scripts/minio-init.sh:/minio-init.sh
+        entrypoint: ["sh", "/minio-init.sh"]
         networks:
             - terra-vision-network
 
@@ -210,6 +248,11 @@ volumes:
     # ------------ Postgres ------------
     terra-vision__postgres__volume:
         name: terra-vision__postgres__volume
+    
+
+    # ------------ Postgis ------------
+    terra-vision__postgis__data-volume:
+        name: terra-vision__postgis__data-volume
     
 
     # ------------ Minio ------------

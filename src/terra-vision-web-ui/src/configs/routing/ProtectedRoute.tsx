@@ -2,6 +2,7 @@ import {PermissionStrategy, type ProtectedRouteProps, SystemRoleLevels} from "..
 import {useAppContext} from "../context/contexts.ts";
 import {Navigate, Outlet, useParams} from "react-router-dom";
 import NotFoundPage from "../../pages/NotFoundPage.tsx";
+import LoadingOverlay from "../../components/LoadingOverlay.tsx";
 
 function ProtectedRoute({
                             minPowerLevel = SystemRoleLevels.USER,
@@ -11,9 +12,11 @@ function ProtectedRoute({
                             redirectToIfNotAuthenticated,
                         }: ProtectedRouteProps) {
     const {lang} = useParams();
-    const {isAuthenticated, hasMinPowerLevel, hasRole, hasPermissions} = useAppContext();
+    const {isLoadingUser, isAuthenticated, hasMinPowerLevel, hasRole, hasPermissions} = useAppContext();
 
     const loginPath = redirectToIfNotAuthenticated ?? `/${lang}/login`;
+
+    if (isLoadingUser) return <LoadingOverlay visible={true} />
 
     if (!isAuthenticated) {
         const isAdminPath = location.pathname.startsWith(`/${lang}/admin`);

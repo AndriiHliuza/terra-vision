@@ -32,7 +32,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 
     private final AuthenticationService authenticationService;
     private final VerificationTokenService verificationTokenService;
-    private final AccountStatusCacheService accountStatusCacheService;
+    private final CacheService<UUID, AccountStatus> cacheService;
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
@@ -59,7 +59,7 @@ public class RegistrationServiceImpl implements RegistrationService {
         user.setAccountStatus(AccountStatus.ACTIVE);
         userRepository.save(user);
 
-        accountStatusCacheService.cacheAccountStatus(userId, AccountStatus.ACTIVE);
+        cacheService.cache(userId, AccountStatus.ACTIVE);
         log.debug("Email verified for user with email={}", user.getEmail());
     }
 
@@ -81,7 +81,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 
         updatedExistingUser(user, request); // only PENDING_VERIFICATION and DEACTIVATED reach here
 
-        accountStatusCacheService.cacheAccountStatus(user.getId(), AccountStatus.PENDING_VERIFICATION);
+        cacheService.cache(user.getId(), AccountStatus.PENDING_VERIFICATION);
         authenticationService.sendVerificationEmail(user.getEmail(), EmailVerificationType.REGISTRATION_VERIFICATION);
 
         return userMapper.toUserCreatedResponse(user);
@@ -105,7 +105,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 
         User user = saveNewUser(request, defaultRole);
 
-        accountStatusCacheService.cacheAccountStatus(user.getId(), AccountStatus.PENDING_VERIFICATION);
+        cacheService.cache(user.getId(), AccountStatus.PENDING_VERIFICATION);
         authenticationService.sendVerificationEmail(user.getEmail(), EmailVerificationType.REGISTRATION_VERIFICATION);
 
         return userMapper.toUserCreatedResponse(user);

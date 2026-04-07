@@ -1,2 +1,1 @@
 CREATE DATABASE terra_vision_auth_db;
-CREATE DATABASE terra_vision_geo_db;

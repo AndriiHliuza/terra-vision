@@ -1,15 +1,12 @@
 {
-
   "<<<<<<<<<<<< JSON-COMMENT: Header & Footer >>>>>>>>>>>>": "",
 
   "header": {
     "home": "Home",
     "detector": "Detector",
     "map": "Map",
-
     "login": "Login",
     "account": "Account",
-
     "languages": {
       "en": {
         "fullName": "English",
@@ -21,7 +18,6 @@
       }
     }
   },
-
   "footer": {
     "title": "About",
     "projectName": "Project name",
@@ -47,27 +43,21 @@
       }
     }
   },
-
   "login-page": {
     "title": "Login",
     "labels": {
       "email": "Email",
       "password": "Password"
     },
-
     "forgot-password-link": "Forgot password?",
-
     "submit-btn": "Submit",
-
     "no-account": "Don't have an account?",
     "sign-up": "Sign Up",
-
     "errors": {
       "invalid-credentials": "INVALID CREDENTIALS",
       "server-error": "SERVER ERROR"
     }
   },
-
   "registration-page": {
     "title": "Sign Up",
     "labels": {
@@ -78,12 +68,9 @@
       "password": "Password",
       "confirmPassword": "Confirm password"
     },
-
     "submit-btn": "Submit",
-
     "no-account": "Already have an account?",
     "login": "Login",
-
     "errors": {
       "account-already-exists": "ACCOUNT ALREADY EXISTS",
       "server-error": "SERVER ERROR"
@@ -162,17 +149,79 @@
   },
 
 
+
   "<<<<<<<<<<<< JSON-COMMENT: AdminPages >>>>>>>>>>>>": "",
 
   "admin-pages": {
+
+    "<<<<<<<<<<<< JSON-COMMENT: DashBoard >>>>>>>>>>>>": "",
+
     "dashboard": {
       "tab-name": "Dashboard"
     },
+
+    "<<<<<<<<<<<< JSON-COMMENT: MapEditor >>>>>>>>>>>>": "",
+
     "map-editor": {
       "tab-name": "Map Editor",
+      "styling-section": {
+        "title": "LAYER STYLING",
+        "editing-text": "Editing",
+        "stop-editing-btn-text": "✕ Stop editing",
+        "default-description": "Default style for new shapes",
+        "border-style-text": "Border",
+        "fill-style-text": "Fill",
+        "opacity-style-text": "Opacity",
+        "weight-style-text": "Weight"
+      },
       "layers-section": {
         "title": "Layers"
+      },
+      "pop-ups": {
+        "no-changes-to-save-pop-up": {
+          "title": "No changes to save"
+        },
+        "save-changes-confirmation-pop-up": {
+          "title": "Save changes?",
+          "description": "You are about to save {{numberOfChanges}} changes."
+        },
+        "perform-save-pop-up": {
+          "pending-text": "Pending...",
+          "success-text": "Saved successfully!",
+          "error-text": "Failed to save changes."
+        }
       }
+    }
+  },
+
+  "<<<<<<<<<<<< JSON-COMMENT: Popups >>>>>>>>>>>>": "",
+
+  "pop-ups": {
+    "confirmation-pop-up": {
+      "confirm-btn-text": "Yes",
+      "cancel-btn-text": "No"
+    },
+    "geofeature-pop-up": {
+      "item-title": "\uD83D\uDCCD Marker",
+      "zone-title": "\uD83D\uDEA7 Zone",
+      "details": "No description provided",
+      "radius": "Radius",
+      "area": "Area"
+    },
+    "delete-geofeature-confirmation-pop-up": {
+      "title": "Are you sure?",
+      "description": "You are about to delete the selected element."
+    },
+    "perform-geofeture-deletion-pop-up": {
+      "pending-text": "Pending...",
+      "success-text": "Deleted.",
+      "error-text": "Failed to delete."
+    },
+    "map-layer-moved-up-pop-up": {
+      "title": "Layer moved up"
+    },
+    "map-layer-moved-down-pop-up": {
+      "title": "Layer moved down"
     }
   }
 }

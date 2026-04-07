@@ -166,14 +166,77 @@
   "<<<<<<<<<<<< JSON-COMMENT: AdminPages >>>>>>>>>>>>": "",
 
   "admin-pages": {
+
+    "<<<<<<<<<<<< JSON-COMMENT: DashBoard >>>>>>>>>>>>": "",
+
     "dashboard": {
       "tab-name": "Інформаційна панель"
     },
+
+    "<<<<<<<<<<<< JSON-COMMENT: MapEditor >>>>>>>>>>>>": "",
+
     "map-editor": {
       "tab-name": "Редактор карт",
+      "styling-section": {
+        "title": "Стилі",
+        "editing-text": "Редагування",
+        "stop-editing-btn-text": "✕ Зупинити редагування",
+        "default-description": "Стиль за замовчуванням для нових фігур",
+        "border-style-text": "Межа",
+        "fill-style-text": "Заповнити",
+        "opacity-style-text": "Прозорість",
+        "weight-style-text": "Вага"
+      },
       "layers-section": {
         "title": "Шари"
+      },
+      "pop-ups": {
+        "no-changes-to-save-pop-up": {
+          "title": "Немає змін для збереження"
+        },
+        "save-changes-confirmation-pop-up": {
+          "title": "Зберегти зміни?",
+          "description": "Кількість змін: {{numberOfChanges}}"
+        },
+        "perform-save-pop-up": {
+          "pending-text": "Зберігаємо...",
+          "success-text": "Успішно збережно!",
+          "error-text": "Не вдалося зберегти зміни."
+        }
       }
+    }
+  },
+
+
+
+  "<<<<<<<<<<<< JSON-COMMENT: Popups >>>>>>>>>>>>": "",
+
+  "pop-ups": {
+    "confirmation-pop-up": {
+      "confirm-btn-text": "Так",
+      "cancel-btn-text": "Ні"
+    },
+    "geofeature-pop-up": {
+      "item-title": "\uD83D\uDCCD Маркер",
+      "zone-title": "\uD83D\uDEA7 Зона",
+      "details": "Інформація відсутня",
+      "radius": "Радіус",
+      "area": "Площа"
+    },
+    "delete-geofeature-confirmation-pop-up": {
+      "title": "Ви впевнені?",
+      "description": "Ви збираєтеся видалити вибраний елемент."
+    },
+    "perform-geofeture-deletion-pop-up": {
+      "pending-text": "Зачекайте...",
+      "success-text": "Об'єкт видалено.",
+      "error-text": "Не вдалося видалити."
+    },
+    "map-layer-moved-up-pop-up": {
+      "title": "Шар переміщено вгору"
+    },
+    "map-layer-moved-down-pop-up": {
+      "title": "Шар переміщено вниз"
     }
   }
 }

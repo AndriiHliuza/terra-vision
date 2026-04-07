@@ -1,5 +1,6 @@
 db = db.getSiblingDB("terra-vision-ai-db");
 db.createCollection("models");
+db.createCollection("stats");
 
 const models = [
     {

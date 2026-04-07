@@ -9,39 +9,13 @@ import type {LoginFormData} from "../form-validation-schemas.ts";
 
 const ApplicationContextProvider = () => {
 
-    const [loading, setLoading] = useState(false);
-    const [loadingBackground, setLoadingBackground] = useState<string | undefined>(undefined);
-
-    const setLoadingLayout = (loading: boolean, background?: string) => {
-        setLoading(loading);
-        setLoadingBackground(loading ? background : undefined);
-    };
+    const [isLoadingUser, setIsLoadingUser] = useState(true);
 
     const navigate = useNavigate();
     const {lang} = useParams();
     const [forbidden, setForbidden] = useState(false);
     const [user, setUser] = useState<User | null>(null);
     const [profileImage, setProfileImage] = useState<string>(defaultProfileImg);
-
-    useEffect(() => {
-        const controller = new AbortController();
-        let profileImageUrl: string | null = null;
-        axiosWebClient.get(`/api/users/${user?.id}/profile/image`, {
-            signal: controller.signal,
-            responseType: 'blob',
-        }).then(res => {
-            profileImageUrl = URL.createObjectURL(res.data);
-            setProfileImage(profileImageUrl);
-        }).catch(err => {
-            if (axios.isCancel(err)) return;
-        });
-        return () => {
-            controller.abort(); // Stops the fetch if user navigates away
-            if (profileImageUrl) {
-                URL.revokeObjectURL(profileImageUrl); // Releases the image from RAM
-            }
-        };
-    }, [user?.id]);
 
     const handleUnauthorized = useCallback(() => {
         if (!user) return;
@@ -67,7 +41,30 @@ const ApplicationContextProvider = () => {
         axiosWebClient.get<User>("/api/auth/me")
             .then(res => setUser(res.data))
             .catch(() => setUser(null))
+            .finally(() => setIsLoadingUser(false));
     }, []);
+
+    useEffect(() => {
+        const controller = new AbortController();
+        let profileImageUrl: string | null = null;
+        if (user) {
+            axiosWebClient.get(`/api/users/${user?.id}/profile/image`, {
+                signal: controller.signal,
+                responseType: 'blob',
+            }).then(res => {
+                profileImageUrl = URL.createObjectURL(res.data);
+                setProfileImage(profileImageUrl);
+            }).catch(err => {
+                if (axios.isCancel(err)) return;
+            });
+        }
+        return () => {
+            controller.abort(); // Stops the fetch if user navigates away
+            if (profileImageUrl) {
+                URL.revokeObjectURL(profileImageUrl); // Releases the image from RAM
+            }
+        };
+    }, [user]);
 
     const hasMinPowerLevel = (required: number): boolean =>
         (user?.role.powerLevel ?? 0) >= required;
@@ -103,9 +100,7 @@ const ApplicationContextProvider = () => {
 
     return (
         <ApplicationContext.Provider value={{
-            loading,
-            loadingBackground,
-            setLoadingLayout,
+            isLoadingUser,
 
             user,
             isAuthenticated: !!user,

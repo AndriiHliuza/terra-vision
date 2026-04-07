@@ -1,6 +1,6 @@
 plugins {
 	java
-	id("org.springframework.boot") version "4.0.2"
+	id("org.springframework.boot") version "4.0.5"
 	id("io.spring.dependency-management") version "1.1.7"
 }
 
@@ -17,12 +17,6 @@ java {
 	}
 }
 
-configurations {
-	compileOnly {
-		extendsFrom(configurations.annotationProcessor.get())
-	}
-}
-
 repositories {
 	mavenCentral()
 }
@@ -35,7 +29,7 @@ dependencies {
 	implementation("org.springframework.cloud:spring-cloud-starter-vault-config")
 
 	// --- MinIO ---
-	implementation("io.minio:minio:${minioVersion}")
+	implementation("io.minio:minio:$minioVersion")
 
 	// --- Lombok ---
 	compileOnly("org.projectlombok:lombok")

@@ -26,6 +26,8 @@ public class SessionValidationFilter implements WebFilter, Ordered {
     private final ReactiveStringRedisTemplate reactiveStringRedisTemplate;
     private final ReactiveJwtDecoder jwtDecoder;
 
+    private static final String SESSION_PREFIX = "session:";
+
     @NullMarked
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
@@ -47,7 +49,7 @@ public class SessionValidationFilter implements WebFilter, Ordered {
                     String jti = jwt.getId();
 
                     return reactiveStringRedisTemplate
-                            .hasKey("session:" + userId + ":" + jti)
+                            .hasKey(SESSION_PREFIX + userId + ":" + jti)
                             .flatMap(isValid -> handleSessionValidation(exchange, chain, isValid, userId));
                 })
                 .onErrorResume(JwtException.class, ex -> handleJwtException(exchange, ex));

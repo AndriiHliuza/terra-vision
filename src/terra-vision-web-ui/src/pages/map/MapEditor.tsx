@@ -77,7 +77,7 @@ function MapEditor() {
             feature.properties?.isCreated === true || feature.properties?.isModified === true)
 
         if (changedFeatures.length === 0) {
-            toast.info("No changes to save", {
+            toast.info(t("admin-pages.map-editor.pop-ups.no-changes-to-save-pop-up.title"), {
                 position: "bottom-left",
                 autoClose: 3000,
                 theme: "dark"
@@ -86,14 +86,14 @@ function MapEditor() {
         }
 
         const confirmationResult = await Swal.fire({
-            title: "Save changes?",
-            text: `You are about to save ${changedFeatures.length} changes.`,
+            title: t("admin-pages.map-editor.pop-ups.save-changes-confirmation-pop-up.title"),
+            text: t("admin-pages.map-editor.pop-ups.save-changes-confirmation-pop-up.description", { numberOfChanges: changedFeatures.length }),
             icon: "info",
             showCancelButton: true,
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Yes",
-            cancelButtonText: "No",
+            confirmButtonText: t("pop-ups.confirmation-pop-up.confirm-btn-text"),
+            cancelButtonText: t("pop-ups.confirmation-pop-up.cancel-btn-text"),
             background: "#1a1a1e",
             color: "#fff",
             backdrop: "rgba(0, 0, 0, 0.5)",
@@ -132,9 +132,9 @@ function MapEditor() {
         await toast.promise(
             performSave(),
             {
-                pending: 'Saving...',
-                success: 'Saved successfully!',
-                error: 'Failed to save changes.'
+                pending: t("admin-pages.map-editor.pop-ups.perform-save-pop-up.pending-text"),
+                success: t("admin-pages.map-editor.pop-ups.perform-save-pop-up.success-text"),
+                error: t("admin-pages.map-editor.pop-ups.perform-save-pop-up.error-text")
             },
             {
                 position: "bottom-left",
@@ -248,7 +248,7 @@ const ResizeHandle = ({onMouseDown}: { onMouseDown: MouseEventHandler<HTMLDivEle
 
 const SaveButton = ({onClick}: { onClick: MouseEventHandler<HTMLImageElement> }) => {
     return (
-        <div className="save-features-btn">
+        <div className="save-features-btn" title="Save changes">
             <img
                 src={saveBtnImg}
                 alt="Save changes"

@@ -6,7 +6,6 @@ import com.project.terravision.auth.enums.EmailVerificationType;
 import com.project.terravision.auth.service.VerificationTokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +16,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class VerificationTokenServiceImpl implements VerificationTokenService {
-    private static final String VERIFY_PREFIX = "verify:";
+    private static final String VERIFICATION_PREFIX = "verification:";
     private static final String LATEST_PREFIX = "latest:";
 
     private final MailProperties mailProperties;
@@ -32,8 +31,8 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
      * <ul>
      *     <li>
      *         <p></p><b>Token key</b> – maps the generated token to the user ID.
-     *         <p></p><b>Example of the token key:</b> verify:registration-email-verification:token
-     *         <p></p><b>Example of the token key:</b> verify:registration-email-verification:token
+     *         <p></p><b>Example of the token key:</b> verification:registration-verification:token
+     *         <p></p><b>Example of the token key:</b> verification:registration-verification:token
      *     </li>
      *     <li>
      *         <b>Latest token key</b> – maps the user ID to the most recently issued token.
@@ -56,7 +55,7 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
         String token = UUID.randomUUID().toString();
         Duration expiration = mailProperties.getVerificationProps().getExpiration();
 
-        String commonKeyPrefix = VERIFY_PREFIX.concat(getVerificationTypePrefix(verificationType));
+        String commonKeyPrefix = VERIFICATION_PREFIX.concat(getVerificationTypePrefix(verificationType));
 
         String tokenKey = commonKeyPrefix.concat(token);
         stringRedisTemplate.opsForValue().set(tokenKey, userId.toString(), expiration);
@@ -89,7 +88,7 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
      */
     @Override
     public UUID validateToken(String token, EmailVerificationType verificationType) {
-        String commonKeyPrefix = VERIFY_PREFIX.concat(getVerificationTypePrefix(verificationType));
+        String commonKeyPrefix = VERIFICATION_PREFIX.concat(getVerificationTypePrefix(verificationType));
 
         String tokenKey = commonKeyPrefix.concat(token);
         String userId = stringRedisTemplate.opsForValue().get(tokenKey);
