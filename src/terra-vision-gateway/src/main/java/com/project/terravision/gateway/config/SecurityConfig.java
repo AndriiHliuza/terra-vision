@@ -1,5 +1,6 @@
 package com.project.terravision.gateway.config;
 
+import com.project.terravision.gateway.config.attributes.SecurityPaths;
 import com.project.terravision.gateway.config.properties.SecurityProperties;
 import com.project.terravision.gateway.model.SystemRoleLevel;
 import com.project.terravision.gateway.filter.CsrfTokenCookieFilter;

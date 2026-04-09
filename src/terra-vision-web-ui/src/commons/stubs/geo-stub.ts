@@ -1,6 +1,12 @@
-import type { FeatureCollection } from "geojson";
+import type {FeatureCollection, Geometry, Point, Polygon} from "geojson";
+import type {FeatureProperties} from "../schemas/gis-schemas.ts";
 
-const STUB_MAP_DATA: FeatureCollection = {
+
+/**
+ * We define the stub data using your strict project interface.
+ * This ensures no 'null' or 'any' leaks into your React state.
+ */
+const STUB_MAP_DATA: FeatureCollection<Geometry, FeatureProperties> = {
     type: "FeatureCollection",
     features: [
         {
@@ -8,74 +14,104 @@ const STUB_MAP_DATA: FeatureCollection = {
             properties: {
                 id: "mine-101",
                 type: "marker",
-                objectType: "TM-62M Anti-tank Mine",
-                status: "detected"
+                title: "OZM-72 Fragmentation Mine",
+                details: "Detected via drone thermal imaging. High priority for clearance.",
+                borderColor: "#d32f2f",
+                fillColor: "#f44336",
+                isNew: false,
+                isDeleted: false,
+                validFrom: "2026-04-01T10:00:00Z",
+                validTo: null, // Active
             },
             geometry: {
                 type: "Point",
-                coordinates: [31.1656, 48.3794]
-            }
+                coordinates: [32.2623, 48.5079]
+            } as Point
         },
         {
             type: "Feature",
             properties: {
-                id: "zone-alpha",
+                id: "hazard-zone-alpha",
                 type: "polygon",
-                borderColor: "#ff0000",
-                fillColor: "#ff4444",
-                fillOpacity: 0.4,
-                borderWeight: 3
+                title: "Confirmed Hazardous Area (CHA)",
+                details: "High density of anti-personnel mines reported by local population.",
+                borderColor: "#b71c1c",
+                fillColor: "#ff5252",
+                fillOpacity: 0.3,
+                borderWeight: 2,
+                isNew: false,
+                isDeleted: false,
+                validFrom: "2026-03-15T08:30:00Z",
+                validTo: null,
             },
             geometry: {
                 type: "Polygon",
                 coordinates: [[
-                    [31.10, 48.35],
-                    [31.25, 48.35],
-                    [31.25, 48.45],
-                    [31.10, 48.45],
-                    [31.10, 48.35]
+                    [32.2500, 48.5100],
+                    [32.2700, 48.5100],
+                    [32.2700, 48.5200],
+                    [32.2500, 48.5200],
+                    [32.2500, 48.5100]
                 ]]
-            }
+            } as Polygon
         },
         {
             type: "Feature",
             properties: {
-                id: "danger-circle-1",
+                id: "danger-circle-radiance",
                 type: "circle",
+                title: "UXO Safety Perimeter",
+                details: "Standard 500m evacuation zone around unexploded aircraft bomb.",
                 radius: 500,
-                borderColor: "#ffa500",
-                fillColor: "#ffd700",
-                fillOpacity: 0.5
+                borderColor: "#ef6c00",
+                fillColor: "#ff9800",
+                fillOpacity: 0.4,
+                borderWeight: 3,
+                isNew: false,
+                isDeleted: false,
+                validFrom: "2026-04-08T12:00:00Z",
+                validTo: null,
             },
             geometry: {
                 type: "Point",
-                coordinates: [31.20, 48.40]
-            }
+                coordinates: [32.2800, 48.5000]
+            } as Point
         },
         {
             type: "Feature",
             properties: {
-                id: "building-rect",
+                id: "cleared-area-01",
                 type: "polygon",
-                borderColor: "#0000ff",
-                fillColor: "#add8e6"
+                title: "Cleared Sector 4",
+                details: "Demining completed by HALO Trust. Safe for agricultural use.",
+                borderColor: "#302295",
+                fillColor: "#4c59af",
+                fillOpacity: 0.9,
+                borderWeight: 1,
+                isNew: false,
+                isDeleted: false, // Marking as deleted/archived to test historical logic
+                validFrom: "2026-01-01T09:00:00Z",
+                validTo: "2026-04-01T15:00:00Z",
             },
             geometry: {
                 type: "Polygon",
                 coordinates: [[
-                    [31.05, 48.30],
-                    [31.08, 48.30],
-                    [31.08, 48.33],
-                    [31.05, 48.33],
-                    [31.05, 48.30]
+                    [32.2400, 48.4900],
+                    [32.2450, 48.4900],
+                    [32.2450, 48.4950],
+                    [32.2400, 48.4950],
+                    [32.2400, 48.4900]
                 ]]
-            }
+            } as Polygon
         }
     ]
 };
 
-// Helper to simulate a network delay returning the Collection
-export const fetchStubMapData = (): Promise<FeatureCollection> => {
+/**
+ * Return type is now explicitly typed to match your state.
+ * This resolves the TS2345 error in your useEffect.
+ */
+export const fetchStubMapData = (): Promise<FeatureCollection<Geometry, FeatureProperties>> => {
     return new Promise((resolve) => {
         setTimeout(() => {
             resolve(STUB_MAP_DATA);

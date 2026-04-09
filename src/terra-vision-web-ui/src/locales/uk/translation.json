@@ -202,6 +202,10 @@
           "pending-text": "Зберігаємо...",
           "success-text": "Успішно збережно!",
           "error-text": "Не вдалося зберегти зміни."
+        },
+        "reload-geojson-confirmation-pop-up": {
+          "title": "Перезавантажити карту?",
+          "description": "Всі зміни буде втарчено."
         }
       }
     }
@@ -227,10 +231,8 @@
       "title": "Ви впевнені?",
       "description": "Ви збираєтеся видалити вибраний елемент."
     },
-    "perform-geofeture-deletion-pop-up": {
-      "pending-text": "Зачекайте...",
-      "success-text": "Об'єкт видалено.",
-      "error-text": "Не вдалося видалити."
+    "geofeture-deletion-result-pop-up": {
+      "success-text": "Об'єкт видалено."
     },
     "map-layer-moved-up-pop-up": {
       "title": "Шар переміщено вгору"

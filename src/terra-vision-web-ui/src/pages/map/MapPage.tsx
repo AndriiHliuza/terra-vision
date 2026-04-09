@@ -7,7 +7,7 @@ import {
 import "leaflet/dist/leaflet.css";
 import Header from "../../components/Header.tsx";
 import {useCallback, useEffect, useState} from "react";
-import {type Coordinates, DEFAULT_FEATURE_STYLE} from "../../commons/schemas/gis-schemas.ts";
+import {type Coordinates, DEFAULT_FEATURE_STYLE, type FeatureProperties} from "../../commons/schemas/gis-schemas.ts";
 import MapLayers from "../../components/map/MapLayers.tsx";
 import {Outlet} from "react-router-dom";
 import MapPositionPopupDetails from "../../components/map/popups/MapPositionPopupDetails.tsx";
@@ -18,7 +18,7 @@ import {MapEventsHandler} from "../../components/map/handlers/MapEventsHandler.t
 import MarkerClusterGroup from "react-leaflet-cluster";
 import {createClusterIcon, markerIcon} from "../../components/map/icons/map-icons.tsx";
 import {fetchStubMapData} from "../../commons/stubs/geo-stub.ts";
-import type {Feature, FeatureCollection} from "geojson";
+import type {Feature, FeatureCollection, Geometry} from "geojson";
 import L from "leaflet";
 import GeoFeaturePopupDetails from "../../components/map/popups/GeoFeaturePopupDetails.tsx";
 
@@ -28,11 +28,11 @@ function MapPage() {
     const [isMapLoading, setMapLoading] = useState<boolean>(false);
     const [layer, setLayer] = useState(() => localStorage.getItem("map-layer") || MAP_LAYERS[0].name);
 
-    const [geoFeatures, setGeoFeatures] = useState<Feature[]>([]);
+    const [geoFeatures, setGeoFeatures] = useState<Feature<Geometry, FeatureProperties>[]>([]);
 
     const [positionPopupDetails, setPositionPopupDetails] = useState<Coordinates | null>(null);
     const [selectedGeoFeature, setSelectedGeoFeature] = useState<{
-        feature: Feature;
+        feature: Feature<Geometry, FeatureProperties>;
         latlng: L.LatLng;
         timestamp: number;
     } | null>(null);
@@ -46,7 +46,7 @@ function MapPage() {
     useEffect(() => {
         setMapLoading(true);
         fetchStubMapData()
-            .then((collection: FeatureCollection) => setGeoFeatures(collection.features))
+            .then((collection: FeatureCollection<Geometry, FeatureProperties>) => setGeoFeatures(collection.features))
             .catch(err => console.error("Data fetch error:", err))
             .finally(() => setMapLoading(false));
     }, [])
@@ -87,7 +87,7 @@ function MapPage() {
         return L.marker(latlng, { icon: markerIcon });
     };
 
-    const onEachGeoFeatureClick = useCallback((feature: Feature, leafletLayer: L.Layer) => {
+    const onEachGeoFeatureClick = useCallback((feature: Feature<Geometry, FeatureProperties>, leafletLayer: L.Layer) => {
         leafletLayer.on("click", (e: L.LeafletMouseEvent) => {
             setSelectedGeoFeature({
                 feature,
@@ -147,7 +147,7 @@ function MapPage() {
                             position={selectedGeoFeature.latlng}
                         >
                             <GeoFeaturePopupDetails
-                                feature={selectedGeoFeature.feature}
+                                geoFeature={selectedGeoFeature.feature}
                                 setGeoFeatures={setGeoFeatures}
                             />
                         </Popup>

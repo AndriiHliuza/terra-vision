@@ -1,6 +1,6 @@
 package com.project.terravision.gateway.utils;
 
-import com.project.terravision.gateway.config.SecurityPaths;
+import com.project.terravision.gateway.config.attributes.SecurityPaths;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.util.AntPathMatcher;

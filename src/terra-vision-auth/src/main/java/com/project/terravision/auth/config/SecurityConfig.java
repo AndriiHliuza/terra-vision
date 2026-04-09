@@ -3,6 +3,7 @@ package com.project.terravision.auth.config;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
+import com.project.terravision.auth.config.attributes.SecurityPaths;
 import com.project.terravision.auth.service.impl.RSAKeyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -50,28 +51,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests(requestMatcherRegistry -> requestMatcherRegistry
 
                         // <<<<<<<<<<<< Public paths >>>>>>>>>>>>
-                        .requestMatchers(HttpMethod.GET,
-                                "/api/auth/.well-known/jwks.json", // JSON Web Key Set
+                        .requestMatchers(SecurityPaths.PublicPaths.ALL_HTTP_METHODS_PATHS).permitAll()
+                        .requestMatchers(HttpMethod.GET, SecurityPaths.PublicPaths.GET_PATHS).permitAll()
+                        .requestMatchers(HttpMethod.POST, SecurityPaths.PublicPaths.POST_PATHS).permitAll()
 
-                                "/api/auth/public" // Just for testing purposes
-                        ).permitAll()
-                        .requestMatchers(HttpMethod.POST,
-                                "/api/auth/login",
-                                "/api/auth/refresh-token",
-
-                                "/api/auth/rotate-key",
-
-                                "/api/auth/sign-up",
-                                "/api/auth/verify-email",
-
-                                "/api/auth/forgot-password",
-                                "/api/auth/reset-password",
-
-                                "/api/auth/resend-verification"
-                        ).permitAll()
-
-                        .requestMatchers("/api/auth/internal/**").permitAll()
-
+                        // <<<<<<<<<<<< All other paths that are not listed above (require authentication) >>>>>>>>>>>>
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oAuth2ResourceServerConfigurer -> oAuth2ResourceServerConfigurer

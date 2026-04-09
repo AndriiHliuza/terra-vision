@@ -1,4 +1,4 @@
-package com.project.terravision.gateway.config;
+package com.project.terravision.gateway.config.attributes;
 
 import org.springframework.http.HttpMethod;
 

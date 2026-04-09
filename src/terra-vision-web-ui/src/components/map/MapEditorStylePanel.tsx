@@ -1,8 +1,8 @@
 import "../../styles/components/map/MapEditorStylePanel.css";
 import {type Dispatch, type SetStateAction, useCallback, useState} from "react";
-import type {GeoFeatureStyle} from "../../commons/schemas/gis-schemas.ts";
+import type {FeatureProperties, GeoFeatureStyle} from "../../commons/schemas/gis-schemas.ts";
 import {HexColorInput, HexColorPicker} from "react-colorful";
-import type {Feature} from "geojson";
+import type {Feature, Geometry} from "geojson";
 import {getSafeBorderWeightAndFillOpacity, getSafeFillOpacityForMarker} from "../../commons/utils/style-utils.ts";
 import {useTranslation} from "react-i18next";
 
@@ -12,7 +12,7 @@ interface MapEditorStylePanelProps {
     setStyle: Dispatch<SetStateAction<GeoFeatureStyle>>;
 
     // Selected feature — if set, panel edits that feature's style
-    selectedGeoFeature: Feature | null;
+    selectedGeoFeature: Feature<Geometry, FeatureProperties> | null;
     onUpdateGeoFeatureStyle: (id: string, updates: Partial<GeoFeatureStyle>) => void;
     onDeselectGeoFeature: () => void;
 }
@@ -46,11 +46,11 @@ function MapEditorStylePanel({
         updatedGeoFeatureStyle: Partial<GeoFeatureStyle>,
         origin?: "weight" | "opacity"
     ) => {
-        const borderWeight = updatedGeoFeatureStyle.borderWeight !== undefined
+        const borderWeight = updatedGeoFeatureStyle.borderWeight
             ? updatedGeoFeatureStyle.borderWeight
             : activeStyle.borderWeight;
 
-        const fillOpacity = updatedGeoFeatureStyle.fillOpacity !== undefined
+        const fillOpacity = updatedGeoFeatureStyle.fillOpacity
             ? updatedGeoFeatureStyle.fillOpacity
             : activeStyle.fillOpacity;
 
@@ -66,7 +66,7 @@ function MapEditorStylePanel({
             ...(isMarkerSelected ? {fillOpacity: getSafeFillOpacityForMarker(fillOpacity)} : {fillOpacity: safeFillOpacity})
         };
 
-        if (selectedGeoFeature?.properties?.id) {
+        if (selectedGeoFeature?.properties.id) {
             const updatedProps = {
                 ...updatedGeoFeatureStyle,
                 isModified: true,

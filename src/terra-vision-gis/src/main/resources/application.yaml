@@ -14,9 +14,14 @@ spring:
         enabled: true
         backend: secret
 
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/terra_vision_gis_db
+    username: ${TERRA_VISION__POSTGIS__USER}
+    password: ${TERRA_VISION__POSTGIS__PASSWORD}
+
 server:
   port: 8083
-
 
 application:
 

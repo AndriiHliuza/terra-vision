@@ -22,6 +22,43 @@ export const DEFAULT_FEATURE_STYLE = {
 export interface FeatureLayer extends L.Layer {
     featureId?: string;
     pm?: { enabled: () => boolean }
+    hasHandlersAttached?: boolean;
+}
+
+export interface FeatureProperties {
+    id: string;
+    parentId?: string | null;
+    type: string;
+
+    // Description
+    title?: string | null;
+    details?: string | null;
+
+    // UI Styling
+    borderColor?: string | null;
+    fillColor?: string | null;
+    fillOpacity?: number | null;
+    borderWeight?: number | null;
+
+    // Radius (for circles)
+    radius?: number | null;
+
+    /*
+    * ------ Time logic ------
+    * - lastModified is just for markers
+    * - validFrom and validTo for polygons and circles to keep track of history
+    * */
+    validFrom: string | null;
+    validTo?: string | null;
+    lastModified?: string;
+
+    // React Local Flags (For the "Save" button)
+    isNew?: boolean;
+    isDeleted?: boolean;
+    isModified?: boolean;
+
+    // Other properties if needed
+    [key: string]: unknown;
 }
 
 export interface GeoFeatureStyle {

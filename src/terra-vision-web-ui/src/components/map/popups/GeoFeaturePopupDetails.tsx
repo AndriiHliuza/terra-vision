@@ -1,5 +1,5 @@
 import "../../../styles/components/map/popups/GeoFeaturePopupDetails.css";
-import type {Feature} from "geojson";
+import type {Feature, Geometry} from "geojson";
 import {useMap} from "react-leaflet";
 import area from "@turf/area";
 import infoBtnImg from "../../../assets/info-btn-img.png";
@@ -7,7 +7,11 @@ import deleteBtnImg from "../../../assets/delete-btn-img.png";
 import moveLayerDownBtnImg from "../../../assets/move-layer-down-btn-img.png";
 import moveLayerUpBtnImg from "../../../assets/move-layer-up-btn-img.png";
 import L from "leaflet";
-import type {FeatureLayer} from "../../../commons/schemas/gis-schemas.ts";
+import {
+    DEFAULT_FEATURE_STYLE,
+    type FeatureLayer,
+    type FeatureProperties
+} from "../../../commons/schemas/gis-schemas.ts";
 import {toast} from "react-toastify";
 import type {Dispatch, SetStateAction} from "react";
 import Swal from "sweetalert2";
@@ -15,12 +19,12 @@ import {useLocation, useNavigate, useParams} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 
 interface GeoFeaturePopupDetailsProps {
-    feature: Feature;
-    setGeoFeatures: Dispatch<SetStateAction<Feature[]>>;
+    geoFeature: Feature<Geometry, FeatureProperties>;
+    setGeoFeatures: Dispatch<SetStateAction<Feature<Geometry, FeatureProperties>[]>>;
 }
 
 const GeoFeaturePopupDetails = ({
-                                    feature,
+                                    geoFeature,
                                     setGeoFeatures,
                                 }: GeoFeaturePopupDetailsProps) => {
 
@@ -29,16 +33,16 @@ const GeoFeaturePopupDetails = ({
     const navigate = useNavigate();
     const {lang} = useParams();
     const map = useMap();
-    const {id, type, radius, borderColor, title, details} = feature.properties || {};
+    const {id, type, radius, borderColor, title, details} = geoFeature.properties || {};
 
     const isMapEditorRoute = location.pathname === `/${lang}/admin/map-editor`;
 
     const handleViewDetails = () => {
-        if (feature.properties?.id) {
+        if (id) {
             if (isMapEditorRoute) {
-                navigate(`/${lang}/admin/map-editor/${feature.properties.id}`)
+                navigate(`/${lang}/admin/map-editor/${geoFeature.properties.id}`)
             } else {
-                navigate(`/${lang}/map/${feature.properties.id}`)
+                navigate(`/${lang}/map/${geoFeature.properties.id}`)
             }
         }
 
@@ -61,26 +65,27 @@ const GeoFeaturePopupDetails = ({
         })
         if (!confirmationResult.isConfirmed) return;
 
-        // perform delete here
-        const performDelete = async () => {
+        const timestamp = new Date().toISOString();
+        setGeoFeatures(prev => {
+            return prev.reduce((
+                accumulatorBucket: Feature<Geometry, FeatureProperties>[],
+                item: Feature<Geometry, FeatureProperties>
+            ) => {
+                if (item.properties.id === id) {
+                    if (item.properties.isNew) return accumulatorBucket;
+                    accumulatorBucket.push({
+                        ...item,
+                        properties: { ...item.properties, validTo: timestamp, isDeleted: true }
+                    });
+                    return accumulatorBucket;
+                }
+                accumulatorBucket.push(item);
+                return accumulatorBucket;
+            }, []);
+        });
 
-        }
-
-        await toast.promise(
-            performDelete(),
-            {
-                pending: t("pop-ups.perform-geofeture-deletion-pop-up.pending-text"),
-                success: t("pop-ups.perform-geofeture-deletion-pop-up.success-text"),
-                error: t("pop-ups.perform-geofeture-deletion-pop-up.error-text")
-            },
-            {
-                position: "bottom-left",
-                theme: "dark"
-            }
-        );
-
-        setGeoFeatures((prev) => prev.filter((feature) => feature.properties?.id !== id));
         map.closePopup();
+        toast.success( t("pop-ups.geofeture-deletion-result-pop-up.success-text"));
     };
 
     const handleSendToBack = () => {
@@ -123,7 +128,7 @@ const GeoFeaturePopupDetails = ({
 
     const getArea = () => {
         if (type === "circle" && radius) return formatArea(Math.PI * Math.pow(radius, 2));
-        if (feature.geometry.type === "Polygon") return formatArea(area(feature));
+        if (geoFeature.geometry.type === "Polygon") return formatArea(area(geoFeature));
 
         return null;
     };
@@ -132,14 +137,14 @@ const GeoFeaturePopupDetails = ({
 
     return (
         <div className="geofeature-popup">
-            <h4 style={{color: borderColor}}>
+            <h4 style={{color: borderColor ?? DEFAULT_FEATURE_STYLE.borderColor}}>
                 {
                     type === "marker" ?
                         ` ${title ?? t("pop-ups.geofeature-pop-up.item-title")}` :
                         ` ${title ?? t("pop-ups.geofeature-pop-up.zone-title")}`
                 }
             </h4>
-            <p><strong>ID:</strong> {feature.properties?.id}</p>
+            <p><strong>ID:</strong> {geoFeature.properties?.id}</p>
             <p>{details || t("pop-ups.geofeature-pop-up.details")}</p>
             {radius && (
                 <p><strong>{t("pop-ups.geofeature-pop-up.radius")}:</strong> {formatRadius(radius)}</p>

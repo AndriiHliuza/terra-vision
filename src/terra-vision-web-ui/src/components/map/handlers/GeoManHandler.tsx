@@ -1,36 +1,53 @@
 import {type Dispatch, type SetStateAction, useCallback, useEffect, useRef} from "react";
 import {useMap} from "react-leaflet";
-import type {Feature, Point} from "geojson";
+import type {Feature, Geometry, MultiPolygon, Point, Polygon, Position} from "geojson";
 import L, {type LeafletMouseEvent} from "leaflet";
 import {createClusterIcon, createMarkerIcon} from "../icons/map-icons.tsx";
-import {DEFAULT_FEATURE_STYLE, type FeatureLayer} from "../../../commons/schemas/gis-schemas.ts";
+import {
+    type FeatureLayer,
+    type FeatureProperties
+} from "../../../commons/schemas/gis-schemas.ts";
 import {getSafeBorderWeightAndFillOpacity, getSafeFillOpacityForMarker} from "../../../commons/utils/style-utils.ts";
 import "leaflet.markercluster";
 
+type Handlers = {
+    onLayerClick: (event: LeafletMouseEvent, feature: Feature<Geometry, FeatureProperties>) => void;
+    onLayerUpdate: (feature: Feature<Geometry, FeatureProperties>, layer: L.Layer) => void;
+};
 
 interface GeoManHandlerProps {
-    geoFeatures: Feature[];
-    setGeoFeatures: Dispatch<SetStateAction<Feature[]>>;
-    onGeoFeatureClick: (feature: Feature, latlng: L.LatLng) => void;
-    borderColor?: string;
-    fillColor?: string;
-    fillOpacity?: number;
-    borderWeight?: number;
+    features: Feature<Geometry, FeatureProperties>[];
+    setFeatures: Dispatch<SetStateAction<Feature<Geometry, FeatureProperties>[]>>;
+    onFeatureClick: (feature: Feature<Geometry, FeatureProperties>, latlng: L.LatLng) => void;
+    borderColor: string;
+    fillColor: string;
+    fillOpacity: number;
+    borderWeight: number;
 }
 
 const GeoManHandler = ({
-                           geoFeatures,
-                           setGeoFeatures,
-                           onGeoFeatureClick,
-                           borderColor = DEFAULT_FEATURE_STYLE.borderColor,
-                           fillColor = DEFAULT_FEATURE_STYLE.fillColor,
-                           fillOpacity = DEFAULT_FEATURE_STYLE.fillOpacity,
-                           borderWeight = DEFAULT_FEATURE_STYLE.borderWeight
+                           features,
+                           setFeatures,
+                           onFeatureClick,
+                           borderColor,
+                           fillColor,
+                           fillOpacity,
+                           borderWeight
                        }: GeoManHandlerProps) => {
     const map = useMap();
-    const isInitialLoadComplete = useRef<boolean>(false);
-    const geoFeaturesRef = useRef<Feature[]>(geoFeatures);
-    const clusterGroupRef = useRef<L.MarkerClusterGroup>(
+
+    const featuresRef = useRef<Feature<Geometry, FeatureProperties>[]>(features);
+
+    useEffect(() => {
+        featuresRef.current = features;
+    }, [features]);
+
+    const handlersRef = useRef<Handlers>({
+        onLayerClick: () => {},
+        onLayerUpdate: () => {}
+    });
+
+    const markerClusterGroupRef = useRef<L.MarkerClusterGroup>(
         L.markerClusterGroup({
             iconCreateFunction: createClusterIcon,
             maxClusterRadius: 80,
@@ -41,59 +58,52 @@ const GeoManHandler = ({
     )
 
     useEffect(() => {
-        geoFeaturesRef.current = geoFeatures;
-    }, [geoFeatures]);
-
-    useEffect(() => {
         if (!map) return;
-        const clusterGroup = clusterGroupRef.current;
-        map.addLayer(clusterGroup);
+        const markerClusterGroup = markerClusterGroupRef.current;
+        map.addLayer(markerClusterGroup);
         return () => {
-            if (map.hasLayer(clusterGroup)) {
-                map.removeLayer(clusterGroup);
+            if (map.hasLayer(markerClusterGroup)) {
+                map.removeLayer(markerClusterGroup);
             }
         };
     }, [map]);
 
-    const onLayerUpdate = useCallback((
-        featureId: string,
-        layer: L.Layer,
-        feature: Feature
+
+    // --- RE-BIND LISTENERS (Closures (layer.off) for new IDs) ---
+    const attachFeatureListeners = useCallback((
+        feature: Feature<Geometry, FeatureProperties>,
+        layer: L.Layer
     ) => {
-        let updatedFeature: Feature | null = null;
+        // layer.off("pm:update");
+        // layer.off("pm:dragend");
+        // layer.off("pm:rotateend");
+        // layer.off("click");
 
-        if (layer instanceof L.Marker) {
-            const marker = layer as L.Marker;
-            updatedFeature = marker.toGeoJSON() as Feature;
-            updatedFeature.properties = {...feature.properties};
-        } else if (layer instanceof L.Circle) {
-            const circle = layer as L.Circle;
-            updatedFeature = circle.toGeoJSON() as Feature;
-            updatedFeature.properties = {...feature.properties, radius: circle.getRadius()};
-        } else if (layer instanceof L.Polygon) {
-            updatedFeature = (layer as L.Polygon).toGeoJSON() as Feature;
-            updatedFeature.properties = {...feature.properties};
-        } else return;
+        const fLayer = layer as FeatureLayer;
 
-        if (!updatedFeature) return;
+        // --- THE FIX: Only attach if they don't exist yet ---
+        if (fLayer.hasHandlersAttached) return;
 
-        updatedFeature.properties = {
-            ...updatedFeature.properties,
-            isModified: true,
-            lastModified: new Date().toISOString()
-        };
+        layer.on("pm:update", () => handlersRef.current.onLayerUpdate(feature, layer));
+        layer.on("pm:dragend", () => handlersRef.current.onLayerUpdate(feature, layer));
+        layer.on("pm:rotateend", () => handlersRef.current.onLayerUpdate(feature, layer));
+        layer.on("click", (event: L.LeafletMouseEvent) => handlersRef.current.onLayerClick(event, feature));
 
-        setGeoFeatures(prev =>
-            prev.map(f => f.properties?.id === featureId ? updatedFeature : f)
-        );
+        fLayer.hasHandlersAttached = true;
+    }, [])
 
-        map.dragging.enable();
-
-    }, [map, setGeoFeatures])
+    const onLayerAdd = useCallback((e: L.LayerEvent) => {
+        if (e.layer instanceof L.Marker) {
+            if (e.layer.options.pmIgnore !== false) {
+                e.layer.options.pmIgnore = true;
+                if (e.layer.pm) e.layer.pm.setOptions({draggable: false})
+            }
+        }
+    }, [])
 
     const onLayerClick = useCallback((
         event: LeafletMouseEvent,
-        feature: Feature
+        feature: Feature<Geometry, FeatureProperties>
     ) => {
 
         if (map.pm.globalCutModeEnabled()) return;
@@ -108,34 +118,130 @@ const GeoManHandler = ({
         * */
         L.DomEvent.stopPropagation(event);
 
-        const currentFeature = geoFeaturesRef.current.find(
-            f => f.properties?.id === feature.properties?.id
+        const currentFeature = featuresRef.current.find(
+            f => f.properties.id === feature.properties.id
         ) ?? feature;
-        onGeoFeatureClick(currentFeature, event.latlng);
-    }, [map, onGeoFeatureClick])
+
+        onFeatureClick(currentFeature, event.latlng);
+    }, [map, onFeatureClick])
+
+    const onLayerUpdate = useCallback((
+        originalFeature: Feature<Geometry, FeatureProperties>,
+        updatedLayer: L.Layer
+    ) => {
+
+        let newGeometry: Geometry | null = null;
+        const extraProps: Partial<FeatureProperties> = {};
+
+        if (updatedLayer instanceof L.Marker) {
+            newGeometry = (updatedLayer as L.Marker).toGeoJSON().geometry;
+        } else if (updatedLayer instanceof L.Circle) {
+            newGeometry = (updatedLayer as L.Circle).toGeoJSON().geometry;
+            extraProps.radius = (updatedLayer as L.Circle).getRadius();
+        } else if (updatedLayer instanceof L.Polygon) {
+            newGeometry = (updatedLayer as L.Polygon).toGeoJSON().geometry;
+        } else return;
+        if (!newGeometry) return;
+
+        const isSameGeometry = JSON.stringify(originalFeature.geometry) === JSON.stringify(newGeometry);
+        const isSameRadius = originalFeature.properties.radius === extraProps.radius;
+        if (isSameGeometry && isSameRadius) return;
+
+        const timestamp = new Date().toISOString();
+
+        // ------------------------------------------------------------------
+        // STRATEGY A: MARKERS (Keep ID to prevent duplicates in Cluster)
+        // ------------------------------------------------------------------
+        if (updatedLayer instanceof L.Marker) {
+            setFeatures(prev => prev.map(f => {
+                if (f.properties.id === originalFeature.properties.id) {
+                    return {
+                        ...f,
+                        geometry: newGeometry as Point,
+                        properties: {
+                            ...f.properties,
+                            isModified: true,
+                            lastModified: timestamp,
+                        }
+                    };
+                }
+                return f;
+            }));
+        } else {
+            // ------------------------------------------------------------------
+            // STRATEGY B: SHAPES (New ID for History/Audit Trail)
+            // ------------------------------------------------------------------
+            const newId = crypto.randomUUID();
+            const updatedFeature: Feature<Geometry, FeatureProperties> = {
+                type: "Feature",
+                geometry: newGeometry,
+                properties: {
+                    ...originalFeature.properties,
+                    id: newId,
+                    parentId: originalFeature.properties.isNew
+                        ? originalFeature.properties.parentId
+                        : (originalFeature.properties.parentId ?? originalFeature.properties.id),
+                    ...extraProps,
+                    isNew: true,
+                    validFrom: timestamp,
+                }
+            };
+
+            setFeatures(prev => {
+                const filteredOldFeatures = prev.reduce((
+                    accumulatorBucket: Feature<Geometry, FeatureProperties>[],
+                    item: Feature<Geometry, FeatureProperties>
+                ) => {
+                    if (item.properties.id === originalFeature.properties.id) {
+                        if (item.properties.isNew) return accumulatorBucket;
+                        accumulatorBucket.push({
+                            ...item,
+                            properties: { ...item.properties, validTo: timestamp, isDeleted: true }
+                        });
+                        return accumulatorBucket;
+                    }
+                    accumulatorBucket.push(item);
+                    return accumulatorBucket;
+                }, []);
+                return [...filteredOldFeatures, updatedFeature];
+            });
+
+            map.removeLayer(updatedLayer);
+        }
+
+        if (!map.dragging.enabled()) map.dragging.enable();
+
+    }, [map, setFeatures])
+
+
+    useEffect(() => {
+        handlersRef.current = { onLayerClick, onLayerUpdate };
+    }, [onLayerClick, onLayerUpdate]);
+
 
     const onPmCreate = useCallback((e: { shape: string; layer: L.Layer }) => {
         const {shape, layer} = e;
 
         const featureId = crypto.randomUUID();
+        const timestamp = new Date().toISOString();
         (layer as FeatureLayer).featureId = featureId;
 
         const {safeBorderWeight, safeFillOpacity} = getSafeBorderWeightAndFillOpacity(borderWeight, fillOpacity);
 
-        let feature: Feature | null = null;
-
-        const baseProps = {
+        const baseProps: FeatureProperties = {
             id: featureId,
-            type: shape.toLowerCase(), // Automatically "marker", "circle", or "polygon"
+            type: shape.toLowerCase(),
 
-            borderColor: borderColor,
+            borderColor,
             borderWeight: safeBorderWeight,
-            fillColor: fillColor,
-            fillOpacity: safeFillOpacity,
+            fillColor,
+            fillOpacity: shape.toLowerCase() === 'marker' ? getSafeFillOpacityForMarker(fillOpacity) : safeFillOpacity,
 
-            isCreated: true,
-            createdAt: new Date().toISOString()
+            isNew: true,
+            validFrom: timestamp,
         };
+
+        let feature: Feature<Geometry, FeatureProperties> | null = null;
 
         if (layer instanceof L.Marker) {
             layer.options.pmIgnore = false;
@@ -146,137 +252,89 @@ const GeoManHandler = ({
                 borderColor,
                 getSafeFillOpacityForMarker(fillOpacity)
             ))
-            feature = marker.toGeoJSON() as Feature;
-
-            feature.properties = {
-                id: featureId,
-                type: "marker",
-
-                borderColor: borderColor,
-                fillColor: fillColor,
-                fillOpacity: getSafeFillOpacityForMarker(fillOpacity),
-                // no borderWeight for marker
-
-                isCreated: true,
-                createdAt: new Date().toISOString()
-            };
+            feature = marker.toGeoJSON() as Feature<Point, FeatureProperties>;
+            feature.properties = {...baseProps, borderWeight: undefined};
 
             layer.remove();
-            clusterGroupRef.current.addLayer(layer);
+            markerClusterGroupRef.current.addLayer(layer);
         } else if (layer instanceof L.Circle) {
             const circle = layer as L.Circle;
-            feature = circle.toGeoJSON() as Feature;
+            feature = circle.toGeoJSON() as Feature<Point, FeatureProperties>;
             feature.properties = {...baseProps, radius: circle.getRadius()};
         } else if (layer instanceof L.Polygon) {
-            const polygon = layer as L.Polygon;
-            feature = polygon.toGeoJSON() as Feature;
-            feature.properties = {...baseProps};
+            feature = (layer as L.Polygon).toGeoJSON() as Feature<Polygon, FeatureProperties>;
+            feature.properties = baseProps;
         } else return;
 
         if (!feature) return;
 
-        setGeoFeatures(prev => [...prev, feature]);
+        setFeatures(prev => [...prev, feature]);
+        attachFeatureListeners(feature, layer)
 
-        layer.on("pm:update", () => onLayerUpdate(featureId, layer, feature));
-        layer.on("pm:dragend", () => onLayerUpdate(featureId, layer, feature));
-        layer.on("pm:rotateend", () => onLayerUpdate(featureId, layer, feature));
-        layer.on("click", (event: L.LeafletMouseEvent) => onLayerClick(event, feature));
-
-    }, [borderColor, borderWeight, fillColor, fillOpacity, onLayerClick, onLayerUpdate, setGeoFeatures])
+    }, [attachFeatureListeners, borderColor, borderWeight, fillColor, fillOpacity, setFeatures])
 
     const onPmCut = useCallback((e: { layer: L.Layer; originalLayer: L.Layer }) => {
-        const {layer, originalLayer} = e;
+        const { layer: newLayer, originalLayer } = e;
 
         const originalId = (originalLayer as FeatureLayer).featureId;
         if (!originalId) return;
 
-        const original = geoFeaturesRef.current.find(f => f.properties?.id === originalId);
-        if (!original) return;
+        const originalFeature = featuresRef.current.find(f => f.properties.id === originalId);
+        if (!originalFeature) return;
 
-        const attachListeners = (l: L.Layer, id: string, feature: Feature) => {
-            l.on("pm:update", () => onLayerUpdate(id, l, feature));
-            l.on("pm:dragend", () => onLayerUpdate(id, l, feature));
-            l.on("pm:rotateend", () => onLayerUpdate(id, l, feature));
-            l.on("click", (event: L.LeafletMouseEvent) => onLayerClick(event, feature));
-        };
-        const geoJson = (layer as L.Polygon).toGeoJSON() as Feature;
-        if (geoJson.geometry.type === "MultiPolygon") {
-            const coords = geoJson.geometry.coordinates; // This is an array of islands
-            const newFeatures: Feature[] = [];
+        const timestamp = new Date().toISOString();
+        const cutResultGeoJson = (newLayer as L.Polygon).toGeoJSON() as Feature<Polygon | MultiPolygon>;
+        map.removeLayer(newLayer);
 
-            // Remove the single MultiPolygon layer Geoman just added
-            map.removeLayer(layer);
+        let polygonCoordsList: Position[][][] = [];
 
-            // Create a separate Polygon for each island
-            coords.forEach((islandCoords) => {
+        const geometry = cutResultGeoJson.geometry;
+        if (geometry.type === "Polygon") {
+            polygonCoordsList = [geometry.coordinates];
+        } else if (geometry.type === "MultiPolygon") {
+            polygonCoordsList = geometry.coordinates;
+        }
+
+        setFeatures(prev => {
+            const filteredOldFeatures = prev.reduce((
+                accumulatorBucket: Feature<Geometry, FeatureProperties>[],
+                item: Feature<Geometry, FeatureProperties>
+            ) => {
+                if (item.properties.id === originalId) {
+                    if (item.properties.isNew) return accumulatorBucket;
+                    accumulatorBucket.push({
+                        ...item,
+                        properties: { ...item.properties, validTo: timestamp, isDeleted: true }
+                    });
+                    return accumulatorBucket;
+                }
+                accumulatorBucket.push(item);
+                return accumulatorBucket;
+            }, []);
+
+            const newFeatures = polygonCoordsList.map((coords: Position[][]) => {
                 const newId = crypto.randomUUID();
-
-                // Create a new independent Leaflet Polygon for this island
-                const latLngs = L.GeoJSON.coordsToLatLngs(islandCoords, 1) as L.LatLng[][] | L.LatLng[];
-                const subLayer = L.polygon(latLngs, {
-                    color: original.properties?.borderColor ?? borderColor,
-                    weight: original.properties?.borderWeight ?? borderWeight,
-                    fillColor: original.properties?.fillColor ?? fillColor,
-                    fillOpacity: original.properties?.fillOpacity ?? fillOpacity
-                });
-                (subLayer as FeatureLayer).featureId = newId;
-                subLayer.addTo(map);
-
-                const newFeature: Feature = {
+                return {
                     type: "Feature",
-                    geometry: {
-                        type: "Polygon",
-                        coordinates: islandCoords
-                    },
+                    geometry: { type: "Polygon", coordinates: coords },
                     properties: {
-                        ...original.properties,
+                        ...originalFeature.properties,
                         id: newId,
-                        parentId: originalId,
-                        type: "polygon",
-                        isCreated: true,
-                        createdAt: new Date().toISOString(),
-                        isModified: false,
-                        lastModified: null
+                        parentId: originalFeature.properties.isNew
+                            ? originalFeature.properties.parentId
+                            : (originalFeature.properties.parentId ?? originalId),
+                        isNew: true,
+                        validFrom: timestamp
                     }
-                };
-
-                attachListeners(subLayer, newId, newFeature);
-                newFeatures.push(newFeature);
+                } as Feature<Polygon, FeatureProperties>;
             });
+            return [...filteredOldFeatures, ...newFeatures];
+        });
 
-            // Remove original, add the two new pieces
-            setGeoFeatures(prev => [
-                ...prev.filter(f => f.properties?.id !== originalId),
-                ...newFeatures
-            ]);
-        } else {
-            // Single resulting shape — update original feature with new geometry
-            (layer as FeatureLayer).featureId = originalId;
+    }, [map, setFeatures]);
 
-            const updatedFeature = (layer as L.Polygon).toGeoJSON() as Feature;
-            updatedFeature.properties = {
-                ...original.properties,
-                type: "polygon",
-                isModified: true,
-                lastModified: new Date().toISOString()
-            };
 
-            attachListeners(layer, originalId, updatedFeature);
-
-            setGeoFeatures(prev =>
-                prev.map(f => f.properties?.id === originalId ? updatedFeature : f)
-            );
-        }
-    }, [borderColor, borderWeight, fillColor, fillOpacity, map, onLayerClick, onLayerUpdate, setGeoFeatures]);
-
-    const onLayerAdd = useCallback((e: L.LayerEvent) => {
-        if (e.layer instanceof L.Marker) {
-            if (e.layer.options.pmIgnore !== false) {
-                e.layer.options.pmIgnore = true;
-                if (e.layer.pm) e.layer.pm.setOptions({draggable: false})
-            }
-        }
-    }, [])
+    /* <<<<<<<<<<<<<<<<<<<<<<<< useEffects >>>>>>>>>>>>>>>>>>>>>>>> */
 
     useEffect(() => {
         if (!map) return;
@@ -344,15 +402,43 @@ const GeoManHandler = ({
             map.off("pm:cut");
             map.off("layeradd");
         };
-    }, [map, borderColor, borderWeight, fillColor, fillOpacity, onLayerAdd, onPmCreate, onPmCut])
+    }, [borderColor, borderWeight, fillColor, fillOpacity, map, onLayerAdd, onPmCreate, onPmCut])
 
 
     useEffect(() => {
-        if (!map || isInitialLoadComplete.current || geoFeatures.length === 0) return
+        if (!map) return;
 
-        geoFeatures.forEach((feature: Feature) => {
-            const type = feature.properties?.type;
-            const featureId = feature.properties?.id as string;
+        const activeFeatures = features.filter(f => !f.properties.isDeleted);
+
+        // Cleanup
+        map.eachLayer((layer: L.Layer) => {
+            const featureLayer = layer as FeatureLayer;
+            if (featureLayer.featureId && !activeFeatures.some(f => f.properties.id === featureLayer.featureId)) {
+                map.removeLayer(featureLayer);
+            }
+        });
+
+        markerClusterGroupRef.current.eachLayer((layer: L.Layer) => {
+            const featureLayer = layer as FeatureLayer;
+            if (featureLayer.featureId && !activeFeatures.some(f => f.properties.id === featureLayer.featureId)) {
+                markerClusterGroupRef.current.removeLayer(featureLayer);
+            }
+        });
+
+        activeFeatures.forEach((feature: Feature<Geometry, FeatureProperties>) => {
+            const {id: featureId, type} = feature.properties;
+
+            let layerExists = false;
+
+            map.eachLayer((layer: L.Layer) => {
+                if ((layer as FeatureLayer).featureId === featureId) layerExists = true;
+            });
+
+            markerClusterGroupRef.current.eachLayer((layer: L.Layer) => {
+                if ((layer as FeatureLayer).featureId === featureId) layerExists = true;
+            });
+
+            if (layerExists) return;
 
             if (type === "marker") {
                 const point = feature.geometry as Point;
@@ -360,105 +446,107 @@ const GeoManHandler = ({
                     [point.coordinates[1], point.coordinates[0]],
                     {
                         icon: createMarkerIcon(
-                            feature.properties?.fillColor ?? fillColor,
-                            feature.properties?.borderColor ?? borderColor,
-                            getSafeFillOpacityForMarker(feature.properties?.fillOpacity ?? fillOpacity)),
+                            feature.properties.fillColor ?? fillColor,
+                            feature.properties.borderColor ?? borderColor,
+                            getSafeFillOpacityForMarker(feature.properties.fillOpacity ?? fillOpacity)),
                         pmIgnore: false
                     }
                 );
 
                 (layer as FeatureLayer).featureId = featureId;
-                layer.on("click", (event: LeafletMouseEvent) => onLayerClick(event, feature));
-                layer.on("pm:update", () => onLayerUpdate(featureId, layer, feature));
-                layer.on("pm:dragend", () => onLayerUpdate(featureId, layer, feature));
-
-                clusterGroupRef.current.addLayer(layer);
+                attachFeatureListeners(feature, layer)
+                markerClusterGroupRef.current.addLayer(layer);
             } else {
                 const {safeBorderWeight, safeFillOpacity} = getSafeBorderWeightAndFillOpacity(
-                    feature.properties?.borderWeight ?? borderWeight,
-                    feature.properties?.fillOpacity ?? fillOpacity
+                    feature.properties.borderWeight ?? borderWeight,
+                    feature.properties.fillOpacity ?? fillOpacity
                 );
 
                 const leafletLayer = L.geoJSON(feature, {
                     style: {
-                        color: feature.properties?.borderColor ?? borderColor,
+                        color: feature.properties.borderColor ?? borderColor,
                         weight: safeBorderWeight,
-                        fillColor: feature.properties?.fillColor ?? fillColor,
+                        fillColor: feature.properties.fillColor ?? fillColor,
                         fillOpacity: safeFillOpacity
                     },
                     pointToLayer: (_, latlng) => {
-                        if (type === "circle") return L.circle(latlng, {radius: feature.properties?.radius});
+                        if (type === "circle") return L.circle(latlng, {radius: feature.properties.radius ?? 0});
                         return L.layerGroup();
                     }
                 });
 
                 leafletLayer.eachLayer(layer => {
                     (layer as FeatureLayer).featureId = featureId;
-
-                    layer.on("click", (event: L.LeafletMouseEvent) => onLayerClick(event, feature));
-                    layer.on("pm:update", () => onLayerUpdate(featureId, layer, feature));
-                    layer.on("pm:dragend", () => onLayerUpdate(featureId, layer, feature));
-                    layer.on("pm:rotateend", () => onLayerUpdate(featureId, layer, feature));
+                    attachFeatureListeners(feature, layer)
                     layer.addTo(map);
                 });
             }
         });
 
-        isInitialLoadComplete.current = true;
-    }, [borderColor, borderWeight, fillColor, fillOpacity, geoFeatures, map, onLayerClick, onLayerUpdate])
+    }, [attachFeatureListeners, borderColor, borderWeight, features, fillColor, fillOpacity, map])
 
 
     useEffect(() => {
         if (!map) return;
 
-        map.eachLayer((layer: FeatureLayer) => {
-            const feature = layer.featureId
-                ? geoFeatures.find(f => f.properties?.id === layer.featureId)
-                : undefined;
+        map.eachLayer((layer: L.Layer) => {
+            const featureLayer = layer as FeatureLayer;
+            if (!featureLayer.featureId) return;
 
-            if (layer instanceof L.Polygon || layer instanceof L.Circle) {
-                if (layer.pm?.enabled()) return;
+            const feature = features.find(f => f.properties.id === featureLayer.featureId);
+            if (!feature || feature.properties.isDeleted) return;
 
-                if (!feature) {
-                    map.removeLayer(layer);
-                    return;
-                }
+            if (layer instanceof L.Path) {
+                const {safeBorderWeight, safeFillOpacity} = getSafeBorderWeightAndFillOpacity(
+                    feature.properties.borderWeight ?? borderWeight,
+                    feature.properties.fillOpacity ?? fillOpacity
+                );
 
-                if (feature.properties) {
-                    const {safeBorderWeight, safeFillOpacity} = getSafeBorderWeightAndFillOpacity(
-                        feature.properties?.borderWeight ?? borderWeight,
-                        feature.properties?.fillOpacity ?? fillOpacity
-                    );
+                layer.setStyle({
+                    color: feature.properties.borderColor ?? borderColor,
+                    weight: safeBorderWeight,
+                    fillColor: feature.properties.fillColor ?? fillColor,
+                    fillOpacity: safeFillOpacity
+                });
 
-                    const pathLayer = layer as L.Path;
-                    pathLayer.setStyle({
-                        color: feature.properties?.borderColor ?? borderColor,
-                        weight: safeBorderWeight,
-                        fillColor: feature.properties?.fillColor ?? fillColor,
-                        fillOpacity: safeFillOpacity
-                    });
-
-                    if (layer instanceof L.Circle && feature.properties.radius) {
-                        layer.setRadius(feature.properties.radius);
-                    }
+                if (layer instanceof L.Circle && feature.properties.radius !== undefined && feature.properties.radius !== null) {
+                    layer.setRadius(feature.properties.radius as number);
                 }
             }
         });
 
-        clusterGroupRef.current.eachLayer((layer: L.Layer) => {
+        markerClusterGroupRef.current.eachLayer((layer: L.Layer) => {
             const featureLayer = layer as FeatureLayer;
-            const feature = geoFeatures.find(f => f.properties?.id === featureLayer.featureId)
-            if (!feature) {
-                clusterGroupRef.current.removeLayer(layer);
-                return;
+            const feature = features.find(f => f.properties.id === featureLayer.featureId);
+            if (feature && layer instanceof L.Marker) {
+                (layer as L.Marker).setIcon(createMarkerIcon(
+                    feature.properties.fillColor ?? fillColor,
+                    feature.properties.borderColor ?? borderColor,
+                    getSafeFillOpacityForMarker(feature.properties.fillOpacity ?? fillOpacity),
+                ));
             }
-            (layer as L.Marker).setIcon(createMarkerIcon(
-                feature.properties?.fillColor ?? fillColor,
-                feature.properties?.borderColor ?? borderColor,
-                getSafeFillOpacityForMarker(feature.properties?.fillOpacity ?? fillOpacity),
-            ));
         })
-    }, [borderColor, borderWeight, fillColor, fillOpacity, geoFeatures, map]);
+    }, [borderColor, borderWeight, features, fillColor, fillOpacity, map]);
+
+    // --- CURSOR ENFORCEMENT EFFECT ---
+    useEffect(() => {
+        if (!map) return;
+
+        const isDragModeActive = map.pm.globalDragModeEnabled();
+        const isEditModeActive = map.pm.globalEditModeEnabled();
+
+        const cursorType = (isDragModeActive || isEditModeActive) ? 'move' : '';
+
+        markerClusterGroupRef.current.eachLayer((layer: L.Layer) => {
+            if (layer instanceof L.Marker) {
+                requestAnimationFrame(() => {
+                    const element = layer.getElement();
+                    if (element) element.style.cursor = cursorType;
+                });
+            }
+        });
+
+    }, [map, features, borderColor, fillColor]);
 
     return null;
 };

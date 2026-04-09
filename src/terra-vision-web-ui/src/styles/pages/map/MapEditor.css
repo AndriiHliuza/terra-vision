@@ -190,10 +190,9 @@
     background: white;
 }
 
-.map-editor > .map-container > .save-features-btn {
+.map-editor > .map-container > .features-action-btn {
     position: absolute;
     z-index: 1000;
-    top: 280px;
     right: 10px;
 
     display: flex;
@@ -214,9 +213,23 @@
     cursor: pointer;
 }
 
-.map-editor > .map-container > .save-features-btn > img {
-    height: 100%;
+.map-editor > .map-container > .features-action-btn.save-btn {
+    top: 280px;
+}
+
+.map-editor > .map-container > .features-action-btn.reload-btn {
+    top: 326px;
+}
+
+.map-editor > .map-container > .features-action-btn > img {
+    height: 90%;
     width: auto;
+
+    transition: all 0.3s ease;
+}
+
+.map-editor > .map-container > .features-action-btn.reload-btn:active > img {
+    transform: rotate(180deg);
 }
 
 @media (max-width: 300px) {

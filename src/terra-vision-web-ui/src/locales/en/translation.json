@@ -189,6 +189,10 @@
           "pending-text": "Pending...",
           "success-text": "Saved successfully!",
           "error-text": "Failed to save changes."
+        },
+        "reload-geojson-confirmation-pop-up": {
+          "title": "Reload?",
+          "description": "All changes will be lost."
         }
       }
     }
@@ -212,10 +216,8 @@
       "title": "Are you sure?",
       "description": "You are about to delete the selected element."
     },
-    "perform-geofeture-deletion-pop-up": {
-      "pending-text": "Pending...",
-      "success-text": "Deleted.",
-      "error-text": "Failed to delete."
+    "geofeture-deletion-result-pop-up": {
+      "success-text": "Deleted."
     },
     "map-layer-moved-up-pop-up": {
       "title": "Layer moved up"
