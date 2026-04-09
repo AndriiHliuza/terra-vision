@@ -34,6 +34,7 @@ const GeoManHandler = ({
                            fillOpacity,
                            borderWeight
                        }: GeoManHandlerProps) => {
+
     const map = useMap();
 
     const featuresRef = useRef<Feature<Geometry, FeatureProperties>[]>(features);
@@ -41,11 +42,6 @@ const GeoManHandler = ({
     useEffect(() => {
         featuresRef.current = features;
     }, [features]);
-
-    const handlersRef = useRef<Handlers>({
-        onLayerClick: () => {},
-        onLayerUpdate: () => {}
-    });
 
     const markerClusterGroupRef = useRef<L.MarkerClusterGroup>(
         L.markerClusterGroup({
@@ -68,28 +64,33 @@ const GeoManHandler = ({
         };
     }, [map]);
 
+    const handlersRef = useRef<Handlers>({
+        onLayerClick: () => {},
+        onLayerUpdate: () => {}
+    });
 
-    // --- RE-BIND LISTENERS (Closures (layer.off) for new IDs) ---
+    /* <<<<<<<<<<<<<<<<<<<<<<<< FUNCTIONS >>>>>>>>>>>>>>>>>>>>>>>>>
+    * - attachFeatureListeners
+    * - onLayerAdd
+    * - onLayerClick
+    * - onLayerUpdate
+    *  */
+
     const attachFeatureListeners = useCallback((
         feature: Feature<Geometry, FeatureProperties>,
         layer: L.Layer
     ) => {
-        // layer.off("pm:update");
-        // layer.off("pm:dragend");
-        // layer.off("pm:rotateend");
-        // layer.off("click");
+        const featureLayer = layer as FeatureLayer;
 
-        const fLayer = layer as FeatureLayer;
-
-        // --- THE FIX: Only attach if they don't exist yet ---
-        if (fLayer.hasHandlersAttached) return;
+        // ------------ Only attach listeners if they are not attached yet ------------
+        if (featureLayer.hasHandlersAttached) return;
 
         layer.on("pm:update", () => handlersRef.current.onLayerUpdate(feature, layer));
         layer.on("pm:dragend", () => handlersRef.current.onLayerUpdate(feature, layer));
         layer.on("pm:rotateend", () => handlersRef.current.onLayerUpdate(feature, layer));
         layer.on("click", (event: L.LeafletMouseEvent) => handlersRef.current.onLayerClick(event, feature));
 
-        fLayer.hasHandlersAttached = true;
+        featureLayer.hasHandlersAttached = true;
     }, [])
 
     const onLayerAdd = useCallback((e: L.LayerEvent) => {
@@ -149,10 +150,10 @@ const GeoManHandler = ({
 
         const timestamp = new Date().toISOString();
 
-        // ------------------------------------------------------------------
-        // STRATEGY A: MARKERS (Keep ID to prevent duplicates in Cluster)
-        // ------------------------------------------------------------------
         if (updatedLayer instanceof L.Marker) {
+            // ------------------------------------------------------------------
+            // STRATEGY A: MARKERS
+            // ------------------------------------------------------------------
             setFeatures(prev => prev.map(f => {
                 if (f.properties.id === originalFeature.properties.id) {
                     return {
@@ -169,7 +170,7 @@ const GeoManHandler = ({
             }));
         } else {
             // ------------------------------------------------------------------
-            // STRATEGY B: SHAPES (New ID for History/Audit Trail)
+            // STRATEGY B: SHAPES (Polygons & Circles)
             // ------------------------------------------------------------------
             const newId = crypto.randomUUID();
             const updatedFeature: Feature<Geometry, FeatureProperties> = {
@@ -214,10 +215,16 @@ const GeoManHandler = ({
     }, [map, setFeatures])
 
 
+
+    // <<<<<<<<<<<<<<<<<< useEffect (For handlers) >>>>>>>>>>>>>>>>>>
+
     useEffect(() => {
         handlersRef.current = { onLayerClick, onLayerUpdate };
     }, [onLayerClick, onLayerUpdate]);
 
+
+
+    // <<<<<<<<<<<<<<<<<< FUNCTIONS (onPmCreate & onPmCut) >>>>>>>>>>>>>>>>>>
 
     const onPmCreate = useCallback((e: { shape: string; layer: L.Layer }) => {
         const {shape, layer} = e;
@@ -238,7 +245,7 @@ const GeoManHandler = ({
             fillOpacity: shape.toLowerCase() === 'marker' ? getSafeFillOpacityForMarker(fillOpacity) : safeFillOpacity,
 
             isNew: true,
-            validFrom: timestamp,
+            validFrom: timestamp
         };
 
         let feature: Feature<Geometry, FeatureProperties> | null = null;
@@ -334,7 +341,10 @@ const GeoManHandler = ({
     }, [map, setFeatures]);
 
 
+
     /* <<<<<<<<<<<<<<<<<<<<<<<< useEffects >>>>>>>>>>>>>>>>>>>>>>>> */
+
+    /* ------------------------ useEffect to set map settings ------------------------ */
 
     useEffect(() => {
         if (!map) return;
@@ -404,6 +414,9 @@ const GeoManHandler = ({
         };
     }, [borderColor, borderWeight, fillColor, fillOpacity, map, onLayerAdd, onPmCreate, onPmCut])
 
+
+
+    /* ------------------------ useEffect to track changes to features ------------------------ */
 
     useEffect(() => {
         if (!map) return;
@@ -486,6 +499,9 @@ const GeoManHandler = ({
     }, [attachFeatureListeners, borderColor, borderWeight, features, fillColor, fillOpacity, map])
 
 
+
+    /* ------------------------ useEffect to track style changes in features ------------------------ */
+
     useEffect(() => {
         if (!map) return;
 
@@ -528,7 +544,10 @@ const GeoManHandler = ({
         })
     }, [borderColor, borderWeight, features, fillColor, fillOpacity, map]);
 
-    // --- CURSOR ENFORCEMENT EFFECT ---
+
+
+    /* ------------------------ useEffect to enforce cursor type when dragging markers ------------------------ */
+
     useEffect(() => {
         if (!map) return;
 
