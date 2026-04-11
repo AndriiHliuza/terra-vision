@@ -33,7 +33,7 @@ const GeoFeaturePopupDetails = ({
     const navigate = useNavigate();
     const {lang} = useParams();
     const map = useMap();
-    const {id, type, radius, borderColor, title, details} = geoFeature.properties || {};
+    const {id, type, radius, borderColor, title, description} = geoFeature.properties || {};
 
     const isMapEditorRoute = location.pathname === `/${lang}/admin/map-editor`;
 
@@ -85,7 +85,6 @@ const GeoFeaturePopupDetails = ({
         });
 
         map.closePopup();
-        toast.success( t("pop-ups.geofeture-deletion-result-pop-up.success-text"));
     };
 
     const handleSendToBack = () => {
@@ -145,7 +144,7 @@ const GeoFeaturePopupDetails = ({
                 }
             </h4>
             <p><strong>ID:</strong> {geoFeature.properties?.id}</p>
-            <p>{details || t("pop-ups.geofeature-pop-up.details")}</p>
+            <p>{description || t("pop-ups.geofeature-pop-up.description")}</p>
             {radius && (
                 <p><strong>{t("pop-ups.geofeature-pop-up.radius")}:</strong> {formatRadius(radius)}</p>
             )}

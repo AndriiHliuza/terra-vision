@@ -1,6 +1,7 @@
 package com.project.terravision.auth.service.impl;
 
 import com.project.terravision.auth.config.properties.MinioProperties;
+import com.project.terravision.auth.service.StorageService;
 import io.minio.*;
 import io.minio.errors.MinioException;
 import lombok.RequiredArgsConstructor;
@@ -13,11 +14,12 @@ import java.io.InputStream;
 
 @Service
 @RequiredArgsConstructor
-public class MinioService {
+public class MinioService implements StorageService {
 
     private final MinioClient minioClient;
     private final MinioProperties minioProperties;
 
+    @Override
     public String uploadFile(
             String path,
             String filename,
@@ -40,6 +42,7 @@ public class MinioService {
         }
     }
 
+    @Override
     public String uploadFile(String path, MultipartFile file) {
         String filename = StringUtils.getFilename(file.getOriginalFilename());
         try {
@@ -55,6 +58,7 @@ public class MinioService {
         }
     }
 
+    @Override
     public InputStream downloadFile(String objectName) {
         try {
             return minioClient.getObject(GetObjectArgs.builder()
@@ -66,11 +70,13 @@ public class MinioService {
         }
     }
 
+    @Override
     public InputStream downloadFile(String path, String filename) {
         String objectName = buildObjectName(path, filename);
         return downloadFile(objectName);
     }
 
+    @Override
     public void deleteFile(String path, String filename) {
         String objectName = buildObjectName(path, filename);
         try {

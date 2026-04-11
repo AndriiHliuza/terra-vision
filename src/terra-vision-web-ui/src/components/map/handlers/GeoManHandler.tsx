@@ -470,6 +470,8 @@ const GeoManHandler = ({
                 attachFeatureListeners(feature, layer)
                 markerClusterGroupRef.current.addLayer(layer);
             } else {
+                if (type === "circle" && (!feature.properties.radius || feature.properties.radius <= 0)) return;
+
                 const {safeBorderWeight, safeFillOpacity} = getSafeBorderWeightAndFillOpacity(
                     feature.properties.borderWeight ?? borderWeight,
                     feature.properties.fillOpacity ?? fillOpacity
@@ -483,7 +485,11 @@ const GeoManHandler = ({
                         fillOpacity: safeFillOpacity
                     },
                     pointToLayer: (_, latlng) => {
-                        if (type === "circle") return L.circle(latlng, {radius: feature.properties.radius ?? 0});
+                        /*
+                        * The ! is a TypeScript non-null assertion operator. It tells TypeScript "I know this value is not null or undefined, trust me."
+                        * feature.properties.radius!
+                        * */
+                        if (type === "circle") return L.circle(latlng, {radius: feature.properties.radius!});
                         return L.layerGroup();
                     }
                 });

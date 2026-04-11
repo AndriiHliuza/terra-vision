@@ -205,19 +205,19 @@
       "confirm-btn-text": "Yes",
       "cancel-btn-text": "No"
     },
+    "error-fetching-geofeatures-pop-up": {
+      "title": "Loading failed"
+    },
     "geofeature-pop-up": {
       "item-title": "\uD83D\uDCCD Marker",
       "zone-title": "\uD83D\uDEA7 Zone",
-      "details": "No description provided",
+      "description": "No description provided",
       "radius": "Radius",
       "area": "Area"
     },
     "delete-geofeature-confirmation-pop-up": {
       "title": "Are you sure?",
       "description": "You are about to delete the selected element."
-    },
-    "geofeture-deletion-result-pop-up": {
-      "success-text": "Deleted."
     },
     "map-layer-moved-up-pop-up": {
       "title": "Layer moved up"

@@ -12,6 +12,7 @@ val postgresVersion: String by project
 val flywayVersion: String by project
 val springBootAopVersion: String by project
 val mapstructVersion: String by project
+val lombokMapstructBindingVersion: String by project
 val minioVersion: String by project
 
 val springCloudVersion: String by project
@@ -72,7 +73,7 @@ dependencies {
 	// --- Lombok ---
 	compileOnly("org.projectlombok:lombok")
 	annotationProcessor("org.projectlombok:lombok")
-	annotationProcessor("org.projectlombok:lombok-mapstruct-binding:0.2.0")
+	annotationProcessor("org.projectlombok:lombok-mapstruct-binding:$lombokMapstructBindingVersion")
 
 	// To have spring.cloud dependencies in build.gradle.kts without specifying version of the dependency
 	implementation(platform("org.springframework.cloud:spring-cloud-dependencies:$springCloudVersion"))

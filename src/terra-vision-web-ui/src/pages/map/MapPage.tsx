@@ -11,19 +11,23 @@ import {type Coordinates, DEFAULT_FEATURE_STYLE, type FeatureProperties} from ".
 import MapLayers from "../../components/map/MapLayers.tsx";
 import {Outlet} from "react-router-dom";
 import MapPositionPopupDetails from "../../components/map/popups/MapPositionPopupDetails.tsx";
-import {MAP_LAYERS} from "../../configs/settings.ts";
+import {API_DOMAIN, MAP_LAYERS} from "../../configs/settings.ts";
 import LoadingOverlay from "../../components/LoadingOverlay.tsx";
 import MapPageLayerSwitcher from "../../components/map/layer-switchers/MapPageLayerSwitcher.tsx";
 import {MapEventsHandler} from "../../components/map/handlers/MapEventsHandler.tsx";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import {createClusterIcon, markerIcon} from "../../components/map/icons/map-icons.tsx";
-import {fetchStubMapData} from "../../commons/stubs/geo-stub.ts";
 import type {Feature, FeatureCollection, Geometry} from "geojson";
 import L from "leaflet";
 import GeoFeaturePopupDetails from "../../components/map/popups/GeoFeaturePopupDetails.tsx";
+import {axiosWebClient} from "../../configs/axios-web-client.ts";
+import {toast} from "react-toastify";
+import {useTranslation} from "react-i18next";
 
 
 function MapPage() {
+
+    const {t} = useTranslation();
 
     const [isMapLoading, setMapLoading] = useState<boolean>(false);
     const [layer, setLayer] = useState(() => localStorage.getItem("map-layer") || MAP_LAYERS[0].name);
@@ -45,10 +49,10 @@ function MapPage() {
     // Stub backend data
     useEffect(() => {
         setMapLoading(true);
-        fetchStubMapData()
-            .then((collection: FeatureCollection<Geometry, FeatureProperties>) => setGeoFeatures(collection.features))
-            .catch(err => console.error("Data fetch error:", err))
-            .finally(() => setMapLoading(false));
+        axiosWebClient.get<FeatureCollection<Geometry, FeatureProperties>>(`${API_DOMAIN}/api/gis/features/active`)
+            .then(response => setGeoFeatures(response.data.features))
+            .catch(() => toast.error(t("pop-ups.error-fetching-geofeatures-pop-up.title")))
+            .finally(() => setMapLoading(false))
     }, [])
 
     const filterCirclesAndPolygons = useCallback((geoFeature: Feature) => {

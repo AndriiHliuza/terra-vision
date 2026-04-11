@@ -28,11 +28,11 @@ export interface FeatureLayer extends L.Layer {
 export interface FeatureProperties {
     id: string;
     parentId?: string | null;
-    type: string;
+    type?: string | null;
 
     // Description
     title?: string | null;
-    details?: string | null;
+    description?: string | null;
 
     // UI Styling
     borderColor?: string | null;
@@ -48,17 +48,14 @@ export interface FeatureProperties {
     * - lastModified is just for markers
     * - validFrom and validTo for polygons and circles to keep track of history
     * */
-    validFrom: string | null;
+    validFrom?: string | null;
     validTo?: string | null;
-    lastModified?: string;
+    lastModified?: string | null;
 
     // React Local Flags (For the "Save" button)
     isNew?: boolean;
     isDeleted?: boolean;
     isModified?: boolean;
-
-    // Other properties if needed
-    [key: string]: unknown;
 }
 
 export interface GeoFeatureStyle {

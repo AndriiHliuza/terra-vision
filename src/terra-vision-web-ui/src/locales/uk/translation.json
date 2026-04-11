@@ -220,19 +220,19 @@
       "confirm-btn-text": "Так",
       "cancel-btn-text": "Ні"
     },
+    "error-fetching-geofeatures-pop-up": {
+      "title": "Не вдалося завантажити"
+    },
     "geofeature-pop-up": {
       "item-title": "\uD83D\uDCCD Маркер",
       "zone-title": "\uD83D\uDEA7 Зона",
-      "details": "Інформація відсутня",
+      "description": "Інформація відсутня",
       "radius": "Радіус",
       "area": "Площа"
     },
     "delete-geofeature-confirmation-pop-up": {
       "title": "Ви впевнені?",
       "description": "Ви збираєтеся видалити вибраний елемент."
-    },
-    "geofeture-deletion-result-pop-up": {
-      "success-text": "Об'єкт видалено."
     },
     "map-layer-moved-up-pop-up": {
       "title": "Шар переміщено вгору"

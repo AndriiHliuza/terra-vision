@@ -1,6 +1,7 @@
 package com.project.terravision.gis.service.impl;
 
 import com.project.terravision.gis.config.properties.MinioProperties;
+import com.project.terravision.gis.service.StorageService;
 import io.minio.*;
 import io.minio.errors.MinioException;
 import io.minio.messages.Item;
@@ -17,11 +18,12 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class MinioService {
+public class MinioService implements StorageService {
 
     private final MinioClient minioClient;
     private final MinioProperties minioProperties;
 
+    @Override
     public String uploadFile(
             String path,
             String filename,
@@ -44,6 +46,7 @@ public class MinioService {
         }
     }
 
+    @Override
     public String uploadFile(String path, MultipartFile file) {
         String filename = StringUtils.getFilename(file.getOriginalFilename());
         try {
@@ -59,6 +62,7 @@ public class MinioService {
         }
     }
 
+    @Override
     public InputStream downloadFile(String objectName) {
         try {
             return minioClient.getObject(GetObjectArgs.builder()
@@ -70,24 +74,14 @@ public class MinioService {
         }
     }
 
+    @Override
     public InputStream downloadFile(String path, String filename) {
         String objectName = buildObjectName(path, filename);
         return downloadFile(objectName);
     }
 
-    public void deleteFile(String path, String filename) {
-        String objectName = buildObjectName(path, filename);
-        try {
-            minioClient.removeObject(RemoveObjectArgs.builder()
-                    .bucket(minioProperties.getBucket())
-                    .object(objectName)
-                    .build());
-        } catch (MinioException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
-    private List<InputStream> downloadFiles(String path, int pageNumber, int pageSize) {
+    @Override
+    public List<InputStream> downloadFiles(String path, int pageNumber, int pageSize) {
         try {
             Iterable<Result<Item>> results = minioClient.listObjects(ListObjectsArgs.builder()
                     .bucket(minioProperties.getBucket())
@@ -114,6 +108,19 @@ public class MinioService {
             throw new RuntimeException(ex);
         }
 
+    }
+
+    @Override
+    public void deleteFile(String path, String filename) {
+        String objectName = buildObjectName(path, filename);
+        try {
+            minioClient.removeObject(RemoveObjectArgs.builder()
+                    .bucket(minioProperties.getBucket())
+                    .object(objectName)
+                    .build());
+        } catch (MinioException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     // ------------ private methods ------------

@@ -12,7 +12,7 @@ import {
 } from "../../commons/schemas/gis-schemas.ts";
 import MapLayers from "../../components/map/MapLayers.tsx";
 import {useTranslation} from "react-i18next";
-import {MAP_LAYERS} from "../../configs/settings.ts";
+import {API_DOMAIN, MAP_LAYERS} from "../../configs/settings.ts";
 import LoadingOverlay from "../../components/LoadingOverlay.tsx";
 import {useElementHeightResizer} from "../../commons/hooks/hooks.ts";
 import {MapResizeHandler} from "../../components/map/handlers/MapResizeHandler.tsx";
@@ -23,12 +23,12 @@ import L from "leaflet";
 import type {Feature, FeatureCollection, Geometry} from "geojson";
 import GeoManHandler from "../../components/map/handlers/GeoManHandler.tsx";
 import GeoFeaturePopupDetails from "../../components/map/popups/GeoFeaturePopupDetails.tsx";
-import {fetchStubMapData} from "../../commons/stubs/geo-stub.ts";
 import {toast} from "react-toastify";
 import saveBtnImg from "../../assets/save-btn-img.png";
 import reloadBtnImg from "../../assets/reload-btn-img.png";
 import Swal from "sweetalert2";
 import MapEditorStylePanel from "../../components/map/MapEditorStylePanel.tsx";
+import {axiosWebClient} from "../../configs/axios-web-client.ts";
 
 function MapEditor() {
 
@@ -78,8 +78,16 @@ function MapEditor() {
         );
     }, []);
 
+    const fetchGeFeatures = () => {
+        setMapLoading(true);
+        axiosWebClient.get<FeatureCollection<Geometry, FeatureProperties>>(`${API_DOMAIN}/api/gis/features/active`)
+            .then(response => setGeoFeatures(response.data.features))
+            .catch(() => toast.error(t("pop-ups.error-fetching-geofeatures-pop-up.title")))
+            .finally(() => setMapLoading(false))
+    }
+
     const saveGeoChanges = async () => {
-        const changedFeatures = geoFeatures.filter(feature =>
+        let changedFeatures = geoFeatures.filter(feature =>
             feature.properties.isModified ||
             feature.properties.isNew ||
             feature.properties.isDeleted)
@@ -110,13 +118,44 @@ function MapEditor() {
         if (!confirmationResult.isConfirmed) return;
 
         const performSave = async () => {
-            // --- SIMULATED BACKEND BEHAVIOR ---
-            setMapLoading(true);
-            await new Promise(res => setTimeout(res, 2000));
-            fetchStubMapData()
-                .then((collection: FeatureCollection<Geometry, FeatureProperties>) => setGeoFeatures(collection.features))
-                .catch(error => console.error("Stub loading error:", error))
-                .finally(() => setMapLoading(false))
+            changedFeatures = changedFeatures.map(f => {
+                const props = f.properties;
+
+                return {
+                    ...f,
+                    properties: {
+                        id: props.id,
+                        parentId: props.parentId ?? null,
+                        type: props.type ?? null,
+
+                        title: props.title ?? null,
+                        description: props.description ?? null,
+
+                        borderColor: props.borderColor ?? null,
+                        fillColor: props.fillColor ?? null,
+                        fillOpacity: props.fillOpacity ?? null,
+                        borderWeight: props.borderWeight ?? null,
+
+                        radius: props.radius ?? null,
+
+                        validFrom: props.validFrom ?? null,
+                        validTo: props.validTo ?? null,
+                        lastModified: props.lastModified ?? null,
+
+                        isNew: !!props.isNew,
+                        isModified: !!props.isModified,
+                        isDeleted: !!props.isDeleted,
+                    }
+                }
+            })
+
+            const collection: FeatureCollection<Geometry, FeatureProperties> = {
+                type: "FeatureCollection",
+                features: changedFeatures
+            };
+
+            await axiosWebClient.post(`${API_DOMAIN}/api/gis/features/sync`, collection);
+            fetchGeFeatures();
         };
 
         await toast.promise(
@@ -150,21 +189,12 @@ function MapEditor() {
 
         if (!confirmationResult.isConfirmed) return;
 
-        setMapLoading(true);
-        await new Promise(res => setTimeout(res, 2000));
-        fetchStubMapData()
-            .then((collection: FeatureCollection<Geometry, FeatureProperties>) => setGeoFeatures(collection.features))
-            .catch(error => console.error("Stub loading error:", error))
-            .finally(() => setMapLoading(false))
+        fetchGeFeatures();
     }
 
     // Stub backend data
     useEffect(() => {
-        // Simulate async fetch
-        fetchStubMapData()
-            .then((collection: FeatureCollection<Geometry, FeatureProperties>) => setGeoFeatures(collection.features))
-            .catch(error => console.error("Stub loading error:", error))
-            .finally(() => setMapLoading(false))
+        fetchGeFeatures();
     }, []);
 
     useEffect(() => {

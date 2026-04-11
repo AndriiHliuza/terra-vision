@@ -1,5 +1,5 @@
 CREATE TABLE users (
-    id            UUID PRIMARY KEY       DEFAULT gen_random_uuid(),
+    id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
     username      VARCHAR(255)  NOT NULL UNIQUE,
     email         VARCHAR(255)  NOT NULL UNIQUE,
@@ -9,7 +9,7 @@ CREATE TABLE users (
     lastname      VARCHAR(255),
     image_id      VARCHAR(512),
 
-    -- Account state
+    -- Account status
     account_status ACCOUNT_STATUS NOT NULL DEFAULT 'PENDING_VERIFICATION',
 
     -- Audit Timestamps & Metadata
