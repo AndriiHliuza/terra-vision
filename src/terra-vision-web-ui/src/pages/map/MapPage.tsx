@@ -16,10 +16,10 @@ import LoadingOverlay from "../../components/LoadingOverlay.tsx";
 import MapPageLayerSwitcher from "../../components/map/layer-switchers/MapPageLayerSwitcher.tsx";
 import {MapEventsHandler} from "../../components/map/handlers/MapEventsHandler.tsx";
 import MarkerClusterGroup from "react-leaflet-cluster";
-import {createClusterIcon, markerIcon} from "../../components/map/icons/map-icons.tsx";
+import {createClusterIcon, createMapPageMarkerIcon} from "../../components/map/icons/map-icons.tsx";
 import type {Feature, FeatureCollection, Geometry} from "geojson";
 import L from "leaflet";
-import GeoFeaturePopupDetails from "../../components/map/popups/GeoFeaturePopupDetails.tsx";
+import FeaturePopupDetails from "../../components/map/popups/FeaturePopupDetails.tsx";
 import {axiosWebClient} from "../../configs/axios-web-client.ts";
 import {toast} from "react-toastify";
 import {useTranslation} from "react-i18next";
@@ -32,10 +32,10 @@ function MapPage() {
     const [isMapLoading, setMapLoading] = useState<boolean>(false);
     const [layer, setLayer] = useState(() => localStorage.getItem("map-layer") || MAP_LAYERS[0].name);
 
-    const [geoFeatures, setGeoFeatures] = useState<Feature<Geometry, FeatureProperties>[]>([]);
+    const [features, setFeatures] = useState<Feature<Geometry, FeatureProperties>[]>([]);
 
     const [positionPopupDetails, setPositionPopupDetails] = useState<Coordinates | null>(null);
-    const [selectedGeoFeature, setSelectedGeoFeature] = useState<{
+    const [selectedFeature, setSelectedFeature] = useState<{
         feature: Feature<Geometry, FeatureProperties>;
         latlng: L.LatLng;
         timestamp: number;
@@ -50,50 +50,63 @@ function MapPage() {
     useEffect(() => {
         setMapLoading(true);
         axiosWebClient.get<FeatureCollection<Geometry, FeatureProperties>>(`${API_DOMAIN}/api/gis/features/active`)
-            .then(response => setGeoFeatures(response.data.features))
-            .catch(() => toast.error(t("pop-ups.error-fetching-geofeatures-pop-up.title")))
+            .then(response => setFeatures(response.data.features))
+            .catch(() => toast.error(t("pop-ups.error-fetching-geojson-features-pop-up.title")))
             .finally(() => setMapLoading(false))
-    }, [])
+    }, [t])
 
-    const filterCirclesAndPolygons = useCallback((geoFeature: Feature) => {
-        if (geoFeature.properties?.type === "circle") {
-            const radius = geoFeature.properties?.radius;
+    useEffect(() => {
+        console.log(features)
+    }, [features]);
+
+    const filterCirclesAndPolygons = useCallback((feature: Feature<Geometry, FeatureProperties>) => {
+        if (feature.properties?.type === "circle") {
+            const radius = feature.properties?.radius;
             return typeof radius === 'number' && radius > 0;
         }
-        return geoFeature.properties?.type === "polygon";
+        return feature.properties?.type === "polygon";
     }, []);
 
-    const filterMarkers = useCallback((feature: Feature) => {
+    const filterMarkers = useCallback((feature: Feature<Geometry, FeatureProperties>) => {
         return feature.properties?.type === "marker";
     }, []);
 
-    const getStyle = (geoFeature: Feature | undefined) => {
-        if (!geoFeature) return {};
+    const getStyle = (feature: Feature<Geometry, FeatureProperties> | undefined) => {
+        if (!feature) return {};
         return  {
-            color: geoFeature.properties?.borderColor || DEFAULT_FEATURE_STYLE.borderColor,
-            fillColor: geoFeature.properties?.fillColor || DEFAULT_FEATURE_STYLE.fillColor,
-            fillOpacity: geoFeature.properties?.fillOpacity || DEFAULT_FEATURE_STYLE.fillOpacity,
-            weight: geoFeature.properties?.borderWeight || DEFAULT_FEATURE_STYLE.borderWeight
+            color: feature.properties.borderColor || DEFAULT_FEATURE_STYLE.borderColor,
+            fillColor: feature.properties.fillColor || DEFAULT_FEATURE_STYLE.fillColor,
+            fillOpacity: feature.properties.fillOpacity || DEFAULT_FEATURE_STYLE.fillOpacity,
+            weight: feature.properties.borderWeight || DEFAULT_FEATURE_STYLE.borderWeight
         }
 
     };
 
-    const pointToLayer = (geoFeature: Feature, latlng: L.LatLng) => {
-        if (geoFeature.properties?.type === "circle") {
+    const pointToLayer = (feature: Feature<Geometry, FeatureProperties>, latlng: L.LatLng) => {
+        const props = feature.properties;
+        if (feature.properties?.type === "circle") {
+            // If radius is null, undefined, or 0, return an empty layer group (nothing shows)
+            if (!props.radius || props.radius <= 0) return L.layerGroup();
             return L.circle(latlng, {
-                radius: geoFeature.properties.radius,
-                color: geoFeature.properties?.borderColor,
-                fillColor: geoFeature.properties?.fillColor,
-                fillOpacity: geoFeature.properties?.fillOpacity,
-                weight: geoFeature.properties?.borderWeight
+                radius: props.radius,
+                color: props.borderColor || DEFAULT_FEATURE_STYLE.borderColor,
+                fillColor: props.fillColor || DEFAULT_FEATURE_STYLE.fillColor,
+                fillOpacity: props.fillOpacity ?? DEFAULT_FEATURE_STYLE.fillOpacity,
+                weight: props.borderWeight ?? DEFAULT_FEATURE_STYLE.borderWeight
             });
         }
-        return L.marker(latlng, { icon: markerIcon });
+        return L.marker(latlng, {
+            icon: createMapPageMarkerIcon(
+                props?.fillColor || undefined,
+                props?.borderColor || undefined,
+                props?.fillOpacity ?? undefined
+            )
+        });
     };
 
-    const onEachGeoFeatureClick = useCallback((feature: Feature<Geometry, FeatureProperties>, leafletLayer: L.Layer) => {
+    const onEachFeatureClick = useCallback((feature: Feature<Geometry, FeatureProperties>, leafletLayer: L.Layer) => {
         leafletLayer.on("click", (e: L.LeafletMouseEvent) => {
-            setSelectedGeoFeature({
+            setSelectedFeature({
                 feature,
                 latlng: e.latlng,
                 timestamp: Date.now()
@@ -116,16 +129,15 @@ function MapPage() {
                 >
                     <MapLayers layer={layer}/>
 
-
-                    {geoFeatures.length > 0 && (
+                    {features.length > 0 && (
                         <>
                             <GeoJSON
-                                key={`shapes-layer-${geoFeatures.length}`}
-                                data={{ type: "FeatureCollection", features: geoFeatures } as FeatureCollection}
+                                key={`shapes-layer-${features.length}`}
+                                data={{ type: "FeatureCollection", features: features } as FeatureCollection}
                                 filter={filterCirclesAndPolygons}
                                 style={getStyle}
                                 pointToLayer={pointToLayer}
-                                onEachFeature={onEachGeoFeatureClick}
+                                onEachFeature={onEachFeatureClick}
                             />
 
                             <MarkerClusterGroup
@@ -135,24 +147,24 @@ function MapPage() {
                                 showCoverageOnHover={false}
                             >
                                 <GeoJSON
-                                    key={`markers-layer-${geoFeatures.length}`}
-                                    data={{ type: "FeatureCollection", features: geoFeatures } as FeatureCollection}
+                                    key={`markers-layer-${features.length}`}
+                                    data={{ type: "FeatureCollection", features: features } as FeatureCollection<Geometry, FeatureProperties>}
                                     filter={filterMarkers}
                                     pointToLayer={pointToLayer}
-                                    onEachFeature={onEachGeoFeatureClick}
+                                    onEachFeature={onEachFeatureClick}
                                 />
                             </MarkerClusterGroup>
                         </>
                     )}
 
-                    {selectedGeoFeature && (
+                    {selectedFeature && (
                         <Popup
-                            key={`${selectedGeoFeature.feature.properties?.id}-${selectedGeoFeature.timestamp}`}
-                            position={selectedGeoFeature.latlng}
+                            key={`${selectedFeature.feature.properties?.id}-${selectedFeature.timestamp}`}
+                            position={selectedFeature.latlng}
                         >
-                            <GeoFeaturePopupDetails
-                                geoFeature={selectedGeoFeature.feature}
-                                setGeoFeatures={setGeoFeatures}
+                            <FeaturePopupDetails
+                                feature={selectedFeature.feature}
+                                setFeatures={setFeatures}
                             />
                         </Popup>
                     )}

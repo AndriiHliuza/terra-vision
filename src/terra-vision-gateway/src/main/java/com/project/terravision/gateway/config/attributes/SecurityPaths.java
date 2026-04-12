@@ -4,14 +4,19 @@ import org.springframework.http.HttpMethod;
 
 import java.util.Map;
 
+/*
+* - One * means just one path segment after /api/path/
+*   Example: /api/path/123. Not /qpi/path/123/details
+*
+* - Two ** means any nested path segments after /api/path/
+*   Example: /api/path/123 and /api/path/123/details are both valid
+* */
 public abstract class SecurityPaths {
 
     // <<<<<<<<<<<<<<<<<<<<<<<< [PUBLIC ENDPOINTS] >>>>>>>>>>>>>>>>>>>>>>>>
 
     public static abstract class PublicPaths {
-        public static final String[] ALL_HTTP_METHODS_PATHS = {
-                "/api/gis/**"
-        };
+        public static final String[] ALL_HTTP_METHODS_PATHS = {};
 
         public static final String[] GET_PATHS = {
 
@@ -23,7 +28,12 @@ public abstract class SecurityPaths {
 
                 // <<<<<<<<<<<< ai service endpoints >>>>>>>>>>>>
 
-                "/api/ai/models"
+                "/api/ai/models",
+
+                // <<<<<<<<<<<< gis service endpoints >>>>>>>>>>>>
+
+                "/api/gis/features/active",
+                "/api/gis/features/history/*"
         };
 
         public static final String[] POST_PATHS = {
@@ -80,6 +90,10 @@ public abstract class SecurityPaths {
     public static abstract class AtLeastAdminPowerLevelPaths {
         public static final String[] GET_PATHS = {
                 "/api/auth/admin/protected" // Just for testing purposes
+        };
+
+        public static final String[] POST_PATHS = {
+                "/api/gis/features/sync"
         };
     }
 

@@ -1,22 +1,22 @@
-.geofeature-popup {
+.feature-popup {
     min-width: 160px;
 }
 
-.geofeature-popup > h4 {
+.feature-popup > h4 {
     margin: 0 0 8px 0;
 }
 
-.geofeature-popup > p {
+.feature-popup > p {
     margin: 10px 0;
 }
 
-.geofeature-popup > .controls {
+.feature-popup > .controls {
     display: flex;
     justify-content: space-around;
     align-items: center;
 }
 
-.geofeature-popup > .controls > div {
+.feature-popup > .controls > div {
     height: 24px;
     width: 24px;
 
@@ -29,11 +29,11 @@
     transition: all 0.3s ease;
 }
 
-.geofeature-popup > .controls > div:hover {
+.feature-popup > .controls > div:hover {
     background: rgb(0, 0, 0, 0.2);
 }
 
-.geofeature-popup > .controls > div > img {
+.feature-popup > .controls > div > img {
     height: 100%;
     width: auto;
 }

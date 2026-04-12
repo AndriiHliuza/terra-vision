@@ -10,14 +10,10 @@ export const axiosWebClient = axios.create({
     }
 })
 
-// ------------ Set language header on every request ------------
+// ------------ Set language header on every request & Attach CSRF token ------------
 axiosWebClient.interceptors.request.use(config => {
     config.headers["Accept-Language"] = i18n.language || "en";
-    return config;
-});
 
-// ------------ Attach CSRF token ------------
-axiosWebClient.interceptors.response.use(config => {
     const csrfToken = document.cookie
         .split("; ")
         .find(row => row.startsWith("XSRF-TOKEN="))
@@ -28,7 +24,7 @@ axiosWebClient.interceptors.response.use(config => {
     }
 
     return config;
-})
+});
 
 // ------------ Handle auth errors ------------
 axiosWebClient.interceptors.response.use(

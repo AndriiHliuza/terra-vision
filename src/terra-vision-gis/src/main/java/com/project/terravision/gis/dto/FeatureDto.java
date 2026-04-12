@@ -15,14 +15,12 @@ import org.locationtech.jts.geom.Geometry;
 @AllArgsConstructor
 @NoArgsConstructor
 public class FeatureDto {
-    @NotBlank
-    @Pattern(regexp = "Feature")
+    @NotBlank @Pattern(regexp = "Feature")
     private String type;
 
     @NotNull
     private Geometry geometry;
 
-    @NotNull
-    @Valid
+    @NotNull @Valid
     private FeaturePropertiesDto properties;
 }

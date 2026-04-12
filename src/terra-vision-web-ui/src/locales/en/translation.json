@@ -205,17 +205,17 @@
       "confirm-btn-text": "Yes",
       "cancel-btn-text": "No"
     },
-    "error-fetching-geofeatures-pop-up": {
+    "error-fetching-geojson-features-pop-up": {
       "title": "Loading failed"
     },
-    "geofeature-pop-up": {
+    "geojson-feature-pop-up": {
       "item-title": "\uD83D\uDCCD Marker",
       "zone-title": "\uD83D\uDEA7 Zone",
       "description": "No description provided",
       "radius": "Radius",
       "area": "Area"
     },
-    "delete-geofeature-confirmation-pop-up": {
+    "delete-geojson-feature-confirmation-pop-up": {
       "title": "Are you sure?",
       "description": "You are about to delete the selected element."
     },

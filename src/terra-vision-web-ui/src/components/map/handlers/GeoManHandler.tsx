@@ -161,8 +161,10 @@ const GeoManHandler = ({
                         geometry: newGeometry as Point,
                         properties: {
                             ...f.properties,
-                            isModified: true,
-                            lastModified: timestamp,
+                            ...(!f.properties.isNew && {
+                                isModified: true,
+                                lastModified: timestamp
+                            })
                         }
                     };
                 }
@@ -240,7 +242,7 @@ const GeoManHandler = ({
             type: shape.toLowerCase(),
 
             borderColor,
-            borderWeight: safeBorderWeight,
+            ...(shape.toLowerCase() !== "marker" && { borderWeight: safeBorderWeight }),
             fillColor,
             fillOpacity: shape.toLowerCase() === 'marker' ? getSafeFillOpacityForMarker(fillOpacity) : safeFillOpacity,
 
@@ -260,7 +262,7 @@ const GeoManHandler = ({
                 getSafeFillOpacityForMarker(fillOpacity)
             ))
             feature = marker.toGeoJSON() as Feature<Point, FeatureProperties>;
-            feature.properties = {...baseProps, borderWeight: undefined};
+            feature.properties = {...baseProps};
 
             layer.remove();
             markerClusterGroupRef.current.addLayer(layer);

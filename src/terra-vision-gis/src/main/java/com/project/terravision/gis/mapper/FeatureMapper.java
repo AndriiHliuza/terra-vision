@@ -15,10 +15,11 @@ public interface FeatureMapper {
             ignoreByDefault = true,
             nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
     )
+//    @Mapping(target = "type", source = "dto.properties.type", qualifiedByName = "stringToFeatureType")
+    @Mapping(target = "geometry", source = "dto.geometry")
+
     @Mapping(target = "title", source = "dto.properties.title")
     @Mapping(target = "description", source = "dto.properties.description")
-    @Mapping(target = "type", source = "dto.properties.type", qualifiedByName = "stringToFeatureType")
-    @Mapping(target = "geometry", source = "dto.geometry")
 
     @Mapping(target = "fillColor", source = "dto.properties.fillColor")
     @Mapping(target = "borderColor", source = "dto.properties.borderColor")
@@ -29,12 +30,9 @@ public interface FeatureMapper {
     void updateFeatureFromFeatureDto(@MappingTarget Feature entity, FeatureDto dto);
 
 
-    @BeanMapping(
-            ignoreByDefault = true,
-            nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
-    )
+    // <<<<<<<<<<<<<<<<<<<<<<<< toDto >>>>>>>>>>>>>>>>>>>>>>>>
+
     @Mapping(target = "type", constant = "Feature")
-    @Mapping(target = "geometry", source = "geometry")
     @Mapping(target = "properties", source = "entity") // ← MapStruct uses toPropertiesDto automatically
     FeatureDto toDto(Feature entity);
 
@@ -45,16 +43,6 @@ public interface FeatureMapper {
     @Mapping(target = "isDeleted", ignore = true)
     FeaturePropertiesDto toPropertiesDto(Feature entity);
 
-
-    @Named("stringToFeatureType")
-    default FeatureType stringToFeatureType(String type) {
-        if (type == null) return null;
-        return FeatureType.valueOf(type.toUpperCase());
-    }
-
     @Named("featureTypeToString")
-    default String featureTypeToString(FeatureType type) {
-        if (type == null) return null;
-        return type.name().toLowerCase();
-    }
+    default String featureTypeToString(FeatureType type) { return type == null ? null : type.name().toLowerCase(); }
 }

@@ -1,8 +1,8 @@
-import type {Feature, Geometry} from "geojson";
+import type {Feature, FeatureCollection, Geometry} from "geojson";
 import type {FeatureProperties} from "../schemas/gis-schemas.ts";
 
-export function prepareFeaturesForSync(features: Feature<Geometry, FeatureProperties>[]): Feature<Geometry, FeatureProperties>[] {
-    return features.map((f) => {
+export function prepareFeatureCollection(features: Feature<Geometry, FeatureProperties>[]): FeatureCollection<Geometry, FeatureProperties> {
+    const preparedFeatures =  features.map((f) => {
         const props = f.properties;
 
         return {
@@ -32,4 +32,9 @@ export function prepareFeaturesForSync(features: Feature<Geometry, FeatureProper
             },
         };
     });
+
+    return {
+        type: "FeatureCollection",
+        features: preparedFeatures
+    };
 }

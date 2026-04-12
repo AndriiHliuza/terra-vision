@@ -220,17 +220,17 @@
       "confirm-btn-text": "Так",
       "cancel-btn-text": "Ні"
     },
-    "error-fetching-geofeatures-pop-up": {
+    "error-fetching-geojson-features-pop-up": {
       "title": "Не вдалося завантажити"
     },
-    "geofeature-pop-up": {
+    "geojson-feature-pop-up": {
       "item-title": "\uD83D\uDCCD Маркер",
       "zone-title": "\uD83D\uDEA7 Зона",
       "description": "Інформація відсутня",
       "radius": "Радіус",
       "area": "Площа"
     },
-    "delete-geofeature-confirmation-pop-up": {
+    "delete-geojson-feature-confirmation-pop-up": {
       "title": "Ви впевнені?",
       "description": "Ви збираєтеся видалити вибраний елемент."
     },

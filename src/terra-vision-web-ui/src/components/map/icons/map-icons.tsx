@@ -90,5 +90,3 @@ export const createMapPageMarkerIcon = (
         popupAnchor: [0, -30],
     });
 };
-
-export const markerIcon = createMapPageMarkerIcon();

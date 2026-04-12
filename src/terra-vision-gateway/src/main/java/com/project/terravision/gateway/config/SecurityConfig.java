@@ -67,7 +67,7 @@ public class SecurityConfig {
                 .authorizeExchange(exchange -> exchange
 
                         // <<<<<<<<<<<< Public paths >>>>>>>>>>>>
-                        .pathMatchers(SecurityPaths.PublicPaths.ALL_HTTP_METHODS_PATHS).permitAll()
+//                        .pathMatchers(SecurityPaths.PublicPaths.ALL_HTTP_METHODS_PATHS).permitAll()
                         .pathMatchers(HttpMethod.GET, SecurityPaths.PublicPaths.GET_PATHS).permitAll()
                         .pathMatchers(HttpMethod.POST, SecurityPaths.PublicPaths.POST_PATHS).permitAll()
 
@@ -85,6 +85,10 @@ public class SecurityConfig {
                         .pathMatchers(
                                 HttpMethod.GET,
                                 SecurityPaths.AtLeastAdminPowerLevelPaths.GET_PATHS
+                        ).access(hasAtLeastPowerLevel(SystemRoleLevel.ADMIN))
+                        .pathMatchers(
+                                HttpMethod.POST,
+                                SecurityPaths.AtLeastAdminPowerLevelPaths.POST_PATHS
                         ).access(hasAtLeastPowerLevel(SystemRoleLevel.ADMIN))
 
                         // <<<<<<<<<<<< Super Admin and above (power level >= 100000) >>>>>>>>>>>>

@@ -1,4 +1,4 @@
-import "../../../styles/components/map/popups/GeoFeaturePopupDetails.css";
+import "../../../styles/components/map/popups/FeaturePopupDetails.css";
 import type {Feature, Geometry} from "geojson";
 import {useMap} from "react-leaflet";
 import area from "@turf/area";
@@ -18,32 +18,29 @@ import Swal from "sweetalert2";
 import {useLocation, useNavigate, useParams} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 
-interface GeoFeaturePopupDetailsProps {
-    geoFeature: Feature<Geometry, FeatureProperties>;
-    setGeoFeatures: Dispatch<SetStateAction<Feature<Geometry, FeatureProperties>[]>>;
+interface FeaturePopupDetailsProps {
+    feature: Feature<Geometry, FeatureProperties>;
+    setFeatures: Dispatch<SetStateAction<Feature<Geometry, FeatureProperties>[]>>;
 }
 
-const GeoFeaturePopupDetails = ({
-                                    geoFeature,
-                                    setGeoFeatures,
-                                }: GeoFeaturePopupDetailsProps) => {
+const FeaturePopupDetails = ({
+                                 feature,
+                                 setFeatures,
+                             }: FeaturePopupDetailsProps) => {
 
     const {t} = useTranslation();
     const location = useLocation();
     const navigate = useNavigate();
     const {lang} = useParams();
     const map = useMap();
-    const {id, type, radius, borderColor, title, description} = geoFeature.properties || {};
+    const {id, type, radius, borderColor, title, description} = feature.properties || {};
 
     const isMapEditorRoute = location.pathname === `/${lang}/admin/map-editor`;
 
     const handleViewDetails = () => {
         if (id) {
-            if (isMapEditorRoute) {
-                navigate(`/${lang}/admin/map-editor/${geoFeature.properties.id}`)
-            } else {
-                navigate(`/${lang}/map/${geoFeature.properties.id}`)
-            }
+            if (isMapEditorRoute) navigate(`/${lang}/admin/map-editor/${feature.properties.id}`)
+            else navigate(`/${lang}/map/${feature.properties.id}`)
         }
 
         map.closePopup();
@@ -51,22 +48,19 @@ const GeoFeaturePopupDetails = ({
 
     const handleDelete = async () => {
         const confirmationResult = await Swal.fire({
-            title: t("pop-ups.delete-geofeature-confirmation-pop-up.title"),
-            text: t("pop-ups.delete-geofeature-confirmation-pop-up.description"),
-            icon: "info",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
+            title: t("pop-ups.delete-geojson-feature-confirmation-pop-up.title"),
+            text: t("pop-ups.delete-geojson-feature-confirmation-pop-up.description"),
+            icon: "info", showCancelButton: true,
+            confirmButtonColor: "#3085d6", cancelButtonColor: "#d33",
             confirmButtonText: t("pop-ups.confirmation-pop-up.confirm-btn-text"),
             cancelButtonText: t("pop-ups.confirmation-pop-up.cancel-btn-text"),
-            background: "#1a1a1e",
-            color: "#fff",
-            backdrop: "rgba(0, 0, 0, 0.5)",
+            background: "#1a1a1e", color: "#fff", backdrop: "rgba(0, 0, 0, 0.5)",
         })
+
         if (!confirmationResult.isConfirmed) return;
 
         const timestamp = new Date().toISOString();
-        setGeoFeatures(prev => {
+        setFeatures(prev => {
             return prev.reduce((
                 accumulatorBucket: Feature<Geometry, FeatureProperties>[],
                 item: Feature<Geometry, FeatureProperties>
@@ -75,7 +69,7 @@ const GeoFeaturePopupDetails = ({
                     if (item.properties.isNew) return accumulatorBucket;
                     accumulatorBucket.push({
                         ...item,
-                        properties: { ...item.properties, validTo: timestamp, isDeleted: true }
+                        properties: {...item.properties, validTo: timestamp, isDeleted: true, isModified: false}
                     });
                     return accumulatorBucket;
                 }
@@ -89,15 +83,11 @@ const GeoFeaturePopupDetails = ({
 
     const handleSendToBack = () => {
         map.eachLayer((layer: FeatureLayer) => {
-            if (layer.featureId === id) {
-                (layer as L.Path).bringToBack();
-            }
+            if (layer.featureId === id) (layer as L.Path).bringToBack();
         });
         map.closePopup();
         toast.info(t("pop-ups.map-layer-moved-down-pop-up.title"), {
-            position: "bottom-left",
-            autoClose: 3000,
-            theme: "dark"
+            position: "bottom-left", autoClose: 3000, theme: "dark"
         });
     };
 
@@ -109,9 +99,7 @@ const GeoFeaturePopupDetails = ({
         });
         map.closePopup();
         toast.info(t("pop-ups.map-layer-moved-up-pop-up.title"), {
-            position: "bottom-left",
-            autoClose: 3000,
-            theme: "dark"
+            position: "bottom-left", autoClose: 3000, theme: "dark"
         });
     };
 
@@ -127,68 +115,47 @@ const GeoFeaturePopupDetails = ({
 
     const getArea = () => {
         if (type === "circle" && radius) return formatArea(Math.PI * Math.pow(radius, 2));
-        if (geoFeature.geometry.type === "Polygon") return formatArea(area(geoFeature));
-
+        if (feature.geometry.type === "Polygon") return formatArea(area(feature));
         return null;
     };
 
     const areaValue = getArea();
 
     return (
-        <div className="geofeature-popup">
+        <div className="feature-popup">
             <h4 style={{color: borderColor ?? DEFAULT_FEATURE_STYLE.borderColor}}>
                 {
                     type === "marker" ?
-                        ` ${title ?? t("pop-ups.geofeature-pop-up.item-title")}` :
-                        ` ${title ?? t("pop-ups.geofeature-pop-up.zone-title")}`
+                        ` ${title ?? t("pop-ups.geojson-feature-pop-up.item-title")}` :
+                        ` ${title ?? t("pop-ups.geojson-feature-pop-up.zone-title")}`
                 }
             </h4>
-            <p><strong>ID:</strong> {geoFeature.properties?.id}</p>
-            <p>{description || t("pop-ups.geofeature-pop-up.description")}</p>
+            <p><strong>ID:</strong> {feature.properties?.id}</p>
+            <p>{description || t("pop-ups.geojson-feature-pop-up.description")}</p>
             {radius && (
-                <p><strong>{t("pop-ups.geofeature-pop-up.radius")}:</strong> {formatRadius(radius)}</p>
+                <p><strong>{t("pop-ups.geojson-feature-pop-up.radius")}:</strong> {formatRadius(radius)}</p>
             )}
             {areaValue && (
-                <p><strong>{t("pop-ups.geofeature-pop-up.area")}:</strong> {areaValue}</p>
+                <p><strong>{t("pop-ups.geojson-feature-pop-up.area")}:</strong> {areaValue}</p>
             )}
 
             <div className="controls">
-                <div>
-                    <img src={infoBtnImg}
-                         alt="Info button"
-                         onClick={handleViewDetails}
-                    />
-                </div>
+                <div><img src={infoBtnImg} alt="Info button" onClick={handleViewDetails}/></div>
 
                 {isMapEditorRoute && (
-                    <div>
-                        <img src={deleteBtnImg}
-                             alt="Delete button"
-                             onClick={handleDelete}
-                        />
-                    </div>
+                    <div><img src={deleteBtnImg} alt="Delete button" onClick={handleDelete}/></div>
                 )}
 
                 {type !== "marker" && (
-                    <div>
-                        <img src={moveLayerDownBtnImg}
-                             alt="Send to back button"
-                             onClick={handleSendToBack}
-                        />
-                    </div>
+                    <div><img src={moveLayerDownBtnImg} alt="Send to back button" onClick={handleSendToBack}/></div>
                 )}
 
                 {type !== "marker" && (
-                    <div>
-                        <img src={moveLayerUpBtnImg}
-                             alt="Bring to front button"
-                             onClick={handleBringToFront}
-                        />
-                    </div>
+                    <div><img src={moveLayerUpBtnImg} alt="Bring to front button" onClick={handleBringToFront}/></div>
                 )}
             </div>
         </div>
     );
 };
 
-export default GeoFeaturePopupDetails;
+export default FeaturePopupDetails;

@@ -58,7 +58,7 @@ export interface FeatureProperties {
     isModified?: boolean;
 }
 
-export interface GeoFeatureStyle {
+export interface FeatureStyle {
     borderColor: string;
     fillColor: string;
     fillOpacity: number;

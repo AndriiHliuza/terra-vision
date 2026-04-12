@@ -22,17 +22,23 @@ CREATE TABLE features
 
     CONSTRAINT fk_parent_id FOREIGN KEY (parent_id) REFERENCES features (id) ON DELETE SET NULL,
     CONSTRAINT check_valid_boundaries CHECK (valid_to IS NULL OR valid_to > valid_from),
-    CONSTRAINT check_radius_presence_for_circles_only CHECK (
-        (type = 'CIRCLE' AND radius IS NOT NULL) OR
-        (type != 'CIRCLE' AND radius IS NULL)
-    ),
-    CONSTRAINT check_border_weight_absence_for_markers CHECK (
-        (type = 'MARKER' AND border_weight IS NULL) OR
-        (type != 'MARKER' AND border_weight IS NOT NULL)
-    ),
+    CONSTRAINT check_last_modified_within_bounds CHECK (
+        last_modified IS NULL OR (
+            last_modified >= valid_from AND
+            (valid_to IS NULL OR last_modified <= valid_to)
+            )
+        ),
     CONSTRAINT check_last_modified_presence_for_markers_only CHECK (
         (type != 'MARKER' AND last_modified IS NULL) OR
         (type = 'MARKER')
+        ),
+    CONSTRAINT check_border_weight_absence_for_markers CHECK (
+        (type = 'MARKER' AND border_weight IS NULL) OR
+        (type != 'MARKER' AND border_weight IS NOT NULL)
+        ),
+    CONSTRAINT check_radius_presence_for_circles_only CHECK (
+        (type = 'CIRCLE' AND radius IS NOT NULL) OR
+        (type != 'CIRCLE' AND radius IS NULL)
     ),
     CONSTRAINT check_parent_id_absence_for_markers CHECK (
         (type = 'MARKER' AND parent_id IS NULL) OR

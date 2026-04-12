@@ -1,6 +1,6 @@
 import "../../styles/components/map/MapEditorStylePanel.css";
 import {type Dispatch, type SetStateAction, useCallback, useState} from "react";
-import type {FeatureProperties, GeoFeatureStyle} from "../../commons/schemas/gis-schemas.ts";
+import type {FeatureProperties, FeatureStyle} from "../../commons/schemas/gis-schemas.ts";
 import {HexColorInput, HexColorPicker} from "react-colorful";
 import type {Feature, Geometry} from "geojson";
 import {getSafeBorderWeightAndFillOpacity, getSafeFillOpacityForMarker} from "../../commons/utils/style-utils.ts";
@@ -8,21 +8,21 @@ import {useTranslation} from "react-i18next";
 
 interface MapEditorStylePanelProps {
     // Default style — used for new shapes
-    style: GeoFeatureStyle;
-    setStyle: Dispatch<SetStateAction<GeoFeatureStyle>>;
+    style: FeatureStyle;
+    setStyle: Dispatch<SetStateAction<FeatureStyle>>;
 
     // Selected feature — if set, panel edits that feature's style
-    selectedGeoFeature: Feature<Geometry, FeatureProperties> | null;
-    onUpdateGeoFeatureStyle: (id: string, updates: Partial<GeoFeatureStyle>) => void;
-    onDeselectGeoFeature: () => void;
+    selectedFeature: Feature<Geometry, FeatureProperties> | null;
+    onUpdateFeatureStyle: (id: string, updates: Partial<FeatureStyle>) => void;
+    onDeselectFeature: () => void;
 }
 
 function MapEditorStylePanel({
                                  style,
                                  setStyle,
-                                 selectedGeoFeature,
-                                 onUpdateGeoFeatureStyle,
-                                 onDeselectGeoFeature,
+                                 selectedFeature,
+                                 onUpdateFeatureStyle,
+                                 onDeselectFeature,
                              }: MapEditorStylePanelProps) {
 
     const {t} = useTranslation();
@@ -30,28 +30,28 @@ function MapEditorStylePanel({
     const [activePicker, setActivePicker] = useState<"border" | "fill" | null>(null);
     const closePickers = useCallback(() => setActivePicker(null), []);
 
-    const isMarkerSelected = selectedGeoFeature?.properties?.type === "marker";
+    const isMarkerSelected = selectedFeature?.properties?.type === "marker";
 
-    const activeStyle: GeoFeatureStyle = selectedGeoFeature?.properties
+    const activeStyle: FeatureStyle = selectedFeature?.properties
         ? {
-            borderColor: selectedGeoFeature.properties.borderColor ?? style.borderColor,
-            fillColor: selectedGeoFeature.properties.fillColor ?? style.fillColor,
-            fillOpacity: selectedGeoFeature.properties.fillOpacity ?? style.fillOpacity,
-            borderWeight: selectedGeoFeature.properties.borderWeight ?? style.borderWeight,
+            borderColor: selectedFeature.properties.borderColor ?? style.borderColor,
+            fillColor: selectedFeature.properties.fillColor ?? style.fillColor,
+            fillOpacity: selectedFeature.properties.fillOpacity ?? style.fillOpacity,
+            borderWeight: selectedFeature.properties.borderWeight ?? style.borderWeight,
         }
         : style;
 
 
     const updateStyle = (
-        updatedGeoFeatureStyle: Partial<GeoFeatureStyle>,
+        updatedFeatureStyle: Partial<FeatureStyle>,
         origin?: "weight" | "opacity"
     ) => {
-        const borderWeight = updatedGeoFeatureStyle.borderWeight
-            ? updatedGeoFeatureStyle.borderWeight
+        const borderWeight = updatedFeatureStyle.borderWeight
+            ? updatedFeatureStyle.borderWeight
             : activeStyle.borderWeight;
 
-        const fillOpacity = updatedGeoFeatureStyle.fillOpacity
-            ? updatedGeoFeatureStyle.fillOpacity
+        const fillOpacity = updatedFeatureStyle.fillOpacity
+            ? updatedFeatureStyle.fillOpacity
             : activeStyle.fillOpacity;
 
         const {safeBorderWeight, safeFillOpacity} = getSafeBorderWeightAndFillOpacity(
@@ -60,21 +60,21 @@ function MapEditorStylePanel({
             origin
         );
 
-        updatedGeoFeatureStyle = {
-            ...updatedGeoFeatureStyle,
+        updatedFeatureStyle = {
+            ...updatedFeatureStyle,
             ...(isMarkerSelected ? {} : {borderWeight: safeBorderWeight}), // ← skip borderWeight for markers
             ...(isMarkerSelected ? {fillOpacity: getSafeFillOpacityForMarker(fillOpacity)} : {fillOpacity: safeFillOpacity})
         };
 
-        if (selectedGeoFeature?.properties.id) {
+        if (selectedFeature?.properties.id) {
             const updatedProps = {
-                ...updatedGeoFeatureStyle,
+                ...updatedFeatureStyle,
                 isModified: true,
                 lastModified: new Date().toISOString()
             }
-            onUpdateGeoFeatureStyle(selectedGeoFeature.properties.id, updatedProps);
+            onUpdateFeatureStyle(selectedFeature.properties.id, updatedProps);
         } else {
-            setStyle(prev => ({...prev, ...updatedGeoFeatureStyle}));
+            setStyle(prev => ({...prev, ...updatedFeatureStyle}));
         }
     };
 
@@ -83,8 +83,8 @@ function MapEditorStylePanel({
             <h2>{t("admin-pages.map-editor.styling-section.title")}</h2>
 
             <p className="style-context">
-                {selectedGeoFeature
-                    ? `${t("admin-pages.map-editor.styling-section.editing-text")}: ${selectedGeoFeature.properties?.title ?? selectedGeoFeature.properties?.id}`
+                {selectedFeature
+                    ? `${t("admin-pages.map-editor.styling-section.editing-text")}: ${selectedFeature.properties?.title ?? selectedFeature.properties?.id}`
                     : "Default style for new shapes"
                 }
             </p>
@@ -169,8 +169,8 @@ function MapEditorStylePanel({
                 </div>
             )}
 
-            {selectedGeoFeature && (
-                <button className="deselect-btn" onClick={onDeselectGeoFeature}>
+            {selectedFeature && (
+                <button className="deselect-btn" onClick={onDeselectFeature}>
                     {t("admin-pages.map-editor.styling-section.stop-editing-btn-text")}
                 </button>
             )}

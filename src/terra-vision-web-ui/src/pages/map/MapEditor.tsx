@@ -8,7 +8,7 @@ import {
     type Coordinates,
     DEFAULT_FEATURE_STYLE,
     type FeatureProperties,
-    type GeoFeatureStyle
+    type FeatureStyle
 } from "../../commons/schemas/gis-schemas.ts";
 import MapLayers from "../../components/map/MapLayers.tsx";
 import {useTranslation} from "react-i18next";
@@ -22,13 +22,14 @@ import MapEditorLayerSwitcher from "../../components/map/layer-switchers/MapEdit
 import L from "leaflet";
 import type {Feature, FeatureCollection, Geometry} from "geojson";
 import GeoManHandler from "../../components/map/handlers/GeoManHandler.tsx";
-import GeoFeaturePopupDetails from "../../components/map/popups/GeoFeaturePopupDetails.tsx";
+import FeaturePopupDetails from "../../components/map/popups/FeaturePopupDetails.tsx";
 import {toast} from "react-toastify";
 import saveBtnImg from "../../assets/save-btn-img.png";
 import reloadBtnImg from "../../assets/reload-btn-img.png";
 import Swal from "sweetalert2";
 import MapEditorStylePanel from "../../components/map/MapEditorStylePanel.tsx";
 import {axiosWebClient} from "../../configs/axios-web-client.ts";
+import {prepareFeatureCollection} from "../../commons/utils/gis-utils.ts";
 
 function MapEditor() {
 
@@ -37,21 +38,19 @@ function MapEditor() {
     const [layer, setLayer] = useState(() => localStorage.getItem("map-layer") || MAP_LAYERS[0].name);
     const {height, elementRef, onMouseDown} = useElementHeightResizer({storageKey: "adminMapContainerHeight"})
 
-    const [geoFeatures, setGeoFeatures] = useState<Feature<Geometry, FeatureProperties>[]>([]);
+    const [features, setFeatures] = useState<Feature<Geometry, FeatureProperties>[]>([]);
 
-    const [geoFeaturePopupDetails, setGeoFeaturePopupDetails] = useState<{
+    const [featurePopupDetails, setFeaturePopupDetails] = useState<{
         feature: Feature<Geometry, FeatureProperties>;
         latlng: L.LatLng;
         timestamp: number;
     } | null>(null);
     const [positionPopupDetails, setPositionPopupDetails] = useState<Coordinates | null>(null);
 
-    const [selectedGeoFeature, setSelectedGeoFeature] = useState<Feature<Geometry, FeatureProperties> | null>(null);
-    const [geoFeatureStyle, setGeoFeatureStyle] = useState<GeoFeatureStyle>({
-        borderColor: DEFAULT_FEATURE_STYLE.borderColor,
-        fillColor: DEFAULT_FEATURE_STYLE.fillColor,
-        fillOpacity: DEFAULT_FEATURE_STYLE.fillOpacity,
-        borderWeight: DEFAULT_FEATURE_STYLE.borderWeight
+    const [selectedFeature, setSelectedFeature] = useState<Feature<Geometry, FeatureProperties> | null>(null);
+    const [featureStyle, setFeatureStyle] = useState<FeatureStyle>({
+        fillColor: DEFAULT_FEATURE_STYLE.fillColor, borderColor: DEFAULT_FEATURE_STYLE.borderColor,
+        fillOpacity: DEFAULT_FEATURE_STYLE.fillOpacity, borderWeight: DEFAULT_FEATURE_STYLE.borderWeight
     });
 
     const onLayerSelected = (mapLayer: string) => {
@@ -59,147 +58,96 @@ function MapEditor() {
         localStorage.setItem("map-layer", mapLayer);
     }
 
-    const onGeoFeatureClick = useCallback((feature: Feature<Geometry, FeatureProperties>, latlng: L.LatLng) => {
-        setSelectedGeoFeature(feature);
-        setGeoFeaturePopupDetails({feature, latlng, timestamp: Date.now()});
+    const onFeatureClick = useCallback((feature: Feature<Geometry, FeatureProperties>, latlng: L.LatLng) => {
+        setSelectedFeature(feature);
+        setFeaturePopupDetails({feature, latlng, timestamp: Date.now()});
     }, [])
 
-    const handleUpdateGeoFeatureStyle = useCallback((id: string, updatedGeoFeatureStyle: Partial<GeoFeatureStyle>) => {
-        setGeoFeatures(prev =>
+    const handleUpdateFeatureStyle = useCallback((id: string, updatedFeatureStyle: Partial<FeatureStyle>) => {
+        setFeatures(prev =>
             prev.map(f => f.properties.id === id
-                ? {...f, properties: {...f.properties, ...updatedGeoFeatureStyle}}
+                ? {...f, properties: {...f.properties, ...updatedFeatureStyle}}
                 : f
             )
         );
 
-        setSelectedGeoFeature(f => f?.properties.id === id
-            ? {...f, properties: {...f.properties, ...updatedGeoFeatureStyle}}
+        setSelectedFeature(f => f?.properties.id === id
+            ? {...f, properties: {...f.properties, ...updatedFeatureStyle}}
             : f
         );
     }, []);
 
-    const fetchGeFeatures = () => {
+    const fetchFeatures = useCallback(() => {
         setMapLoading(true);
         axiosWebClient.get<FeatureCollection<Geometry, FeatureProperties>>(`${API_DOMAIN}/api/gis/features/active`)
-            .then(response => setGeoFeatures(response.data.features))
-            .catch(() => toast.error(t("pop-ups.error-fetching-geofeatures-pop-up.title")))
+            .then(response => setFeatures(response.data.features))
+            .catch(() => toast.error(t("pop-ups.error-fetching-geojson-features-pop-up.title")))
             .finally(() => setMapLoading(false))
-    }
+    }, [t])
 
-    const saveGeoChanges = async () => {
-        let changedFeatures = geoFeatures.filter(feature =>
-            feature.properties.isModified ||
-            feature.properties.isNew ||
-            feature.properties.isDeleted)
-
-        if (changedFeatures.length === 0) {
+    const saveChanges = async () => {
+        const featureCollection: FeatureCollection<Geometry, FeatureProperties> = prepareFeatureCollection(
+            features.filter(feature =>
+            feature.properties.isModified || feature.properties.isNew || feature.properties.isDeleted)
+        )
+        
+        if (featureCollection.features.length === 0) {
             toast.info(t("admin-pages.map-editor.pop-ups.no-changes-to-save-pop-up.title"), {
-                position: "bottom-left",
-                autoClose: 3000,
-                theme: "dark"
+                position: "bottom-left", autoClose: 3000, theme: "dark"
             });
             return;
         }
 
         const confirmationResult = await Swal.fire({
             title: t("admin-pages.map-editor.pop-ups.save-changes-confirmation-pop-up.title"),
-            text: t("admin-pages.map-editor.pop-ups.save-changes-confirmation-pop-up.description", {numberOfChanges: changedFeatures.length}),
-            icon: "info",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
+            text: t("admin-pages.map-editor.pop-ups.save-changes-confirmation-pop-up.description", {numberOfChanges: featureCollection.features.length}),
+            icon: "info", showCancelButton: true,
+            confirmButtonColor: "#3085d6", cancelButtonColor: "#d33",
             confirmButtonText: t("pop-ups.confirmation-pop-up.confirm-btn-text"),
             cancelButtonText: t("pop-ups.confirmation-pop-up.cancel-btn-text"),
-            background: "#1a1a1e",
-            color: "#fff",
-            backdrop: "rgba(0, 0, 0, 0.5)",
+            background: "#1a1a1e", color: "#fff", backdrop: "rgba(0, 0, 0, 0.5)",
         })
 
         if (!confirmationResult.isConfirmed) return;
 
-        const performSave = async () => {
-            changedFeatures = changedFeatures.map(f => {
-                const props = f.properties;
-
-                return {
-                    ...f,
-                    properties: {
-                        id: props.id,
-                        parentId: props.parentId ?? null,
-                        type: props.type ?? null,
-
-                        title: props.title ?? null,
-                        description: props.description ?? null,
-
-                        borderColor: props.borderColor ?? null,
-                        fillColor: props.fillColor ?? null,
-                        fillOpacity: props.fillOpacity ?? null,
-                        borderWeight: props.borderWeight ?? null,
-
-                        radius: props.radius ?? null,
-
-                        validFrom: props.validFrom ?? null,
-                        validTo: props.validTo ?? null,
-                        lastModified: props.lastModified ?? null,
-
-                        isNew: !!props.isNew,
-                        isModified: !!props.isModified,
-                        isDeleted: !!props.isDeleted,
-                    }
-                }
-            })
-
-            const collection: FeatureCollection<Geometry, FeatureProperties> = {
-                type: "FeatureCollection",
-                features: changedFeatures
-            };
-
-            await axiosWebClient.post(`${API_DOMAIN}/api/gis/features/sync`, collection);
-            fetchGeFeatures();
+        const sync = async () => {
+            await axiosWebClient.post(`${API_DOMAIN}/api/gis/features/sync`, featureCollection);
+            fetchFeatures();
         };
 
         await toast.promise(
-            performSave(),
+            sync(),
             {
                 pending: t("admin-pages.map-editor.pop-ups.perform-save-pop-up.pending-text"),
                 success: t("admin-pages.map-editor.pop-ups.perform-save-pop-up.success-text"),
                 error: t("admin-pages.map-editor.pop-ups.perform-save-pop-up.error-text")
             },
-            {
-                position: "bottom-left",
-                theme: "dark"
-            }
+            {position: "bottom-left", theme: "dark"}
         );
     }
 
-    const reloadGeoFeatures = async () => {
+    const reloadFeatures = async () => {
         const confirmationResult = await Swal.fire({
             title: t("admin-pages.map-editor.pop-ups.reload-geojson-confirmation-pop-up.title"),
             text: t("admin-pages.map-editor.pop-ups.reload-geojson-confirmation-pop-up.description"),
-            icon: "info",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
+            icon: "info", showCancelButton: true,
+            confirmButtonColor: "#3085d6", cancelButtonColor: "#d33",
             confirmButtonText: t("pop-ups.confirmation-pop-up.confirm-btn-text"),
             cancelButtonText: t("pop-ups.confirmation-pop-up.cancel-btn-text"),
-            background: "#1a1a1e",
-            color: "#fff",
-            backdrop: "rgba(0, 0, 0, 0.5)",
+            background: "#1a1a1e", color: "#fff", backdrop: "rgba(0, 0, 0, 0.5)",
         })
 
-        if (!confirmationResult.isConfirmed) return;
-
-        fetchGeFeatures();
+        if (confirmationResult.isConfirmed) fetchFeatures();
     }
 
     // Stub backend data
     useEffect(() => {
-        fetchGeFeatures();
-    }, []);
+        fetchFeatures();
+    }, [fetchFeatures]);
 
     useEffect(() => {
-        console.log(geoFeatures)
-    }, [geoFeatures]);
+        console.log(features)
+    }, [features]);
 
     return (
         <div className="map-editor">
@@ -221,13 +169,13 @@ function MapEditor() {
                     <MapLayers layer={layer}/>
 
                     <GeoManHandler
-                        features={geoFeatures}
-                        setFeatures={setGeoFeatures}
-                        onFeatureClick={onGeoFeatureClick}
-                        borderColor={geoFeatureStyle.borderColor}
-                        fillColor={geoFeatureStyle.fillColor}
-                        fillOpacity={geoFeatureStyle.fillOpacity}
-                        borderWeight={geoFeatureStyle.borderWeight}
+                        features={features}
+                        setFeatures={setFeatures}
+                        onFeatureClick={onFeatureClick}
+                        borderColor={featureStyle.borderColor}
+                        fillColor={featureStyle.fillColor}
+                        fillOpacity={featureStyle.fillOpacity}
+                        borderWeight={featureStyle.borderWeight}
                     />
 
                     {positionPopupDetails && (
@@ -239,41 +187,40 @@ function MapEditor() {
                         </Popup>
                     )}
 
-                    {geoFeaturePopupDetails && (
+                    {featurePopupDetails && (
                         <Popup
-                            key={`${geoFeaturePopupDetails.feature.properties?.id}-${geoFeaturePopupDetails.timestamp}`}
-                            position={geoFeaturePopupDetails.latlng}
+                            key={`${featurePopupDetails.feature.properties?.id}-${featurePopupDetails.timestamp}`}
+                            position={featurePopupDetails.latlng}
                             eventHandlers={{
                                 remove: () => {
-                                    setSelectedGeoFeature(null)
+                                    setSelectedFeature(null)
                                 }
                             }}
                         >
-                            <GeoFeaturePopupDetails
-                                geoFeature={geoFeaturePopupDetails.feature}
-                                setGeoFeatures={setGeoFeatures}
+                            <FeaturePopupDetails
+                                feature={featurePopupDetails.feature}
+                                setFeatures={setFeatures}
                             />
                         </Popup>
                     )}
 
                     <MapEventsHandler onRightClick={coordinates => setPositionPopupDetails(coordinates)}/>
-
                     <MapResizeHandler/>
+
                 </MapContainer>
 
-
                 <ResizeHandle onMouseDown={onMouseDown}/>
-                <SaveButton onClick={saveGeoChanges}/>
-                <ReloadButton onClick={reloadGeoFeatures}/>
+                <SaveButton onClick={saveChanges}/>
+                <ReloadButton onClick={reloadFeatures}/>
 
                 <LoadingOverlay visible={isMapLoading}/>
             </div>
             <MapEditorStylePanel
-                style={geoFeatureStyle}
-                setStyle={setGeoFeatureStyle}
-                selectedGeoFeature={selectedGeoFeature}
-                onUpdateGeoFeatureStyle={handleUpdateGeoFeatureStyle}
-                onDeselectGeoFeature={() => setSelectedGeoFeature(null)}
+                style={featureStyle}
+                setStyle={setFeatureStyle}
+                selectedFeature={selectedFeature}
+                onUpdateFeatureStyle={handleUpdateFeatureStyle}
+                onDeselectFeature={() => setSelectedFeature(null)}
             />
             <MapEditorLayerSwitcher selectedLayer={layer} onLayerSelected={onLayerSelected}/>
         </div>

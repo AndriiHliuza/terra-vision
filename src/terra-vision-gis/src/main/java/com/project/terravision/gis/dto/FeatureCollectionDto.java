@@ -16,11 +16,10 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class FeatureCollectionDto {
-    @NotBlank
-    @Pattern(regexp = "FeatureCollection")
+
+    @NotBlank @Pattern(regexp = "FeatureCollection")
     private String type;
 
-    @NotEmpty
-    @Valid
+    @NotEmpty @Valid
     private List<FeatureDto> features;
 }

@@ -26,7 +26,7 @@ public class GlobalCustomExceptionHandler {
 
     // ------------ ApplicationException handler (Base Exception class for custom exceptions) ------------
     @ExceptionHandler(ApplicationException.class)
-    public ProblemDetail handleApplicationException(Exception ex, HttpServletRequest request) {
+    public ProblemDetail handleApplicationException(@SuppressWarnings("unused") Exception ex, HttpServletRequest request) {
         return WebUtils.createProblemDetails(
                 HttpStatus.BAD_REQUEST,
                 request,
