@@ -23,8 +23,8 @@ public interface FeatureRepository extends JpaRepository<Feature, UUID> {
     // When start is null, the :start IS NULL condition is TRUE so the whole OR is TRUE and that part is skipped. Same for end.
     @Query("""
         SELECT f FROM Feature f
-        WHERE (:start IS NULL OR f.validTo IS NULL OR f.validTo >= :start)
-        AND (:end IS NULL OR f.validFrom <= :end)
+        WHERE (CAST(:start AS INSTANT) IS NULL OR f.validTo IS NULL OR f.validTo >= :start)
+        AND (CAST(:end AS INSTANT) IS NULL OR f.validFrom <= :end)
     """)
     List<Feature> findAllActiveFeaturesInRange(
             Instant start,

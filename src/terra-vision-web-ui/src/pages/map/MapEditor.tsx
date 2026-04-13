@@ -145,10 +145,6 @@ function MapEditor() {
         fetchFeatures();
     }, [fetchFeatures]);
 
-    useEffect(() => {
-        console.log(features)
-    }, [features]);
-
     return (
         <div className="map-editor">
             <h1>{t("admin-pages.map-editor.tab-name").toUpperCase()}</h1>

@@ -1,4 +1,4 @@
-.detector-page > .input-section > .dropzone-container {
+.dropzone-container {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -27,11 +27,11 @@
     background-color 0.5s ease;
 }
 
-.detector-page > .input-section > .dropzone-container::selection {
+.dropzone-container::selection {
     background: transparent;
 }
 
-.detector-page > .input-section > .dropzone-container:hover {
+.dropzone-container:hover {
     background-color: var(--glass-hover-bg-color);
     box-shadow: 0 0 8px #3c3c3c, 0 0 16px #3c3c3c;
     text-shadow: 0 0 8px whitesmoke, 0 0 16px whitesmoke;
@@ -41,6 +41,6 @@
     transform: scale(1.02);
 }
 
-.detector-page > .input-section > .dropzone-container:active {
-    transform: scale(0.9);
+.dropzone-container:active {
+    transform: scale(0.95);
 }

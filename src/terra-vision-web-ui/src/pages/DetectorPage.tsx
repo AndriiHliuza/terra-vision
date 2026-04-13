@@ -15,7 +15,7 @@ import {
 } from "../commons/utils/file-utils.ts";
 import type {ModelDetails} from "../commons/schemas/detector-schemas.ts";
 import LoadingOverlay from "../components/LoadingOverlay.tsx";
-import DetectorDropzone from "../components/detector/DetectorDropzone.tsx";
+import Dropzone from "../components/Dropzone.tsx";
 import ModelSelector from "../components/detector/ModelSelector.tsx";
 import UploadedFilesSection from "../components/detector/UploadedFilesSection.tsx";
 import ProcessedFilesSection from "../components/detector/ProcessedFilesSection.tsx";
@@ -191,7 +191,7 @@ function DetectorPage() {
                         }}
                     />
 
-                    <DetectorDropzone
+                    <Dropzone
                         onImagesDropped={(images) => setUploadedImages(prev => [...prev, ...images])}
                         onArchivesDropped={(archives) => setUploadedArchives(prev => [...prev, ...archives])}
                     />

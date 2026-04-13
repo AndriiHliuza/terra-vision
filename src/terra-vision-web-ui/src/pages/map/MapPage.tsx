@@ -4,9 +4,8 @@ import {
     MapContainer,
     Popup, ZoomControl
 } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
 import Header from "../../components/Header.tsx";
-import {useCallback, useEffect, useState} from "react";
+import {useCallback, useEffect, useMemo, useState} from "react";
 import {type Coordinates, DEFAULT_FEATURE_STYLE, type FeatureProperties} from "../../commons/schemas/gis-schemas.ts";
 import MapLayers from "../../components/map/MapLayers.tsx";
 import {Outlet} from "react-router-dom";
@@ -23,6 +22,7 @@ import FeaturePopupDetails from "../../components/map/popups/FeaturePopupDetails
 import {axiosWebClient} from "../../configs/axios-web-client.ts";
 import {toast} from "react-toastify";
 import {useTranslation} from "react-i18next";
+import DateRangeSlider from "../../components/DateRangeSlider.tsx";
 
 
 function MapPage() {
@@ -41,23 +41,15 @@ function MapPage() {
         timestamp: number;
     } | null>(null);
 
+    const dateBoundaries = useMemo(() => ({
+        min: new Date("2022-01-01"),
+        max: new Date()
+    }), []);
+
     const onLayerSelected = (mapLayer: string) => {
         setLayer(mapLayer);
         localStorage.setItem("map-layer", mapLayer);
     }
-
-    // Stub backend data
-    useEffect(() => {
-        setMapLoading(true);
-        axiosWebClient.get<FeatureCollection<Geometry, FeatureProperties>>(`${API_DOMAIN}/api/gis/features/active`)
-            .then(response => setFeatures(response.data.features))
-            .catch(() => toast.error(t("pop-ups.error-fetching-geojson-features-pop-up.title")))
-            .finally(() => setMapLoading(false))
-    }, [t])
-
-    useEffect(() => {
-        console.log(features)
-    }, [features]);
 
     const filterCirclesAndPolygons = useCallback((feature: Feature<Geometry, FeatureProperties>) => {
         if (feature.properties?.type === "circle") {
@@ -113,6 +105,22 @@ function MapPage() {
             });
         });
     }, []);
+
+    const handleRangeChange = useCallback((start: Date, end: Date) => {
+        setMapLoading(true);
+        axiosWebClient.get<FeatureCollection<Geometry, FeatureProperties>>(
+            `${API_DOMAIN}/api/gis/features/active`,
+            { params: { start: start.toISOString(), end: end.toISOString() } }
+        )
+            .then(res => setFeatures(res.data.features))
+            .catch(() => toast.error(t("pop-ups.error-fetching-geojson-features-pop-up.title")))
+            .finally(() => setMapLoading(false));
+    }, [t]);
+
+    // Stub backend data
+    useEffect(() => {
+        handleRangeChange(dateBoundaries.min, dateBoundaries.max);
+    }, [dateBoundaries.max, dateBoundaries.min, handleRangeChange])
 
     return (
         <>
@@ -182,6 +190,11 @@ function MapPage() {
                     <ZoomControl position="bottomright" />
                 </MapContainer>
                 <MapPageLayerSwitcher selectedLayer={layer} onLayerSelected={onLayerSelected}/>
+                <DateRangeSlider
+                    min={dateBoundaries.min}
+                    max={dateBoundaries.max}
+                    onRangeChange={handleRangeChange}
+                />
                 <Outlet/>
             </div>
             <LoadingOverlay visible={isMapLoading}/>

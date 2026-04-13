@@ -8,12 +8,14 @@ import com.project.terravision.gis.mapper.FeatureMapper;
 import com.project.terravision.gis.model.Feature;
 import com.project.terravision.gis.repository.FeatureRepository;
 import com.project.terravision.gis.service.FeatureService;
+import com.project.terravision.gis.utils.TimeUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -34,8 +36,10 @@ public class FeatureServiceImpl implements FeatureService {
     }
 
     public FeatureCollectionDto findAllActiveFeaturesInRange(Instant start, Instant end) {
-        if (start != null && end != null && end.isBefore(start)) throw new IllegalArgumentException("End date cannot be before start date.");
-        List<FeatureDto> features = featureRepository.findAllActiveFeaturesInRange(start, end).stream()
+        Instant normalizedStart = start != null ? TimeUtil.startOfDay(start) : null;
+        Instant normalizedEnd = end != null ? TimeUtil.endOfDay(end) : null;
+        if (normalizedStart != null && normalizedEnd != null && normalizedEnd.isBefore(normalizedStart)) throw new IllegalArgumentException("End date cannot be before start date.");
+        List<FeatureDto> features = featureRepository.findAllActiveFeaturesInRange(normalizedStart, normalizedEnd).stream()
                 .map(featureMapper::toDto)
                 .toList();
         return new FeatureCollectionDto("FeatureCollection", features);

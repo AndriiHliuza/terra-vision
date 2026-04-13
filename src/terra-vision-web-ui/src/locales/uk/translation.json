@@ -128,8 +128,6 @@
     "title": "Детектор",
     "models-dropdown-title": "ОБРАТИ МОДЕЛЬ",
     "model-description-default-text": "Модель не обрано",
-    "drag-and-drop-section-text-for-not-active-drag": "Натисніть або перетягніть зображення чи «.zip» архів",
-    "drag-and-drop-section-text-for-active-drag": "Перетягніть зображення чи «.zip» архів...",
     "clear-all-images-btn": "Очистити",
     "process-images-btn": "Обробити",
     "processing-message-text": {
@@ -137,10 +135,6 @@
       "text-2": "Це може зайняти декілька секунд..."
     },
     "pop-ups": {
-      "invalid-file-pop-up": {
-        "title": "Невалідний тип файлу",
-        "description": "Файл «{{name}}» відхилено. Дозволено завантажувати лише зображення та архіви .zip."
-      },
       "model-not-selected-pop-up": {
         "title": "Оберіть модель",
         "description": "Для обробки даних потрібно обрати модель"
@@ -207,6 +201,42 @@
           "title": "Перезавантажити карту?",
           "description": "Всі зміни буде втарчено."
         }
+      }
+    }
+  },
+
+
+
+  "<<<<<<<<<<<< JSON-COMMENT: Components >>>>>>>>>>>>": "",
+
+  "dropzone": {
+    "images-and-archives": {
+      "drag-and-drop-section-text-for-not-active-drag": "Натисніть або перетягніть зображення чи «.zip» архів",
+      "drag-and-drop-section-text-for-active-drag": "Перетягніть зображення чи «.zip» архів..."
+    },
+
+    "images-only": {
+      "drag-and-drop-section-text-for-not-active-drag": "Натисніть або перетяніть зображення",
+      "drag-and-drop-section-text-for-active-drag": "Перетяніть зображення..."
+    },
+
+    "archives-only": {
+      "drag-and-drop-section-text-for-not-active-drag": "Натисніть або перетяніть «.zip» архів",
+      "drag-and-drop-section-text-for-active-drag": "Перетяніть «.zip» архів..."
+    },
+
+    "default": {
+      "drag-and-drop-section-text-for-not-active-drag": "Натисніть або перетяніть файли",
+      "drag-and-drop-section-text-for-active-drag": "Перетяніть файли..."
+    },
+
+    "pop-ups": {
+      "invalid-file-pop-up": {
+        "title": "Невалідний тип файлу",
+        "images-and-archives-description": "Файл «{{name}}» відхилено. Дозволено завантажувати лише зображення та архіви .zip.",
+        "images-only-description": "Файл «{{name}}» відхилено. Дозволено завантажувати лише зображення.",
+        "archives-only-description": "Файл «{{name}}» відхилено. Дозволено завантажувати лише архіви .zip.",
+        "default-description": "Файл «{{name}}» відхилено."
       }
     }
   },

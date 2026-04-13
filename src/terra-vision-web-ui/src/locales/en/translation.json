@@ -124,10 +124,6 @@
       "text-2": "This may take a few seconds..."
     },
     "pop-ups": {
-      "invalid-file-pop-up": {
-        "title": "Invalid file type",
-        "description": "File «{{name}}» was rejected. Only images and .zip archives are allowed."
-      },
       "model-not-selected-pop-up": {
         "title": "Select model",
         "description": "To process data, please choose a model"
@@ -197,6 +193,44 @@
       }
     }
   },
+
+
+
+  "<<<<<<<<<<<< JSON-COMMENT: Components >>>>>>>>>>>>": "",
+
+  "dropzone": {
+    "images-and-archives": {
+      "drag-and-drop-section-text-for-not-active-drag": "Click or Drag & Drop images or «.zip» archives here",
+      "drag-and-drop-section-text-for-active-drag": "Drop images or «.zip» archives here..."
+    },
+
+    "images-only": {
+      "drag-and-drop-section-text-for-not-active-drag": "Click or Drag & Drop images here",
+      "drag-and-drop-section-text-for-active-drag": "Drop images here..."
+    },
+
+    "archives-only": {
+      "drag-and-drop-section-text-for-not-active-drag": "Click or Drag & Drop images here",
+      "drag-and-drop-section-text-for-active-drag": "Drop archives here..."
+    },
+
+    "default": {
+      "drag-and-drop-section-text-for-not-active-drag": "Click or Drag & Drop",
+      "drag-and-drop-section-text-for-active-drag": "Drop here..."
+    },
+
+    "pop-ups": {
+      "invalid-file-pop-up": {
+        "title": "Invalid file type",
+        "images-and-archives-description": "File «{{name}}» was rejected. Only images and .zip archives are allowed.",
+        "images-only-description": "File «{{name}}» was rejected. Only images are allowed.",
+        "archives-only-description": "File «{{name}}» was rejected. Only .zip archives are allowed.",
+        "default-description": "File «{{name}}» was rejected."
+      }
+    }
+  },
+
+
 
   "<<<<<<<<<<<< JSON-COMMENT: Popups >>>>>>>>>>>>": "",
 
