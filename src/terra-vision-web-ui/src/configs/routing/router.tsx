@@ -14,6 +14,7 @@ import AdminDashboard from "../../pages/AdminDashboard.tsx";
 import MapEditor from "../../pages/map/MapEditor.tsx";
 import NotFoundPage from "../../pages/NotFoundPage.tsx";
 import HomePage from "../../pages/HomePage.tsx";
+import AccountPage from "../../pages/AccountPage.tsx";
 
 export const router = createBrowserRouter([
     {
@@ -46,7 +47,7 @@ export const router = createBrowserRouter([
                     {
                         element: <ProtectedRoute minPowerLevel={SystemRoleLevels.USER} />,
                         children: [
-                            { path: "account", element: <div>User account</div> }
+                            { path: "account", element: <AccountPage /> }
                         ]
                     },
                     {

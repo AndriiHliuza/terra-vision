@@ -486,14 +486,14 @@ const GeoManHandler = ({
                         fillColor: feature.properties.fillColor ?? fillColor,
                         fillOpacity: safeFillOpacity
                     },
-                    pointToLayer: (_, latlng) => {
+                    ...(type === "circle" && {
                         /*
                         * The ! is a TypeScript non-null assertion operator. It tells TypeScript "I know this value is not null or undefined, trust me."
                         * feature.properties.radius!
                         * */
-                        if (type === "circle") return L.circle(latlng, {radius: feature.properties.radius!});
-                        return L.layerGroup();
-                    }
+                        pointToLayer: (_, latlng: L.LatLng) =>
+                            L.circle(latlng, {radius: feature.properties.radius!})
+                    })
                 });
 
                 leafletLayer.eachLayer(layer => {
@@ -520,6 +520,18 @@ const GeoManHandler = ({
             const feature = features.find(f => f.properties.id === featureLayer.featureId);
             if (!feature || feature.properties.isDeleted) return;
 
+            /*
+            * L.Path is the base class in Leaflet for all vector layers that are drawn on the map.
+            * L.Layer
+            * └── L.Path
+            *       ├── L.Polyline
+            *       │     └── L.Polygon
+            *       │           └── L.Rectangle
+            *       └── L.CircleMarker
+            *             └── L.Circle
+            *
+            * It's false for L.Marker since markers
+            * */
             if (layer instanceof L.Path) {
                 const {safeBorderWeight, safeFillOpacity} = getSafeBorderWeightAndFillOpacity(
                     feature.properties.borderWeight ?? borderWeight,

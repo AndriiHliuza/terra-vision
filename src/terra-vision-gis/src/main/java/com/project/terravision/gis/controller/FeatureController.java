@@ -24,11 +24,6 @@ public class FeatureController {
         return featureService.getAllActiveFeatures();
     }
 
-    @GetMapping("/history/{id}")
-    public FeatureCollectionDto getFullHistoryForFeatureById(@PathVariable UUID id) {
-        return featureService.getFullHistoryForFeatureById(id);
-    }
-
     @PostMapping("/sync")
     public void syncFeatures(@RequestBody FeatureCollectionDto featureCollectionDto) {
         featureService.sync(featureCollectionDto);

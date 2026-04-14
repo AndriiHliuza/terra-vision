@@ -32,8 +32,7 @@ public abstract class SecurityPaths {
 
                 // <<<<<<<<<<<< gis service endpoints >>>>>>>>>>>>
 
-                "/api/gis/features/active",
-                "/api/gis/features/history/*"
+                "/api/gis/features/active"
         };
 
         public static final String[] POST_PATHS = {
